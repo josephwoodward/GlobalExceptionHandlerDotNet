@@ -7,7 +7,7 @@ namespace Microsoft.AspNetCore.Builder
 {
     public static class MvcExceptionHandlingExtensions
     {
-        public static IApplicationBuilder UseMvcGlobalExceptionHandler(this IApplicationBuilder app, Action<ExceptionHandlingConfiguration> configuration)
+        public static IApplicationBuilder UseMvcGlobalExceptionHandler(this IApplicationBuilder app, Action<HandlerConfiguration> configuration)
         {
             if (app == null)
                 throw new ArgumentNullException(nameof(app));
