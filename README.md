@@ -15,7 +15,6 @@ Within your `Startup.cs` file's `Configure` method (be sure to call before `UseM
 ```csharp
     public class Startup
     {
-        ...
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             app.UseWebApiGlobalExceptionHandler(x =>
