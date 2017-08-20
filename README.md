@@ -1,7 +1,46 @@
-# GlobalExceptionHandler for ASP.NET Core
+# Global Exception Handling for ASP.NET Core
 
-GlobalExceptionHandler allows you to configure exceptions handling as a convention as opposed to explicitly within each controller action. This could be particularly helpful in the following circumstances:
+GlobalExceptionHandlerDotNet allows you to configure exceptions handling as a convention as opposed to explicitly within each controller action. This could be particularly helpful in the following circumstances:
 
 - You're using a command-handler pattern such as MediatR
-- You don't want error codes being visible by consuming APIs
-- Reduce boiler plate try-catch login in your controllers
+- You don't want error codes being visible by consuming APIs (return 500 for every exception)
+- Reduce boiler plate try-catch logic in your controllers
+
+This middleware supports both **WebAPI** and **MVC** type projects.
+
+## Web API Setup
+
+Within your `Startup.cs` file's `Configure` method (be sure to call before `UseMvc()`):
+
+```csharp
+    public class Startup
+    {
+        ...
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        {
+            app.UseWebApiGlobalExceptionHandler(x =>
+            {
+                x.ContentType = "application/json";
+                x.ForException<RecordNotFoundException>().ReturnStatusCode(HttpStatusCode.NotFound);
+            });
+
+            app.UseMvc();
+        }
+    }
+```
+
+**Configuration Options:**
+
+- `ContentType` - Specify the returned content type (default is `application/json)`.
+
+- `MessageFormatter(Func<Exception, string>)` - Overrides default JSON message formatter.
+
+```csharp
+x.MessageFormatter((exception) => {
+    return "Oops, something went wrong!";
+});
+```
+
+## MVC Setup
+
+Work in progress.
