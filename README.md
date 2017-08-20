@@ -19,8 +19,7 @@ Within your `Startup.cs` file's `Configure` method (be sure to call before `UseM
         {
             app.UseWebApiGlobalExceptionHandler(x =>
             {
-                x.ContentType = "application/json";
-                x.ForException<RecordNotFoundException>().ReturnStatusCode(HttpStatusCode.NotFound);
+                x.ForException<PageNotFoundException>().ReturnStatusCode(HttpStatusCode.NotFound);
             });
 
             app.UseMvc();
@@ -33,8 +32,8 @@ Returns the following default exception message:
 ```json
 {
     "error": {
-        "exception": "ProductNotFoundException",
-        "message": "Record could not be found"
+        "exception": "PageNotFoundException",
+        "message": "Page could not be found"
     }
 }
 ```
