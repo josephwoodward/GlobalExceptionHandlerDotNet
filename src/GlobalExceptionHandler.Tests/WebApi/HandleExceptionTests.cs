@@ -31,7 +31,7 @@ namespace GlobalExceptionHandler.Tests.WebApi
 
                 app.Map(RequestUri, config => {
                     config.Run(context => {
-                        throw new ProductNotFoundException();
+                        throw new ProductNotFoundException("Record could not be found");
                     });
                 });
 
@@ -42,6 +42,7 @@ namespace GlobalExceptionHandler.Tests.WebApi
             using(var client = server.CreateClient()){
                 var requestMessage = new HttpRequestMessage(new HttpMethod("GET"), RequestUri);
                 _response = client.SendAsync(requestMessage).Result;
+                var res = _response;
             }
         }
 

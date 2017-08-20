@@ -29,6 +29,19 @@ Within your `Startup.cs` file's `Configure` method (be sure to call before `UseM
     }
 ```
 
+Returns the following default exception message:
+
+```json
+{
+    "error": {
+        "exception": "ProductNotFoundException",
+        "message": "Record could not be found"
+    }
+}
+```
+
+This exception message can be overridden via the `ExceptionFormatter` method. 
+
 **Configuration Options:**
 
 - `ContentType` - Specify the returned content type (default is `application/json)`.
