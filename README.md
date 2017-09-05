@@ -2,9 +2,9 @@
 
 GlobalExceptionHandlerDotNet allows you to configure exceptions handling as a convention as opposed to explicitly within each controller action. This could be particularly helpful in the following circumstances:
 
-- You're using a command-handler pattern such as MediatR
-- You don't want error codes being visible by consuming APIs (return 500 for every exception)
 - Reduce boiler plate try-catch logic in your controllers
+- Catch and appropriately handle exceptions outside of the MVC/WebAPI framework
+- You don't want error codes being visible by consuming APIs (return 500 for every exception)
 
 This middleware supports both **WebAPI** and **MVC** type projects.
 
@@ -44,11 +44,11 @@ This exception message can be overridden via the `ExceptionFormatter` method.
 
 - `ContentType` - Specify the returned content type (default is `application/json)`.
 
-- `MessageFormatter(Func<Exception, string>)` - Overrides default JSON message formatter.
+- `MessageFormatter(Func<Exception, string>)` - Overrides default JSON message formatter; this is useful if you want to change the error response format or type (XML for instance).
 
 ```csharp
 x.MessageFormatter((exception) => {
-    return "Oops, something went wrong!";
+    return "Oops, something went wrong! Check the logs for more information.";
 });
 ```
 
