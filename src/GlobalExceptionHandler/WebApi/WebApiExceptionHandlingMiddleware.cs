@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
 
 namespace GlobalExceptionHandler.WebApi
 {
@@ -13,7 +14,7 @@ namespace GlobalExceptionHandler.WebApi
 
         private ConcurrentDictionary<Type, IExceptionConfig> _configuration;
         private string _contentType = "application/json"; // Default content type
-        private IExceptionConfig _defaultFormatter;
+        private Func<Exception, string> _defaultFormatter;
 
         public WebApiExceptionHandlingMiddleware(RequestDelegate next, Action<WebApiExceptionHandlingConfiguration> setConfig)
         {
@@ -25,12 +26,13 @@ namespace GlobalExceptionHandler.WebApi
         {
             if (_configuration == null)
             {
-                var config = new WebApiExceptionHandlingConfiguration();
+                var config = new WebApiExceptionHandlingConfiguration(_defaultGlobalFormatter);
+
                 _setConfig(config);
 
                 _contentType = config.ContentType;
                 _configuration = config.BuildOptions();
-                _defaultFormatter = config.ExceptionConfig;
+                _defaultFormatter = config.GlobalFormatter;
             }
 
             try
@@ -47,27 +49,34 @@ namespace GlobalExceptionHandler.WebApi
         private async Task HandleExceptionAsync(HttpContext context, Type exceptionType, Exception exception)
         {
             if (!_configuration.TryGetValue(exceptionType, out var userConfig))
-            {
                 userConfig = new DefaultExceptionConfig
                 {
-                    StatusCode = userConfig.StatusCode,
-                    Formatter = userConfig.Formatter
+                    StatusCode = HttpStatusCode.InternalServerError
                 };
-            }
 
-            userConfig.Formatter = userConfig.Formatter ?? _defaultFormatter.Formatter;
+            if (userConfig.Formatter == null)
+                userConfig.Formatter = _defaultFormatter;
 
             await WriteExceptionAsync(context, exception, userConfig).ConfigureAwait(false);
         }
 
         private async Task WriteExceptionAsync(HttpContext context, Exception exception, IExceptionConfig userConfig)
         {
-            HttpResponse response = context.Response;
+            var response = context.Response;
             response.ContentType = _contentType;
             response.StatusCode = (int) userConfig.StatusCode;
-            string message = userConfig.Formatter(exception);
+            var message = userConfig.Formatter(exception);
 
             await response.WriteAsync(message).ConfigureAwait(false);
         }
+
+        private readonly Func<Exception, string> _defaultGlobalFormatter = exception => JsonConvert.SerializeObject(new
+        {
+            error = new
+            {
+                exception = exception.GetType().Name,
+                message = exception.Message
+            }
+        });
     }
 }

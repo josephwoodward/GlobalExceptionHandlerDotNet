@@ -5,14 +5,14 @@ namespace GlobalExceptionHandler.WebApi
 {
     public class WebApiExceptionHandlingConfiguration
     {
+        private Func<Exception, string> _globalFormatter;
         public string ContentType { get; set; }
-        private readonly IExceptionConfig _defaultExceptionConfig;
         private readonly ConcurrentDictionary<Type, IExceptionConfig> _configuration;
 
-        public WebApiExceptionHandlingConfiguration()
+        public WebApiExceptionHandlingConfiguration(Func<Exception, string> globalFormatter)
         {
             _configuration = new ConcurrentDictionary<Type, IExceptionConfig>();
-            _defaultExceptionConfig = new DefaultExceptionConfig();
+            _globalFormatter = globalFormatter;
         }
 
         public IHasStatusCode ForException<T>() where T : Exception
@@ -23,17 +23,7 @@ namespace GlobalExceptionHandler.WebApi
 
         public void MessageFormatter(Func<Exception, string> formatter)
         {
-            // Override default global formatter with user specified formatter
-            _defaultExceptionConfig.Formatter = formatter;
-/*
-            foreach (var config in Configuration)
-            {
-                if (config.Value.Formatter == null)
-                {
-                    config.Value.Formatter = formatter;
-                } 
-            }
-*/
+            _globalFormatter = formatter;
         }
 
         public ConcurrentDictionary<Type, IExceptionConfig> BuildOptions()
@@ -41,6 +31,6 @@ namespace GlobalExceptionHandler.WebApi
             return _configuration;
         }
 
-        public IExceptionConfig ExceptionConfig => _defaultExceptionConfig;
+        public Func<Exception, string> GlobalFormatter => _globalFormatter;
     }
 }

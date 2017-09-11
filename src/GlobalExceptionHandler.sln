@@ -1,4 +1,4 @@
-
+﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26124.0
@@ -6,12 +6,6 @@ MinimumVisualStudioVersion = 15.0.26124.0
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GlobalExceptionHandler", "GlobalExceptionHandler\GlobalExceptionHandler.csproj", "{641EC5A8-4125-4F76-B1E3-6A1236C5B291}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GlobalExceptionHandler.Tests", "GlobalExceptionHandler.Tests\GlobalExceptionHandler.Tests.csproj", "{EB1436CB-7507-4168-9367-153C5001DC59}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GlobalExceptionHandler.Samples", "GlobalExceptionHandler.Samples", "{8E6617DB-928C-46C5-A2D6-EAE40C700764}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GlobalExceptionHandler.WebApi", "GlobalExceptionHandler.Samples\GlobalExceptionHandler.WebApi\GlobalExceptionHandler.WebApi.csproj", "{399B5A44-CFC9-4E24-93B4-691D1B54DB67}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GlobalExceptionHandler.Mvc", "GlobalExceptionHandler.Samples\GlobalExceptionHandler.Mvc\GlobalExceptionHandler.Mvc.csproj", "{BEF2C049-B78B-40A1-AEA0-7FA18521B438}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -50,33 +44,7 @@ Global
 		{EB1436CB-7507-4168-9367-153C5001DC59}.Release|x64.Build.0 = Release|x64
 		{EB1436CB-7507-4168-9367-153C5001DC59}.Release|x86.ActiveCfg = Release|x86
 		{EB1436CB-7507-4168-9367-153C5001DC59}.Release|x86.Build.0 = Release|x86
-		{399B5A44-CFC9-4E24-93B4-691D1B54DB67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{399B5A44-CFC9-4E24-93B4-691D1B54DB67}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{399B5A44-CFC9-4E24-93B4-691D1B54DB67}.Debug|x64.ActiveCfg = Debug|x64
-		{399B5A44-CFC9-4E24-93B4-691D1B54DB67}.Debug|x64.Build.0 = Debug|x64
-		{399B5A44-CFC9-4E24-93B4-691D1B54DB67}.Debug|x86.ActiveCfg = Debug|x86
-		{399B5A44-CFC9-4E24-93B4-691D1B54DB67}.Debug|x86.Build.0 = Debug|x86
-		{399B5A44-CFC9-4E24-93B4-691D1B54DB67}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{399B5A44-CFC9-4E24-93B4-691D1B54DB67}.Release|Any CPU.Build.0 = Release|Any CPU
-		{399B5A44-CFC9-4E24-93B4-691D1B54DB67}.Release|x64.ActiveCfg = Release|x64
-		{399B5A44-CFC9-4E24-93B4-691D1B54DB67}.Release|x64.Build.0 = Release|x64
-		{399B5A44-CFC9-4E24-93B4-691D1B54DB67}.Release|x86.ActiveCfg = Release|x86
-		{399B5A44-CFC9-4E24-93B4-691D1B54DB67}.Release|x86.Build.0 = Release|x86
-		{BEF2C049-B78B-40A1-AEA0-7FA18521B438}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BEF2C049-B78B-40A1-AEA0-7FA18521B438}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BEF2C049-B78B-40A1-AEA0-7FA18521B438}.Debug|x64.ActiveCfg = Debug|x64
-		{BEF2C049-B78B-40A1-AEA0-7FA18521B438}.Debug|x64.Build.0 = Debug|x64
-		{BEF2C049-B78B-40A1-AEA0-7FA18521B438}.Debug|x86.ActiveCfg = Debug|x86
-		{BEF2C049-B78B-40A1-AEA0-7FA18521B438}.Debug|x86.Build.0 = Debug|x86
-		{BEF2C049-B78B-40A1-AEA0-7FA18521B438}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BEF2C049-B78B-40A1-AEA0-7FA18521B438}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BEF2C049-B78B-40A1-AEA0-7FA18521B438}.Release|x64.ActiveCfg = Release|x64
-		{BEF2C049-B78B-40A1-AEA0-7FA18521B438}.Release|x64.Build.0 = Release|x64
-		{BEF2C049-B78B-40A1-AEA0-7FA18521B438}.Release|x86.ActiveCfg = Release|x86
-		{BEF2C049-B78B-40A1-AEA0-7FA18521B438}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{399B5A44-CFC9-4E24-93B4-691D1B54DB67} = {8E6617DB-928C-46C5-A2D6-EAE40C700764}
-		{BEF2C049-B78B-40A1-AEA0-7FA18521B438} = {8E6617DB-928C-46C5-A2D6-EAE40C700764}
 	EndGlobalSection
 EndGlobal
