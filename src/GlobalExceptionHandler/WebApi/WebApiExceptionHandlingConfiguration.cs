@@ -1,44 +1,46 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Net;
-using Newtonsoft.Json;
 
 namespace GlobalExceptionHandler.WebApi
 {
     public class WebApiExceptionHandlingConfiguration
     {
-        private ConcurrentDictionary<Type, HttpStatusCode> Configuration { get; }
-        
         public string ContentType { get; set; }
-        public Func<Exception, string> ExceptionFormatter { get; private set; }
+        private readonly IExceptionConfig _defaultExceptionConfig;
+        private readonly ConcurrentDictionary<Type, IExceptionConfig> _configuration;
 
         public WebApiExceptionHandlingConfiguration()
         {
-            Configuration = new ConcurrentDictionary<Type, HttpStatusCode>();
-            ExceptionFormatter = exception => JsonConvert.SerializeObject(new
-            {
-                error = new
-                {
-                    exception = exception.GetType().Name,
-                    message = exception.Message
-                }
-            });
+            _configuration = new ConcurrentDictionary<Type, IExceptionConfig>();
+            _defaultExceptionConfig = new DefaultExceptionConfig();
         }
 
         public IHasStatusCode ForException<T>() where T : Exception
         {
             var type = typeof(T);
-            return new StatusCode(Configuration, type);
+            return new ExceptionRuleCreator(_configuration, type);
         }
 
         public void MessageFormatter(Func<Exception, string> formatter)
         {
-            ExceptionFormatter = formatter;
+            // Override default global formatter with user specified formatter
+            _defaultExceptionConfig.Formatter = formatter;
+/*
+            foreach (var config in Configuration)
+            {
+                if (config.Value.Formatter == null)
+                {
+                    config.Value.Formatter = formatter;
+                } 
+            }
+*/
         }
-        
-        public ConcurrentDictionary<Type, HttpStatusCode> BuildOptions()
+
+        public ConcurrentDictionary<Type, IExceptionConfig> BuildOptions()
         {
-            return Configuration;
+            return _configuration;
         }
+
+        public IExceptionConfig ExceptionConfig => _defaultExceptionConfig;
     }
 }

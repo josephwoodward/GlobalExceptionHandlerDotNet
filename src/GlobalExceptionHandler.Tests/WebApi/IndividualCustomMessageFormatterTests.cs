@@ -1,3 +1,4 @@
+using System;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -10,38 +11,42 @@ using Xunit;
 
 namespace GlobalExceptionHandler.Tests.WebApi
 {
-    public class HandleExceptionTests : IClassFixture<WebApiServerFixture>
+    public class IndividualCustomMessageFormatterTests : IClassFixture<WebApiServerFixture>
     {
         private readonly HttpResponseMessage _response;
+        private const string ExceptionMessage = "Product could not be found";
+        private const string OverridenExceptionMessage = "Hello World!";
 
-        public HandleExceptionTests(WebApiServerFixture fixture)
+        public IndividualCustomMessageFormatterTests(WebApiServerFixture fixture)
         {
             // Arrange
-            const string RequestUri = "/api/productnotfound";
+            const string requestUri = "/api/productnotfound";
             var webHost = fixture.CreateWebHost();
+
             webHost.Configure(app =>
             {
                 app.UseWebApiGlobalExceptionHandler(x =>
                 {
                     x.ContentType = "application/json";
-                    x.ForException<ProductNotFoundException>().ReturnStatusCode(HttpStatusCode.NotFound);
+                    x.ForException<ProductNotFoundException>().ReturnStatusCode(HttpStatusCode.NotFound).UsingFormatter(Formatter);
                 });
 
-                app.Map(RequestUri,
-                    config =>
-                    {
-                        config.Run(context => { throw new ProductNotFoundException("Record could not be found"); });
-                    });
+                app.Map(requestUri,
+                    config => { config.Run(context => throw new ProductNotFoundException(ExceptionMessage)); });
             });
 
             // Act
             var server = new TestServer(webHost);
             using (var client = server.CreateClient())
             {
-                var requestMessage = new HttpRequestMessage(new HttpMethod("GET"), RequestUri);
+                var requestMessage = new HttpRequestMessage(new HttpMethod("GET"), requestUri);
                 _response = client.SendAsync(requestMessage).Result;
-                var res = _response;
             }
+        }
+
+        private string Formatter(Exception e)
+        {
+            return OverridenExceptionMessage;
         }
 
         [Fact]
@@ -57,10 +62,10 @@ namespace GlobalExceptionHandler.Tests.WebApi
         }
 
         [Fact]
-        public async Task Should_return_correct_body()
+        public async Task Should_return_custom_message()
         {
             var content = await _response.Content.ReadAsStringAsync();
-            content.ShouldContain(nameof(ProductNotFoundException));
+            content.ShouldBe(OverridenExceptionMessage);
         }
     }
 }

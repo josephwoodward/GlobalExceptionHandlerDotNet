@@ -1,11 +1,8 @@
-using System.Threading.Tasks;
-using GlobalExceptionHandler.Tests.Exceptions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace GlobalExceptionHandler.Tests.WebApi
+namespace GlobalExceptionHandler.Tests
 {
         public class StartupWebApi
     {

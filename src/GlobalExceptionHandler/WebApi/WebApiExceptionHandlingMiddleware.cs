@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json;
 
 namespace GlobalExceptionHandler.WebApi
 {
@@ -11,11 +10,11 @@ namespace GlobalExceptionHandler.WebApi
     {
         private readonly RequestDelegate _next;
         private readonly Action<WebApiExceptionHandlingConfiguration> _setConfig;
-        
-        private ConcurrentDictionary<Type, HttpStatusCode> _exceptionCodesMapping;
+
+        private ConcurrentDictionary<Type, IExceptionConfig> _configuration;
         private string _contentType = "application/json"; // Default content type
-        private Func<Exception, string> _formatter;
-        
+        private IExceptionConfig _defaultFormatter;
+
         public WebApiExceptionHandlingMiddleware(RequestDelegate next, Action<WebApiExceptionHandlingConfiguration> setConfig)
         {
             _next = next;
@@ -24,14 +23,14 @@ namespace GlobalExceptionHandler.WebApi
 
         public async Task Invoke(HttpContext context)
         {
-            if (_exceptionCodesMapping == null)
+            if (_configuration == null)
             {
                 var config = new WebApiExceptionHandlingConfiguration();
                 _setConfig(config);
 
                 _contentType = config.ContentType;
-                _exceptionCodesMapping = config.BuildOptions();
-                _formatter = config.ExceptionFormatter;
+                _configuration = config.BuildOptions();
+                _defaultFormatter = config.ExceptionConfig;
             }
 
             try
@@ -47,19 +46,28 @@ namespace GlobalExceptionHandler.WebApi
 
         private async Task HandleExceptionAsync(HttpContext context, Type exceptionType, Exception exception)
         {
-            HttpStatusCode statusCode;
-            if (!_exceptionCodesMapping.TryGetValue(exceptionType, out statusCode))
-                statusCode = HttpStatusCode.InternalServerError;
+            if (!_configuration.TryGetValue(exceptionType, out var userConfig))
+            {
+                userConfig = new DefaultExceptionConfig
+                {
+                    StatusCode = userConfig.StatusCode,
+                    Formatter = userConfig.Formatter
+                };
+            }
 
-            await WriteExceptionAsync(context, statusCode, exception).ConfigureAwait(false);
+            userConfig.Formatter = userConfig.Formatter ?? _defaultFormatter.Formatter;
+
+            await WriteExceptionAsync(context, exception, userConfig).ConfigureAwait(false);
         }
 
-        private async Task WriteExceptionAsync(HttpContext context, HttpStatusCode statusCode, Exception exception)
+        private async Task WriteExceptionAsync(HttpContext context, Exception exception, IExceptionConfig userConfig)
         {
-            var response = context.Response;
+            HttpResponse response = context.Response;
             response.ContentType = _contentType;
-            response.StatusCode = (int) statusCode;
-            await response.WriteAsync(_formatter(exception)).ConfigureAwait(false);
+            response.StatusCode = (int) userConfig.StatusCode;
+            string message = userConfig.Formatter(exception);
+
+            await response.WriteAsync(message).ConfigureAwait(false);
         }
     }
 }
