@@ -61,7 +61,7 @@ Alternatively you can set the formatter to be unique per exception registered. T
 ```csharp
 app.UseWebApiGlobalExceptionHandler(x =>
 {
-    x.ForException<ArgumentException>().ReturnStatusCode(HttpStatusCode.BadRequest).UsingFormatter(
+    x.ForException<ArgumentException>().ReturnStatusCode(HttpStatusCode.BadRequest).UsingMessageFormatter(
         exception => JsonConvert.SerializeObject(new
         {
             error = new
@@ -69,7 +69,7 @@ app.UseWebApiGlobalExceptionHandler(x =>
                 message = "Oops, something went wrong"
             }
         }));
-    x.MessageFormatter(exception => "This will now be overriden when a PageNotFoundException is thrown");
+    x.MessageFormatter(exception => "This will now be overridden when a PageNotFoundException is thrown");
 });
 ```
 
