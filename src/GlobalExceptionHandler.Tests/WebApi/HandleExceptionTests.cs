@@ -17,7 +17,7 @@ namespace GlobalExceptionHandler.Tests.WebApi
         public HandleExceptionTests(WebApiServerFixture fixture)
         {
             // Arrange
-            const string RequestUri = "/api/productnotfound";
+            const string requestUri = "/api/productnotfound";
             var webHost = fixture.CreateWebHost();
             webHost.Configure(app =>
             {
@@ -27,18 +27,17 @@ namespace GlobalExceptionHandler.Tests.WebApi
                     x.ForException<ProductNotFoundException>().ReturnStatusCode(HttpStatusCode.NotFound);
                 });
 
-                app.Map(RequestUri,
-                    config =>
-                    {
-                        config.Run(context => { throw new ProductNotFoundException("Record could not be found"); });
-                    });
+                app.Map(requestUri, config =>
+                {
+                    config.Run(context => throw new ProductNotFoundException("Record could not be found"));
+                });
             });
 
             // Act
             var server = new TestServer(webHost);
             using (var client = server.CreateClient())
             {
-                var requestMessage = new HttpRequestMessage(new HttpMethod("GET"), RequestUri);
+                var requestMessage = new HttpRequestMessage(new HttpMethod("GET"), requestUri);
                 _response = client.SendAsync(requestMessage).Result;
                 var res = _response;
             }

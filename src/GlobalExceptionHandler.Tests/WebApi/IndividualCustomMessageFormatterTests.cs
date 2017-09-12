@@ -1,11 +1,13 @@
 using System;
 using System.Net;
 using System.Net.Http;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using GlobalExceptionHandler.Tests.Exceptions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
+using Newtonsoft.Json;
 using Shouldly;
 using Xunit;
 
@@ -14,13 +16,11 @@ namespace GlobalExceptionHandler.Tests.WebApi
     public class IndividualCustomMessageFormatterTests : IClassFixture<WebApiServerFixture>
     {
         private readonly HttpResponseMessage _response;
-        private const string ExceptionMessage = "Product could not be found";
-        private const string OverridenExceptionMessage = "Hello World!";
 
         public IndividualCustomMessageFormatterTests(WebApiServerFixture fixture)
         {
             // Arrange
-            const string requestUri = "/api/productnotfound";
+            const string requestUri = "/api/badrequest";
             var webHost = fixture.CreateWebHost();
 
             webHost.Configure(app =>
@@ -28,11 +28,21 @@ namespace GlobalExceptionHandler.Tests.WebApi
                 app.UseWebApiGlobalExceptionHandler(x =>
                 {
                     x.ContentType = "application/json";
-                    x.ForException<ProductNotFoundException>().ReturnStatusCode(HttpStatusCode.NotFound).UsingFormatter(Formatter);
+                    x.ForException<ArgumentException>().ReturnStatusCode(HttpStatusCode.BadRequest).UsingFormatter(
+                        exception => JsonConvert.SerializeObject(new
+                        {
+                            error = new
+                            {
+                                message = "Oops, something went wrong"
+                            }
+                        }));
+                    x.MessageFormatter(exception => "This will be overriden");
                 });
 
-                app.Map(requestUri,
-                    config => { config.Run(context => throw new ProductNotFoundException(ExceptionMessage)); });
+                app.Map(requestUri, config =>
+                {
+                    config.Run(context => throw new ArgumentException("An invalid argument supplied"));
+                });
             });
 
             // Act
@@ -44,11 +54,6 @@ namespace GlobalExceptionHandler.Tests.WebApi
             }
         }
 
-        private string Formatter(Exception e)
-        {
-            return OverridenExceptionMessage;
-        }
-
         [Fact]
         public void Should_return_correct_response_type()
         {
@@ -58,14 +63,14 @@ namespace GlobalExceptionHandler.Tests.WebApi
         [Fact]
         public void Should_return_correct_status_code()
         {
-            _response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
+            _response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
         }
 
         [Fact]
-        public async Task Should_return_custom_message()
+        public async Task Should_override_global_custom_message()
         {
             var content = await _response.Content.ReadAsStringAsync();
-            content.ShouldBe(OverridenExceptionMessage);
+            content.ShouldBe("Oops, something went wrong");
         }
     }
 }

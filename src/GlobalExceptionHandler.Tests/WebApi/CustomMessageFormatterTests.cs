@@ -5,6 +5,7 @@ using GlobalExceptionHandler.Tests.Exceptions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
+using Newtonsoft.Json;
 using Shouldly;
 using Xunit;
 
@@ -27,7 +28,14 @@ namespace GlobalExceptionHandler.Tests.WebApi
                 {
                     x.ContentType = "application/json";
                     x.ForException<ProductNotFoundException>().ReturnStatusCode(HttpStatusCode.NotFound);
-                    x.MessageFormatter(e => e.Message);
+                    x.MessageFormatter(exception => JsonConvert.SerializeObject(new
+                    {
+                        error = new
+                        {
+                            exception = exception.GetType().Name,
+                            message = exception.Message
+                        }
+                    }));
                 });
 
                 app.Map(requestUri, config =>
@@ -61,7 +69,7 @@ namespace GlobalExceptionHandler.Tests.WebApi
         public async Task Should_return_custom_message()
         {
             var content = await _response.Content.ReadAsStringAsync();
-            content.ShouldBe(ExceptionMessage);
+            content.ShouldBe(@"{""error"":{""exception"":""ProductNotFoundException"",""message"":""Product could not be found""}}");
         }
     }
 }

@@ -38,7 +38,40 @@ Returns the following default exception message:
 }
 ```
 
-This exception message can be overridden via the `ExceptionFormatter` method. 
+This exception message can be overridden via the `ExceptionFormatter` method like so:
+
+```csharp
+
+app.UseWebApiGlobalExceptionHandler(x =>
+{
+    x.ForException<PageNotFoundException>().ReturnStatusCode(HttpStatusCode.NotFound);
+    x.MessageFormatter(exception => JsonConvert.SerializeObject(new
+    {
+        error = new
+        {
+            exception = exception.GetType().Name,
+            message = exception.Message
+        }
+    }));
+});
+```
+
+Alternatively you can set the formatter to be unique per exception registered. This will overwrite the root `MessageFormatter` referenced above.
+
+```csharp
+app.UseWebApiGlobalExceptionHandler(x =>
+{
+    x.ForException<ArgumentException>().ReturnStatusCode(HttpStatusCode.BadRequest).UsingFormatter(
+        exception => JsonConvert.SerializeObject(new
+        {
+            error = new
+            {
+                message = "Oops, something went wrong"
+            }
+        }));
+    x.MessageFormatter(exception => "This will now be overriden when a PageNotFoundException is thrown");
+});
+```
 
 **Configuration Options:**
 
