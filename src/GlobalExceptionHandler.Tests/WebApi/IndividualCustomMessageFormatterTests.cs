@@ -28,7 +28,7 @@ namespace GlobalExceptionHandler.Tests.WebApi
                 app.UseWebApiGlobalExceptionHandler(x =>
                 {
                     x.ContentType = "application/json";
-                    x.ForException<ArgumentException>().ReturnStatusCode(HttpStatusCode.BadRequest).UsingFormatter(
+                    x.ForException<ArgumentException>().ReturnStatusCode(HttpStatusCode.BadRequest).UsingMessageFormatter(
                         exception => JsonConvert.SerializeObject(new
                         {
                             error = new

@@ -11,7 +11,7 @@ namespace GlobalExceptionHandler.WebApi
 
     public interface IHasMessageFormatter
     {
-        void UsingFormatter(Func<Exception, string> formatter);
+        void UsingMessageFormatter(Func<Exception, string> formatter);
     }
 
     public class ExceptionRuleCreator : IHasStatusCode, IHasMessageFormatter
@@ -37,7 +37,7 @@ namespace GlobalExceptionHandler.WebApi
             return this;
         }
 
-        public void UsingFormatter(Func<Exception, string> formatter)
+        public void UsingMessageFormatter(Func<Exception, string> formatter)
         {
             if (_configurations.TryGetValue(_type, out var exceptionConfig))
             {
