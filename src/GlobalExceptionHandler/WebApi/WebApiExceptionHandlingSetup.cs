@@ -3,12 +3,12 @@ using System.Collections.Concurrent;
 
 namespace GlobalExceptionHandler.WebApi
 {
-    public class WebApiExceptionHandlingConfiguration
+    public class WebApiExceptionHandlingSetup
     {
         public string ContentType { get; set; }
         private readonly ConcurrentDictionary<Type, IExceptionConfig> _configuration;
 
-        public WebApiExceptionHandlingConfiguration(Func<Exception, string> globalFormatter)
+        public WebApiExceptionHandlingSetup(Func<Exception, string> globalFormatter)
         {
             _configuration = new ConcurrentDictionary<Type, IExceptionConfig>();
             GlobalFormatter = globalFormatter;

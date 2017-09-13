@@ -5,7 +5,7 @@ namespace Microsoft.AspNetCore.Builder
 {
     public static class WebApiExceptionHandlingExtensions
     {
-        public static IApplicationBuilder UseWebApiGlobalExceptionHandler(this IApplicationBuilder app, Action<WebApiExceptionHandlingConfiguration> configuration)
+        public static IApplicationBuilder UseWebApiGlobalExceptionHandler(this IApplicationBuilder app, Action<WebApiExceptionHandlingSetup> configuration)
         {
             if (app == null)
                 throw new ArgumentNullException(nameof(app));

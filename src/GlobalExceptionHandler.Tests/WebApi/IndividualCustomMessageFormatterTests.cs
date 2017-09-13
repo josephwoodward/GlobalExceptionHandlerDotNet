@@ -55,22 +55,22 @@ namespace GlobalExceptionHandler.Tests.WebApi
         }
 
         [Fact]
-        public void Should_return_correct_response_type()
+        public void Returns_correct_response_type()
         {
             _response.Content.Headers.ContentType.MediaType.ShouldBe("application/json");
         }
 
         [Fact]
-        public void Should_return_correct_status_code()
+        public void Returns_correct_status_code()
         {
             _response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
         }
 
         [Fact]
-        public async Task Should_override_global_custom_message()
+        public async Task Overrides_global_custom_message()
         {
             var content = await _response.Content.ReadAsStringAsync();
-            content.ShouldBe("Oops, something went wrong");
+            content.ShouldBe(@"{""error"":{""message"":""Oops, something went wrong""}}");
         }
     }
 }

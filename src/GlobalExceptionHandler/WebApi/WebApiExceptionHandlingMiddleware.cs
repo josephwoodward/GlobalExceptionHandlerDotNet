@@ -10,13 +10,13 @@ namespace GlobalExceptionHandler.WebApi
     public class WebApiExceptionHandlingMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly Action<WebApiExceptionHandlingConfiguration> _setConfig;
+        private readonly Action<WebApiExceptionHandlingSetup> _setConfig;
 
         private ConcurrentDictionary<Type, IExceptionConfig> _configuration;
         private string _contentType = "application/json"; // Default content type
         private Func<Exception, string> _defaultFormatter;
 
-        public WebApiExceptionHandlingMiddleware(RequestDelegate next, Action<WebApiExceptionHandlingConfiguration> setConfig)
+        public WebApiExceptionHandlingMiddleware(RequestDelegate next, Action<WebApiExceptionHandlingSetup> setConfig)
         {
             _next = next;
             _setConfig = setConfig;
@@ -26,7 +26,7 @@ namespace GlobalExceptionHandler.WebApi
         {
             if (_configuration == null)
             {
-                var config = new WebApiExceptionHandlingConfiguration(_defaultGlobalFormatter);
+                var config = new WebApiExceptionHandlingSetup(_defaultGlobalFormatter);
 
                 _setConfig(config);
 

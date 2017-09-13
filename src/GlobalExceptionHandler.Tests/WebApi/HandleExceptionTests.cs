@@ -39,24 +39,23 @@ namespace GlobalExceptionHandler.Tests.WebApi
             {
                 var requestMessage = new HttpRequestMessage(new HttpMethod("GET"), requestUri);
                 _response = client.SendAsync(requestMessage).Result;
-                var res = _response;
             }
         }
 
         [Fact]
-        public void Should_return_correct_response_type()
+        public void Returns_correct_response_type()
         {
             _response.Content.Headers.ContentType.MediaType.ShouldBe("application/json");
         }
 
         [Fact]
-        public void Should_return_correct_status_code()
+        public void Returns_correct_status_code()
         {
             _response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
         }
 
         [Fact]
-        public async Task Should_return_correct_body()
+        public async Task Returns_correct_body()
         {
             var content = await _response.Content.ReadAsStringAsync();
             content.ShouldContain(nameof(ProductNotFoundException));

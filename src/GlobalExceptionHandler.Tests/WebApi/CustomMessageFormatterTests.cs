@@ -54,19 +54,19 @@ namespace GlobalExceptionHandler.Tests.WebApi
         }
 
         [Fact]
-        public void Should_return_correct_response_type()
+        public void Returns_correct_response_type()
         {
             _response.Content.Headers.ContentType.MediaType.ShouldBe("application/json");
         }
 
         [Fact]
-        public void Should_return_correct_status_code()
+        public void Returns_correct_status_code()
         {
             _response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
         }
 
         [Fact]
-        public async Task Should_return_custom_message()
+        public async Task Returns_custom_message()
         {
             var content = await _response.Content.ReadAsStringAsync();
             content.ShouldBe(@"{""error"":{""exception"":""ProductNotFoundException"",""message"":""Product could not be found""}}");
