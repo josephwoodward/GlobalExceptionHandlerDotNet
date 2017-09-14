@@ -6,7 +6,20 @@ GlobalExceptionHandlerDotNet allows you to configure exceptions handling as a co
 - Catch and appropriately handle exceptions outside of the MVC/WebAPI framework
 - You don't want error codes being visible by consuming APIs (return 500 for every exception)
 
-This middleware supports both **WebAPI** and **MVC** type projects.
+This middleware currently supports **WebAPI** with **MVC** support in the works.
+
+## Installation
+
+GlobalExceptionHandler is [available on NuGet](https://www.nuget.org/packages/GlobalExceptionHandler/) and can be installed via the below commands depending on your platform:
+
+```
+$ Install-Package GlobalExceptionHandler
+```
+or via the .NET Core CLI:
+
+```
+$ dotnet add package GlobalExceptionHandler
+```
 
 ## Web API Setup
 

@@ -9,7 +9,6 @@
     <VersionPrefix>1.0.0-beta</VersionPrefix>
     <Authors>Joseph Woodward</Authors>
     <Description>Global Exception Handler is middleware allowing you to handle exceptions by convention</Description>
-    <PackageIconUrl>https://raw.githubusercontent.com/JosephWoodward/graphiql-dotnet/master/assets/logo_128_128.png</PackageIconUrl>
     <PackageProjectUrl>https://github.com/JosephWoodward/GlobalExceptionHandlerDotNet</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/JosephWoodward/GlobalExceptionHandlerDotNet/blob/master/LICENSE</PackageLicenseUrl>
   </PropertyGroup>
