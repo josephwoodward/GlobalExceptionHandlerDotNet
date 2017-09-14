@@ -5,7 +5,7 @@
     <PackageId>GlobalExceptionHandler</PackageId>
     <PackageTags>global exception handler;asp.net core;.net core</PackageTags>
     <title>Global Exception Handling Middleware</title>
-    <VersionPrefix>1.0.1</VersionPrefix>
+    <VersionPrefix>1.0.2</VersionPrefix>
     <Authors>Joseph Woodward</Authors>
     <Description>Global Exception Handler is middleware allowing you to handle exceptions by convention</Description>
     <PackageProjectUrl>https://github.com/JosephWoodward/GlobalExceptionHandlerDotNet</PackageProjectUrl>
@@ -14,6 +14,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
   </ItemGroup>
 </Project>
