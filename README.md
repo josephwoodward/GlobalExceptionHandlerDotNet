@@ -82,7 +82,7 @@ app.UseWebApiGlobalExceptionHandler(x =>
                 message = "Oops, something went wrong"
             }
         }));
-    x.MessageFormatter(exception => "This will now be overridden when a PageNotFoundException is thrown");
+    x.MessageFormatter(exception => "This will now be overridden when a ArgumentException is thrown");
 });
 ```
 
