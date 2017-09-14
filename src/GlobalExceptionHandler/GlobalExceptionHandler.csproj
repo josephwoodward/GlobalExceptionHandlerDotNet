@@ -5,8 +5,7 @@
     <PackageId>GlobalExceptionHandler</PackageId>
     <PackageTags>global exception handler;asp.net core;.net core</PackageTags>
     <title>Global Exception Handling Middleware</title>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <VersionPrefix>1.0.0-beta</VersionPrefix>
+    <VersionPrefix>1.0.0</VersionPrefix>
     <Authors>Joseph Woodward</Authors>
     <Description>Global Exception Handler is middleware allowing you to handle exceptions by convention</Description>
     <PackageProjectUrl>https://github.com/JosephWoodward/GlobalExceptionHandlerDotNet</PackageProjectUrl>
