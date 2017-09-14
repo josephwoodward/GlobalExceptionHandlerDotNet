@@ -10,6 +10,7 @@
     <Authors>Joseph Woodward</Authors>
     <Description>Global Exception Handler is middleware allowing you to handle exceptions by convention</Description>
     <PackageProjectUrl>https://github.com/JosephWoodward/GlobalExceptionHandlerDotNet</PackageProjectUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/JosephWoodward/GlobalExceptionHandlerDotNet/master/assets/logo_128_128.png</PackageIconUrl>
     <PackageLicenseUrl>https://github.com/JosephWoodward/GlobalExceptionHandlerDotNet/blob/master/LICENSE</PackageLicenseUrl>
   </PropertyGroup>
   <ItemGroup>
