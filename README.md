@@ -26,18 +26,18 @@ $ dotnet add package GlobalExceptionHandler
 Within your `Startup.cs` file's `Configure` method (be sure to call before `UseMvc()`):
 
 ```csharp
-    public class Startup
+public class Startup
+{
+    public void Configure(IApplicationBuilder app, IHostingEnvironment env)
     {
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        app.UseWebApiGlobalExceptionHandler(x =>
         {
-            app.UseWebApiGlobalExceptionHandler(x =>
-            {
-                x.ForException<PageNotFoundException>().ReturnStatusCode(HttpStatusCode.NotFound);
-            });
+            x.ForException<PageNotFoundException>().ReturnStatusCode(HttpStatusCode.NotFound);
+        });
 
-            app.UseMvc();
-        }
+        app.UseMvc();
     }
+}
 ```
 
 Returns the following default exception message:
@@ -69,7 +69,7 @@ app.UseWebApiGlobalExceptionHandler(x =>
 });
 ```
 
-Alternatively you can set the formatter to be unique per exception registered. This will overwrite the root `MessageFormatter` referenced above.
+Alternatively you can set the formatter to be unique per exception registered. This will override the root `x.MessageFormatter` referenced above.
 
 ```csharp
 app.UseWebApiGlobalExceptionHandler(x =>
@@ -82,7 +82,7 @@ app.UseWebApiGlobalExceptionHandler(x =>
                 message = "Oops, something went wrong"
             }
         }));
-    x.MessageFormatter(exception => "This will now be overridden when a ArgumentException is thrown");
+    x.MessageFormatter(exception => "This formatter will be overridden when an ArgumentException is thrown");
 });
 ```
 
