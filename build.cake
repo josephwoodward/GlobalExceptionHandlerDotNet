@@ -29,7 +29,9 @@ Task("Restore-NuGet-Packages")
     .IsDependentOn("Clean")
     .Does(() =>
 {
-    NuGetRestore(solution);
+    DotNetCoreRestore(solution, new DotNetCoreRestoreSettings{
+        Verbosity = DotNetCoreVerbosity.Minimal,
+    });
 });
 
 Task("Build")
