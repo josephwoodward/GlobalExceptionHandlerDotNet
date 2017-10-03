@@ -1,5 +1,7 @@
 # Global Exception Handling for ASP.NET Core
 
+[![Build status](https://ci.appveyor.com/api/projects/status/kdbepiak0m6olxw7?svg=true)](https://ci.appveyor.com/project/JoeMighty/globalexceptionhandlerdotnet)
+
 GlobalExceptionHandlerDotNet allows you to configure exceptions handling as a convention as opposed to explicitly within each controller action. This could be particularly helpful in the following circumstances:
 
 - Reduce boiler plate try-catch logic in your controllers
