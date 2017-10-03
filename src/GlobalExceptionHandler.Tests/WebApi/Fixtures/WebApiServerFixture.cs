@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace GlobalExceptionHandler.Tests.WebApi
+namespace GlobalExceptionHandler.Tests.WebApi.Fixtures
 {
     public class WebApiServerFixture
     {

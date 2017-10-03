@@ -1,7 +1,8 @@
+﻿using System;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using GlobalExceptionHandler.Tests.Exceptions;
+using GlobalExceptionHandler.Tests.WebApi.Fixtures;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
@@ -11,36 +12,41 @@ using Xunit;
 
 namespace GlobalExceptionHandler.Tests.WebApi
 {
-    public class CustomMessageFormatterTests : IClassFixture<WebApiServerFixture>
+    public class FailingTests : IClassFixture<WebApiServerFixture>
     {
         private readonly HttpResponseMessage _response;
-        private const string ExceptionMessage = "Product could not be found";
 
-        public CustomMessageFormatterTests(WebApiServerFixture fixture)
+        public FailingTests(WebApiServerFixture fixture)
         {
             // Arrange
             const string requestUri = "/api/productnotfound";
             var webHost = fixture.CreateWebHost();
-
             webHost.Configure(app =>
             {
                 app.UseWebApiGlobalExceptionHandler(x =>
                 {
                     x.ContentType = "application/json";
-                    x.ForException<ProductNotFoundException>().ReturnStatusCode(HttpStatusCode.NotFound);
                     x.MessageFormatter(exception => JsonConvert.SerializeObject(new
                     {
                         error = new
                         {
-                            exception = exception.GetType().Name,
-                            message = exception.Message
+                            message = "Something went wrong!"
                         }
                     }));
+                    x.ForException<DivideByZeroException>().ReturnStatusCode(HttpStatusCode.BadRequest).UsingMessageFormatter(
+                        exception => JsonConvert.SerializeObject(new
+                        {
+                            error = new
+                            {
+                                exception = exception.GetType().Name,
+                                message = exception.Message
+                            }
+                        }));
                 });
 
                 app.Map(requestUri, config =>
                 {
-                    config.Run(context => throw new ProductNotFoundException(ExceptionMessage));
+                    config.Run(context => throw new ArgumentException("Can't divide by zero"));
                 });
             });
 
@@ -62,14 +68,14 @@ namespace GlobalExceptionHandler.Tests.WebApi
         [Fact]
         public void Returns_correct_status_code()
         {
-            _response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
+            _response.StatusCode.ShouldBe(HttpStatusCode.InternalServerError);
         }
 
         [Fact]
-        public async Task Returns_custom_message()
+        public async Task Returns_correct_body()
         {
             var content = await _response.Content.ReadAsStringAsync();
-            content.ShouldBe(@"{""error"":{""exception"":""ProductNotFoundException"",""message"":""Product could not be found""}}");
+            content.ShouldContain("Something went wrong!");
         }
     }
 }

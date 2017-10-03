@@ -1,20 +1,21 @@
+using System;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using GlobalExceptionHandler.Tests.Exceptions;
+using GlobalExceptionHandler.Tests.WebApi.Fixtures;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Shouldly;
 using Xunit;
 
-namespace GlobalExceptionHandler.Tests.WebApi
+namespace GlobalExceptionHandler.Tests.WebApi.GlobalFormatterTests
 {
-    public class HandleExceptionTests : IClassFixture<WebApiServerFixture>
+    public class BasicTests : IClassFixture<WebApiServerFixture>
     {
         private readonly HttpResponseMessage _response;
 
-        public HandleExceptionTests(WebApiServerFixture fixture)
+        public BasicTests(WebApiServerFixture fixture)
         {
             // Arrange
             const string requestUri = "/api/productnotfound";
@@ -24,12 +25,11 @@ namespace GlobalExceptionHandler.Tests.WebApi
                 app.UseWebApiGlobalExceptionHandler(x =>
                 {
                     x.ContentType = "application/json";
-                    x.ForException<ProductNotFoundException>().ReturnStatusCode(HttpStatusCode.NotFound);
                 });
 
                 app.Map(requestUri, config =>
                 {
-                    config.Run(context => throw new ProductNotFoundException("Record could not be found"));
+                    config.Run(context => throw new ArgumentException("Invalid request"));
                 });
             });
 
@@ -51,14 +51,14 @@ namespace GlobalExceptionHandler.Tests.WebApi
         [Fact]
         public void Returns_correct_status_code()
         {
-            _response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
+            _response.StatusCode.ShouldBe(HttpStatusCode.InternalServerError);
         }
 
         [Fact]
         public async Task Returns_correct_body()
         {
             var content = await _response.Content.ReadAsStringAsync();
-            content.ShouldContain(nameof(ProductNotFoundException));
+            content.ShouldBe(@"{""error"":{""exception"":""ArgumentException"",""message"":""Invalid request""}}");
         }
     }
 }
