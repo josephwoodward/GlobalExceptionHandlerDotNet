@@ -8,15 +8,15 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Shouldly;
 using Xunit;
-using static System.Threading.Tasks.Task;
 
-namespace GlobalExceptionHandler.Tests.WebApi.GlobalFormatterTests
+namespace GlobalExceptionHandler.Tests.WebApi.LoggerTests
 {
-    public class BasicTests : IClassFixture<WebApiServerFixture>
+    public class LoggerTests : IClassFixture<WebApiServerFixture>
     {
         private readonly HttpResponseMessage _response;
+        private string _logMessage = string.Empty;
 
-        public BasicTests(WebApiServerFixture fixture)
+        public LoggerTests(WebApiServerFixture fixture)
         {
             // Arrange
             const string requestUri = "/api/productnotfound";
@@ -28,7 +28,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.GlobalFormatterTests
                     x.ContentType = "application/json";
                     x.OnError((c, ex) =>
                     {
-                        Console.WriteLine(ex);
+                        _logMessage = "";
                         return Task.CompletedTask;
                     });
                 });
@@ -49,22 +49,16 @@ namespace GlobalExceptionHandler.Tests.WebApi.GlobalFormatterTests
         }
 
         [Fact]
-        public void Returns_correct_response_type()
-        {
-            _response.Content.Headers.ContentType.MediaType.ShouldBe("application/json");
-        }
-
-        [Fact]
         public void Returns_correct_status_code()
         {
             _response.StatusCode.ShouldBe(HttpStatusCode.InternalServerError);
         }
-
+        
         [Fact]
-        public async Task Returns_correct_body()
+        public void Invoke_logger()
         {
-            var content = await _response.Content.ReadAsStringAsync();
-            content.ShouldBe(@"{""error"":{""exception"":""ArgumentException"",""message"":""Invalid request""}}");
+            _logMessage.ShouldBe("");
         }
+
     }
 }

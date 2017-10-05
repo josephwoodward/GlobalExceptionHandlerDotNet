@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Net;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 
 namespace GlobalExceptionHandler.WebApi
@@ -9,6 +11,7 @@ namespace GlobalExceptionHandler.WebApi
     {
         private readonly ConcurrentDictionary<Type, IExceptionConfig> _configuration;
         private Func<Exception, string> _globalFormatter;
+        private Func<HttpContext, Exception, Task> _logger;
         
         public string ContentType { get; set; }
 
@@ -34,6 +37,7 @@ namespace GlobalExceptionHandler.WebApi
             {
                 Exceptions = _configuration,
                 GlobalStatusCode = HttpStatusCode.InternalServerError,
+                Logger = _logger,
                 GlobalFormatter = _globalFormatter ?? (exception => JsonConvert.SerializeObject(new
                 {
                     error = new
@@ -45,5 +49,9 @@ namespace GlobalExceptionHandler.WebApi
             };
         }
 
+        public void OnError(Func<HttpContext, Exception, Task> log)
+        {
+            _logger = log;
+        }
     }
 }

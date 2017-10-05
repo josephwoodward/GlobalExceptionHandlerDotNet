@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Concurrent;
-using System.Linq.Expressions;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json;
 
 namespace GlobalExceptionHandler.WebApi
 {
@@ -41,17 +38,24 @@ namespace GlobalExceptionHandler.WebApi
             catch (Exception ex)
             {
                 var settings = GetHandlerSettings(ex.GetType());
+
+                if (_optionsContainer.Logger != null)
+                {
+                    await _optionsContainer.Logger(context, ex);
+                }
+
                 await WriteExceptionAsync(context, ex, settings).ConfigureAwait(false);
             }
         }
 
         private IExceptionConfig GetHandlerSettings(Type exceptionType)
         {
-            if (_optionsContainer.Exceptions.TryGetValue(exceptionType, out IExceptionConfig args))
+            if (_optionsContainer.Exceptions.TryGetValue(exceptionType, out IExceptionConfig context))
             {
-                args.Formatter = args.Formatter ?? _optionsContainer.GlobalFormatter;
-                args.StatusCode = args.StatusCode ?? _optionsContainer.GlobalStatusCode;
-                return args;
+                context.Formatter = context.Formatter ?? _optionsContainer.GlobalFormatter;
+                context.StatusCode = context.StatusCode ?? _optionsContainer.GlobalStatusCode;
+
+                return context;
             }
             
             return new ExceptionConfig

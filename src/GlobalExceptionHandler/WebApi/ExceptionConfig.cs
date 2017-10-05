@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Net;
-using Newtonsoft.Json;
 
 namespace GlobalExceptionHandler.WebApi
 {
