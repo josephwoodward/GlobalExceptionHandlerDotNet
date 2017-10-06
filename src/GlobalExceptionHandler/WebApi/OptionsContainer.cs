@@ -14,6 +14,6 @@ namespace GlobalExceptionHandler.WebApi
         
         public HttpStatusCode GlobalStatusCode { get; set; }
         
-        public Func<HttpContext, Exception, Task> Logger { get; set; }
+        public Func<Exception, HttpContext, Task> Logger { get; set; }
     }
 }

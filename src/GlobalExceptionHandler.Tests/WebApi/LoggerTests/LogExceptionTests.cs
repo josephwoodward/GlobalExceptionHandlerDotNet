@@ -1,22 +1,22 @@
 using System;
-using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using GlobalExceptionHandler.Tests.WebApi.Fixtures;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.TestHost;
 using Shouldly;
 using Xunit;
 
 namespace GlobalExceptionHandler.Tests.WebApi.LoggerTests
 {
-    public class LoggerTests : IClassFixture<WebApiServerFixture>
+    public class LogExceptionTests : IClassFixture<WebApiServerFixture>
     {
-        private readonly HttpResponseMessage _response;
-        private string _logMessage = string.Empty;
+        private string _exceptionMessage;
+        private HttpContext _context;
 
-        public LoggerTests(WebApiServerFixture fixture)
+        public LogExceptionTests(WebApiServerFixture fixture)
         {
             // Arrange
             const string requestUri = "/api/productnotfound";
@@ -25,10 +25,10 @@ namespace GlobalExceptionHandler.Tests.WebApi.LoggerTests
             {
                 app.UseWebApiGlobalExceptionHandler(x =>
                 {
-                    x.ContentType = "application/json";
-                    x.OnError((c, ex) =>
+                    x.OnError((ex, context) =>
                     {
-                        _logMessage = "";
+                        _context = context;
+                        _exceptionMessage = ex.Message;
                         return Task.CompletedTask;
                     });
                 });
@@ -44,21 +44,20 @@ namespace GlobalExceptionHandler.Tests.WebApi.LoggerTests
             using (var client = server.CreateClient())
             {
                 var requestMessage = new HttpRequestMessage(new HttpMethod("GET"), requestUri);
-                _response = client.SendAsync(requestMessage).Result;
+                client.SendAsync(requestMessage);
             }
-        }
-
-        [Fact]
-        public void Returns_correct_status_code()
-        {
-            _response.StatusCode.ShouldBe(HttpStatusCode.InternalServerError);
         }
         
         [Fact]
         public void Invoke_logger()
         {
-            _logMessage.ShouldBe("");
+            _exceptionMessage.ShouldBe("Invalid request");
         }
-
+        
+        [Fact]
+        public void Context_is_set()
+        {
+            _context.ShouldNotBeNull();
+        }
     }
 }

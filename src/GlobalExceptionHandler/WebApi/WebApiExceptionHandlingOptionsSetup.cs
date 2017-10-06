@@ -11,7 +11,7 @@ namespace GlobalExceptionHandler.WebApi
     {
         private readonly ConcurrentDictionary<Type, IExceptionConfig> _configuration;
         private Func<Exception, string> _globalFormatter;
-        private Func<HttpContext, Exception, Task> _logger;
+        private Func<Exception, HttpContext, Task> _logger;
         
         public string ContentType { get; set; }
 
@@ -49,7 +49,7 @@ namespace GlobalExceptionHandler.WebApi
             };
         }
 
-        public void OnError(Func<HttpContext, Exception, Task> log)
+        public void OnError(Func<Exception, HttpContext, Task> log)
         {
             _logger = log;
         }

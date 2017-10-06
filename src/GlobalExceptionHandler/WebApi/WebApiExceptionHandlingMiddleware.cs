@@ -41,7 +41,7 @@ namespace GlobalExceptionHandler.WebApi
 
                 if (_optionsContainer.Logger != null)
                 {
-                    await _optionsContainer.Logger(context, ex);
+                    await _optionsContainer.Logger(ex, context);
                 }
 
                 await WriteExceptionAsync(context, ex, settings).ConfigureAwait(false);
