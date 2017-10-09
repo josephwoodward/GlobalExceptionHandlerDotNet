@@ -13,7 +13,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.LoggerTests
 {
     public class LogExceptionTests : IClassFixture<WebApiServerFixture>
     {
-        private string _exceptionMessage;
+        private Exception _exception;
         private HttpContext _context;
 
         public LogExceptionTests(WebApiServerFixture fixture)
@@ -27,8 +27,8 @@ namespace GlobalExceptionHandler.Tests.WebApi.LoggerTests
                 {
                     x.OnError((ex, context) =>
                     {
+                        _exception = ex;
                         _context = context;
-                        _exceptionMessage = ex.Message;
                         return Task.CompletedTask;
                     });
                 });
@@ -51,13 +51,13 @@ namespace GlobalExceptionHandler.Tests.WebApi.LoggerTests
         [Fact]
         public void Invoke_logger()
         {
-            _exceptionMessage.ShouldBe("Invalid request");
+            _exception.ShouldBeOfType<ArgumentException>();
         }
         
         [Fact]
         public void Context_is_set()
         {
-            _context.ShouldNotBeNull();
+            _context.ShouldBeOfType<DefaultHttpContext>();
         }
     }
 }
