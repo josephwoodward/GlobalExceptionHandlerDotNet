@@ -27,6 +27,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.LoggerTests
                 {
                     x.OnError((ex, context) =>
                     {
+                        Console.WriteLine("Log error");
                         _exception = ex;
                         _context = context;
                         return Task.CompletedTask;
@@ -44,7 +45,8 @@ namespace GlobalExceptionHandler.Tests.WebApi.LoggerTests
             using (var client = server.CreateClient())
             {
                 var requestMessage = new HttpRequestMessage(new HttpMethod("GET"), requestUri);
-                client.SendAsync(requestMessage);
+                client.SendAsync(requestMessage).Wait();
+                Task.Delay(TimeSpan.FromSeconds(3));
             }
         }
         
