@@ -90,9 +90,22 @@ app.UseWebApiGlobalExceptionHandler(x =>
 
 **Configuration Options:**
 
-- `ContentType` - Specify the returned content type (default is `application/json)`.
+- `OnError(Func<Exception, HttpContext, Task>)`  
+Logging endpoint allowing you to capture exception information.
+```csharp
+// Example
+x.OnError((exception, httpContext) =>
+{
+    _logger.Error(exception.Message);
+    return Task.CompletedTask;
+});
+```
 
-- `MessageFormatter(Func<Exception, string>)` - Overrides default JSON message formatter; this is useful if you want to change the error response format or type (XML for instance).
+- `ContentType`  
+Specify the returned content type (default is `application/json)`.
+
+- `MessageFormatter(Func<Exception, string>)`  
+Overrides default JSON message formatter; this is useful if you want to change the error response format or type (XML for instance).
 
 ```csharp
 x.MessageFormatter((exception) => {
