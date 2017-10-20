@@ -1,17 +1,19 @@
 ﻿using System;
 using System.Net;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace GlobalExceptionHandler.WebApi
 {
-    public interface IExceptionConfig
-    {
-        HttpStatusCode ?StatusCode { get; set; }
-        Func<Exception, string> Formatter { get; set; }
-    }
+	public class ExceptionConfig
+	{
+		public HttpStatusCode StatusCode { get; set; }
+		public Func<Exception, HttpContext, Task> Formatter { get; set; } = DefaultFormatter;
 
-    public class ExceptionConfig : IExceptionConfig
-    {
-        public HttpStatusCode ?StatusCode { get; set; }
-        public Func<Exception, string> Formatter { get; set; }
-    }
+		public static Task DefaultFormatter(Exception exception, HttpContext httpContext)
+			=> httpContext.Response.WriteAsync(exception.ToString());
+
+		public static Task SimpleMessageWithNoDetails(Exception exception, HttpContext httpContext)
+			=> httpContext.Response.WriteAsync("An error occurred while processing your request");
+	}
 }
