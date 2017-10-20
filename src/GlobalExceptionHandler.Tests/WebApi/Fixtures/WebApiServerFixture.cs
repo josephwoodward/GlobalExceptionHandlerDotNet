@@ -11,7 +11,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.Fixtures
             var config = new ConfigurationBuilder().Build();
             var host = new WebHostBuilder()
                 .UseConfiguration(config)
-                .ConfigureServices(services => services.AddMvc());
+                .ConfigureServices(services => services.AddMvc().AddXmlSerializerFormatters());
 
             return host;
         }

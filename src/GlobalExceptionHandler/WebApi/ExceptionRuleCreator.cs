@@ -1,6 +1,8 @@
 ﻿using System;
-using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Net;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace GlobalExceptionHandler.WebApi
 {
@@ -11,39 +13,38 @@ namespace GlobalExceptionHandler.WebApi
 
     public interface IHasMessageFormatter
     {
-        void UsingMessageFormatter(Func<Exception, string> formatter);
+        void UsingMessageFormatter(Func<Exception, HttpContext, Task> formatter);
     }
 
     public class ExceptionRuleCreator : IHasStatusCode, IHasMessageFormatter
     {
-        private readonly ConcurrentDictionary<Type, IExceptionConfig> _configurations;
-        private readonly Type _type;
+	    readonly IDictionary<Type, ExceptionConfig> _configurations;
+	    readonly Type _currentFluentlyConfiguredType;
 
-        public ExceptionRuleCreator(ConcurrentDictionary<Type, IExceptionConfig> configurations, Type type)
+        public ExceptionRuleCreator(IDictionary<Type, ExceptionConfig> configurations, Type currentFluentlyConfiguredType)
         {
             _configurations = configurations;
-            _type = type;
+            _currentFluentlyConfiguredType = currentFluentlyConfiguredType;
         }
 
         public IHasMessageFormatter ReturnStatusCode(HttpStatusCode statusCode)
         {
-            var c = new ExceptionConfig
+            var exceptionConfig = new ExceptionConfig
             {
                 StatusCode = statusCode
             };
 
-            _configurations.AddOrUpdate(_type, c, (type, config) => c);
+            _configurations.Add(_currentFluentlyConfiguredType, exceptionConfig);
 
             return this;
         }
 
-        public void UsingMessageFormatter(Func<Exception, string> formatter)
+        public void UsingMessageFormatter(Func<Exception, HttpContext, Task> formatter)
         {
-            if (_configurations.TryGetValue(_type, out var exceptionConfig))
-            {
-                exceptionConfig.Formatter = formatter;
-                _configurations.TryUpdate(_type, exceptionConfig, exceptionConfig);
-            }
+			if (formatter == null) throw new ArgumentNullException(nameof(formatter));
+
+	        var exceptionConfig = _configurations[_currentFluentlyConfiguredType];
+	        exceptionConfig.Formatter = formatter;
         }
     }
 }
