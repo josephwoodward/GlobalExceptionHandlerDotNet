@@ -6,11 +6,12 @@ namespace GlobalExceptionHandlerDotNet.Mvc
 {
     public static class HttpContextExtensions
     {
-	    public static Task WriteObjectAsync(this HttpContext context, object value)
-	    {
-			var nullActionContext = new NullActionContext(context);
-		    var result = new ObjectResult(value);
-		    return result.ExecuteResultAsync(nullActionContext);
-		}
+        public static Task WriteAsyncObject(this HttpContext context, object value)
+        {
+            var nullActionContext = new NullActionContext(context);
+            var result = new ObjectResult(value);
+
+            return result.ExecuteResultAsync(nullActionContext);
+        }
     }
 }

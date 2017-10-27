@@ -35,19 +35,35 @@ namespace GlobalExceptionHandler.Tests.WebApi
 
 		            x.ForException<Level1ExceptionA>()
 			            .ReturnStatusCode(HttpStatusCode.Conflict)
-			            .UsingMessageFormatter((e, c) => c.WriteObjectAsync(new { MyMessage = "hello world 1" }));
+			            .UsingMessageFormatter((e, c) => c.WriteAsyncObject(new TestResponse
+			            {
+				            Message = "Hello World 1",
+				            StatusCode = (int)HttpStatusCode.Conflict
+			            }));
 
 		            x.ForException<Level1ExceptionB>()
 			            .ReturnStatusCode(HttpStatusCode.Ambiguous)
-			            .UsingMessageFormatter((e, c) => c.WriteObjectAsync(new { MyMessage = "hello world 2" }));
+			            .UsingMessageFormatter((e, c) => c.WriteAsyncObject(new TestResponse
+			            {
+				            Message = "Hello World 1",
+				            StatusCode = (int)HttpStatusCode.Ambiguous
+			            }));
 
 		            x.ForException<Level2ExceptionA>()
 			            .ReturnStatusCode(HttpStatusCode.ExpectationFailed)
-			            .UsingMessageFormatter((e, c) => c.WriteObjectAsync(new { MyMessage = "hello world 3" }));
+			            .UsingMessageFormatter((e, c) => c.WriteAsyncObject(new TestResponse
+			            {
+				            Message = "Hello World 1",
+				            StatusCode = (int)HttpStatusCode.ExpectationFailed
+			            }));
 
 		            x.ForException<Level2ExceptionB>()
 			            .ReturnStatusCode(HttpStatusCode.Forbidden)
-			            .UsingMessageFormatter((e, c) => c.WriteObjectAsync(new { MyMessage = "hello world 4" }));
+			            .UsingMessageFormatter((e, c) => c.WriteAsyncObject(new TestResponse
+			            {
+				            Message = "Hello World 1",
+				            StatusCode = (int)HttpStatusCode.Forbidden
+			            }));
 				}));
 
                 app.Map(requestUri, config =>
@@ -83,7 +99,7 @@ namespace GlobalExceptionHandler.Tests.WebApi
         public async Task Returns_correct_body()
         {
             var content = await _response.Content.ReadAsStringAsync();
-            content.ShouldContain("hello world");
+            content.ShouldContain(@"<Message>Hello World 1</Message>");
         }
     }
 

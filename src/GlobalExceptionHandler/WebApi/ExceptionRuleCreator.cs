@@ -43,7 +43,7 @@ namespace GlobalExceptionHandler.WebApi
         {
 			if (formatter == null) throw new ArgumentNullException(nameof(formatter));
 
-	        var exceptionConfig = _configurations[_currentFluentlyConfiguredType];
+	        ExceptionConfig exceptionConfig = _configurations[_currentFluentlyConfiguredType];
 	        exceptionConfig.Formatter = formatter;
         }
     }

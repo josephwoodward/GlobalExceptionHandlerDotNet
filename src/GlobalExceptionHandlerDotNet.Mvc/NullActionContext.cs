@@ -5,8 +5,10 @@ using Microsoft.AspNetCore.Routing;
 
 namespace GlobalExceptionHandlerDotNet.Mvc
 {
-	class NullActionContext : ActionContext
-	{
-		public NullActionContext(HttpContext httpContext) : base(httpContext, new RouteData(), new ActionDescriptor()) { }
-	}
+    internal class NullActionContext : ActionContext
+    {
+        public NullActionContext(HttpContext httpContext) : base(httpContext, new RouteData(), new ActionDescriptor())
+        {
+        }
+    }
 }
