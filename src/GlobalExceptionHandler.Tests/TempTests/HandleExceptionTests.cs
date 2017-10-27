@@ -27,7 +27,7 @@ namespace GlobalExceptionHandler.Tests.WebApi
             var webHost = fixture.CreateWebHost();
             webHost.Configure(app =>
             {
-	            app.UseExceptionHandler(new ExceptionHandlerOptions().SetHandler(x =>
+	            app.UseExceptionHandler().WithConventions(x =>
 	            {
 					x.ForException<BaseException>()
 						.ReturnStatusCode(HttpStatusCode.BadGateway)
@@ -64,7 +64,7 @@ namespace GlobalExceptionHandler.Tests.WebApi
 				            Message = "Hello World 1",
 				            StatusCode = (int)HttpStatusCode.Forbidden
 			            }));
-				}));
+				});
 
                 app.Map(requestUri, config =>
                 {

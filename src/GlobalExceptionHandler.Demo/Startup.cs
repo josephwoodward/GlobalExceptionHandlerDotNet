@@ -35,7 +35,8 @@ namespace GlobalExceptionHandler.Demo
             if (env.IsDevelopment())
                 app.UseDeveloperExceptionPage();
 
-            app.UseExceptionHandler(new ExceptionHandlerOptions().SetHandler(x =>
+/*
+            app.UseWebApiGlobalExceptionHandler(x =>
             {
                 x.ForException<ArgumentException>()
                     .ReturnStatusCode(HttpStatusCode.Conflict)
@@ -43,8 +44,26 @@ namespace GlobalExceptionHandler.Demo
                     {
                         Message = e.Message
                     }));
-            }));
-            
+            });
+*/
+
+            app.UseExceptionHandler().WithConventions(x =>
+            {
+                x.ForException<ArgumentException>().ReturnStatusCode(HttpStatusCode.Conflict).UsingMessageFormatter((e, c) => c.WriteAsyncObject(new DemoOutput
+                    {
+                        Message = e.Message
+                    }));
+            });
+
+            /*app.UseExceptionHandler(new ExceptionHandlerOptions().SetHandler(x =>
+            {
+                x.ForException<ArgumentException>().ReturnStatusCode(HttpStatusCode.Conflict)
+                    .UsingMessageFormatter((e, c) => c.WriteAsyncObject(new DemoOutput
+                    {
+                        Message = e.Message
+                    }));
+            }));*/
+
             app.UseMvc();
         }
     }

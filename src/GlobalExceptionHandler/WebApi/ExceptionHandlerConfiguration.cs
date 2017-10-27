@@ -9,10 +9,6 @@ namespace GlobalExceptionHandler.WebApi
 {
 	public class ExceptionHandlerConfiguration
 	{
-		readonly IDictionary<Type, ExceptionConfig> _exceptionConfiguration = new Dictionary<Type, ExceptionConfig>();
-
-		Type[] _exceptionConfgurationTypesSortedByDepthDescending;
-
 		public ExceptionHandlerConfiguration(Func<Exception, HttpContext, Task> defaultFormatter) => DefaultFormatter = defaultFormatter;
 
 		public IHasStatusCode ForException<T>() where T : Exception
@@ -21,10 +17,14 @@ namespace GlobalExceptionHandler.WebApi
 			return new ExceptionRuleCreator(_exceptionConfiguration, type);
 		}
 
-		public void UseDefaultMessageFormatter(Func<Exception, HttpContext, Task> formatter)
+		public void DefaultMessageFormatter(Func<Exception, HttpContext, Task> formatter)
 		{
 			DefaultFormatter = formatter;
 		}
+		
+		private readonly IDictionary<Type, ExceptionConfig> _exceptionConfiguration = new Dictionary<Type, ExceptionConfig>();
+
+		private Type[] _exceptionConfgurationTypesSortedByDepthDescending;
 
 		internal IDictionary<Type, ExceptionConfig> ExceptionConfiguration => _exceptionConfiguration;
 
