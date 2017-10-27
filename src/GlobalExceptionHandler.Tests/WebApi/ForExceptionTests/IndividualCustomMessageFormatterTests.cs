@@ -12,6 +12,7 @@ using Xunit;
 
 namespace GlobalExceptionHandler.Tests.WebApi.ForExceptionTests
 {
+/*
     public class IndividualCustomMessageFormatterTests : IClassFixture<WebApiServerFixture>
     {
         private readonly HttpResponseMessage _response;
@@ -72,4 +73,5 @@ namespace GlobalExceptionHandler.Tests.WebApi.ForExceptionTests
             content.ShouldBe(@"{""error"":{""message"":""Oops, something went wrong""}}");
         }
     }
+*/
 }

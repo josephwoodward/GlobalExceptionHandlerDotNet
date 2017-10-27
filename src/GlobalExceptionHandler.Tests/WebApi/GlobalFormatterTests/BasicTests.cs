@@ -12,6 +12,7 @@ using static System.Threading.Tasks.Task;
 
 namespace GlobalExceptionHandler.Tests.WebApi.GlobalFormatterTests
 {
+/*
     public class BasicTests : IClassFixture<WebApiServerFixture>
     {
         private readonly HttpResponseMessage _response;
@@ -67,4 +68,5 @@ namespace GlobalExceptionHandler.Tests.WebApi.GlobalFormatterTests
             content.ShouldBe(@"{""error"":{""exception"":""ArgumentException"",""message"":""Invalid request""}}");
         }
     }
+*/
 }

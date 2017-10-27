@@ -11,7 +11,6 @@ namespace GlobalExceptionHandler.Demo.Controllers
         public IEnumerable<string> Get()
         {
             throw new ArgumentException();
-            return new[] {"value1", "value2"};
         }
     }
 }

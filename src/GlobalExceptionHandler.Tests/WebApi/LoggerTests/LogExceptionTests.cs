@@ -1,7 +1,9 @@
 using System;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using GlobalExceptionHandler.Tests.WebApi.Fixtures;
+using GlobalExceptionHandler.WebApi;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -31,6 +33,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.LoggerTests
                         _context = context;
                         return Task.CompletedTask;
                     });
+                    x.ForException<ArgumentException>().ReturnStatusCode(HttpStatusCode.InternalServerError);
                 });
 
                 app.Map(requestUri, config =>
