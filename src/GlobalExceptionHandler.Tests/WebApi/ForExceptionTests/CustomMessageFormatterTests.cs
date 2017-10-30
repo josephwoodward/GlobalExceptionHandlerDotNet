@@ -4,8 +4,10 @@ using System.Threading.Tasks;
 using GlobalExceptionHandler.Tests.Exceptions;
 using GlobalExceptionHandler.Tests.WebApi.Fixtures;
 using GlobalExceptionHandler.WebApi;
+using GlobalExceptionHandlerDotNet.Mvc;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.TestHost;
 using Newtonsoft.Json;
 using Shouldly;
@@ -13,7 +15,6 @@ using Xunit;
 
 namespace GlobalExceptionHandler.Tests.WebApi
 {
-/*
     public class CustomMessageFormatterTests : IClassFixture<WebApiServerFixture>
     {
         private readonly HttpResponseMessage _response;
@@ -30,15 +31,7 @@ namespace GlobalExceptionHandler.Tests.WebApi
                 app.UseWebApiGlobalExceptionHandler(x =>
                 {
                     x.ContentType = "application/json";
-                    x.ForException<ProductNotFoundException>().ReturnStatusCode(HttpStatusCode.NotFound);
-                    x.MessageFormatter(exception => JsonConvert.SerializeObject(new
-                    {
-                        error = new
-                        {
-                            exception = exception.GetType().Name,
-                            message = exception.Message
-                        }
-                    }));
+                    x.ForException<ProductNotFoundException>().ReturnStatusCode(HttpStatusCode.NotFound).UsingMessageFormatter((e, h) => h.Response.WriteAsync(e.Message));
                 });
 
                 app.Map(requestUri, config =>
@@ -72,8 +65,7 @@ namespace GlobalExceptionHandler.Tests.WebApi
         public async Task Returns_custom_message()
         {
             var content = await _response.Content.ReadAsStringAsync();
-            content.ShouldBe(@"{""error"":{""exception"":""ProductNotFoundException"",""message"":""Product could not be found""}}");
+            content.ShouldBe(ExceptionMessage);
         }
     }
-*/
 }

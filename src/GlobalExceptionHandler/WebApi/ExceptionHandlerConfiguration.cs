@@ -31,6 +31,8 @@ namespace GlobalExceptionHandler.WebApi
 		internal IDictionary<Type, ExceptionConfig> ExceptionConfiguration => _exceptionConfiguration;
 
 		internal Func<Exception, HttpContext, Task> DefaultFormatter { get; private set; }
+		
+		public string ContentType { get; set; }
 
 		public void OnError(Func<Exception, HttpContext, Task> log)
 		{
@@ -39,6 +41,11 @@ namespace GlobalExceptionHandler.WebApi
 		
 		internal RequestDelegate BuildHandler()
 		{
+			var configContext = new ExceptionHandlerContext
+			{
+				DefaultContentType = ContentType
+			};
+			
 			_exceptionConfgurationTypesSortedByDepthDescending = _exceptionConfiguration.Keys
 				.OrderBy(x => x, new ExceptionTypePolymorphicComparer())
 				.ToArray();

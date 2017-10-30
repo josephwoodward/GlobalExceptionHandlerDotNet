@@ -8,7 +8,7 @@ namespace GlobalExceptionHandler.WebApi
 	public class ExceptionConfig
 	{
 		public HttpStatusCode StatusCode { get; set; }
-		public Func<Exception, HttpContext, Task> Formatter { get; set; } = DefaultFormatter;
+		public Func<ExceptionHandlerContext, Task> Formatter { get; set; } = DefaultFormatter;
 
 		public static Task DefaultFormatter(Exception exception, HttpContext httpContext)
 			=> httpContext.Response.WriteAsync(exception.ToString());
