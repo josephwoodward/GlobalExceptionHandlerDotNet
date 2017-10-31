@@ -31,7 +31,7 @@ namespace GlobalExceptionHandler.Tests.WebApi
                 app.UseWebApiGlobalExceptionHandler(x =>
                 {
                     x.ContentType = "application/json";
-                    x.ForException<ProductNotFoundException>().ReturnStatusCode(HttpStatusCode.NotFound).UsingMessageFormatter((e, h) => h.Response.WriteAsync(e.Message));
+                    x.ForException<ProductNotFoundException>().ReturnStatusCode(HttpStatusCode.NotFound).UsingMessageFormatter((e, h, c) => h.Response.WriteAsync(e.Message));
                 });
 
                 app.Map(requestUri, config =>

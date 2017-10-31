@@ -9,7 +9,7 @@ namespace GlobalExceptionHandler.WebApi
 {
 	public class ExceptionHandlerConfiguration
 	{
-		public ExceptionHandlerConfiguration(Func<Exception, HttpContext, Task> defaultFormatter) => DefaultFormatter = defaultFormatter;
+		public ExceptionHandlerConfiguration(Func<Exception, HttpContext, HandlerContext, Task> defaultFormatter) => DefaultFormatter = defaultFormatter;
 
 		public IHasStatusCode ForException<T>() where T : Exception
 		{
@@ -17,7 +17,7 @@ namespace GlobalExceptionHandler.WebApi
 			return new ExceptionRuleCreator(_exceptionConfiguration, type);
 		}
 
-		public void DefaultMessageFormatter(Func<Exception, HttpContext, Task> formatter)
+		public void DefaultMessageFormatter(Func<Exception, HttpContext, HandlerContext, Task> formatter)
 		{
 			DefaultFormatter = formatter;
 		}
@@ -30,7 +30,7 @@ namespace GlobalExceptionHandler.WebApi
 
 		internal IDictionary<Type, ExceptionConfig> ExceptionConfiguration => _exceptionConfiguration;
 
-		internal Func<Exception, HttpContext, Task> DefaultFormatter { get; private set; }
+		internal Func<Exception, HttpContext, HandlerContext, Task> DefaultFormatter { get; private set; }
 		
 		public string ContentType { get; set; }
 
@@ -41,7 +41,7 @@ namespace GlobalExceptionHandler.WebApi
 		
 		internal RequestDelegate BuildHandler()
 		{
-			var configContext = new ExceptionHandlerContext
+			var handlerContext = new HandlerContext
 			{
 				DefaultContentType = ContentType
 			};
@@ -67,7 +67,7 @@ namespace GlobalExceptionHandler.WebApi
 							await _logger(exception, context);
 						}
 						
-						await config.Formatter(exception, context);
+						await config.Formatter(exception, context, handlerContext);
 						return;
 					}
 				}

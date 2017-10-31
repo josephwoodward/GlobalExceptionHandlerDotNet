@@ -17,6 +17,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.LoggerTests
     {
         private Exception _exception;
         private HttpContext _context;
+        private HandlerContext _handlerContext;
 
         public LogExceptionTests(WebApiServerFixture fixture)
         {
@@ -33,7 +34,15 @@ namespace GlobalExceptionHandler.Tests.WebApi.LoggerTests
                         _context = context;
                         return Task.CompletedTask;
                     });
-                    x.ForException<ArgumentException>().ReturnStatusCode(HttpStatusCode.InternalServerError);
+                    x.ForException<ArgumentException>().ReturnStatusCode(HttpStatusCode.InternalServerError).UsingMessageFormatter(
+                        (e, c, h) =>
+                        {
+                            _exception = e;
+                            _context = c;
+                            _handlerContext = h;
+
+                            return Task.CompletedTask;
+                        });
                 });
 
                 app.Map(requestUri, config =>
@@ -59,9 +68,16 @@ namespace GlobalExceptionHandler.Tests.WebApi.LoggerTests
         }
         
         [Fact]
-        public void Context_is_set()
+        public void HttpContext_is_set()
         {
             _context.ShouldBeOfType<DefaultHttpContext>();
         }
+        
+        [Fact]
+        public void Handler_context_is_set()
+        {
+            _handlerContext.ShouldBeOfType<HandlerContext>();
+        }
+
     }
 }

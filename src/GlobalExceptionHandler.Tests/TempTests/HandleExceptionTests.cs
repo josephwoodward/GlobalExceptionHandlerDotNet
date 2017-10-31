@@ -31,11 +31,11 @@ namespace GlobalExceptionHandler.Tests.WebApi
 	            {
 					x.ForException<BaseException>()
 						.ReturnStatusCode(HttpStatusCode.BadGateway)
-						.UsingMessageFormatter((e, c) => c.Response.WriteAsync("my custom message for applicaiton exceptions"));
+						.UsingMessageFormatter((e, c, h) => c.Response.WriteAsync("my custom message for applicaiton exceptions"));
 
 		            x.ForException<Level1ExceptionA>()
 			            .ReturnStatusCode(HttpStatusCode.Conflict)
-			            .UsingMessageFormatter((e, c) => c.WriteAsyncObject(new TestResponse
+			            .UsingMessageFormatter((e, c, h) => c.WriteAsyncObject(new TestResponse
 			            {
 				            Message = "Hello World 1",
 				            StatusCode = (int)HttpStatusCode.Conflict
@@ -43,7 +43,7 @@ namespace GlobalExceptionHandler.Tests.WebApi
 
 		            x.ForException<Level1ExceptionB>()
 			            .ReturnStatusCode(HttpStatusCode.Ambiguous)
-			            .UsingMessageFormatter((e, c) => c.WriteAsyncObject(new TestResponse
+			            .UsingMessageFormatter((e, c, h) => c.WriteAsyncObject(new TestResponse
 			            {
 				            Message = "Hello World 1",
 				            StatusCode = (int)HttpStatusCode.Ambiguous
@@ -51,7 +51,7 @@ namespace GlobalExceptionHandler.Tests.WebApi
 
 		            x.ForException<Level2ExceptionA>()
 			            .ReturnStatusCode(HttpStatusCode.ExpectationFailed)
-			            .UsingMessageFormatter((e, c) => c.WriteAsyncObject(new TestResponse
+			            .UsingMessageFormatter((e, c, h) => c.WriteAsyncObject(new TestResponse
 			            {
 				            Message = "Hello World 1",
 				            StatusCode = (int)HttpStatusCode.ExpectationFailed
@@ -59,7 +59,7 @@ namespace GlobalExceptionHandler.Tests.WebApi
 
 		            x.ForException<Level2ExceptionB>()
 			            .ReturnStatusCode(HttpStatusCode.Forbidden)
-			            .UsingMessageFormatter((e, c) => c.WriteAsyncObject(new TestResponse
+			            .UsingMessageFormatter((e, c, h) => c.WriteAsyncObject(new TestResponse
 			            {
 				            Message = "Hello World 1",
 				            StatusCode = (int)HttpStatusCode.Forbidden
