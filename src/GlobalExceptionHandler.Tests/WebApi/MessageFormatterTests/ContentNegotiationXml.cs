@@ -1,47 +1,44 @@
-using System;
-using System.Net;
+﻿using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using GlobalExceptionHandler.Tests.Exceptions;
 using GlobalExceptionHandler.Tests.WebApi.Fixtures;
+using GlobalExceptionHandler.WebApi;
+using GlobalExceptionHandlerDotNet.Mvc;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
-using Newtonsoft.Json;
 using Shouldly;
 using Xunit;
 
-namespace GlobalExceptionHandler.Tests.WebApi.ForExceptionTests
+namespace GlobalExceptionHandler.Tests.WebApi.MessageFormatterTests
 {
-/*
-    public class IndividualCustomMessageFormatterTests : IClassFixture<WebApiServerFixture>
+    public class ContentNegotiationXml : IClassFixture<WebApiServerFixture>
     {
         private readonly HttpResponseMessage _response;
 
-        public IndividualCustomMessageFormatterTests(WebApiServerFixture fixture)
+        public ContentNegotiationXml(WebApiServerFixture fixture)
         {
             // Arrange
-            const string requestUri = "/api/badrequest";
+            const string requestUri = "/api/productnotfound";
+            
             var webHost = fixture.CreateWebHost();
 
             webHost.Configure(app =>
             {
                 app.UseWebApiGlobalExceptionHandler(x =>
                 {
-                    x.ContentType = "application/json";
-                    x.ForException<ArgumentException>().ReturnStatusCode(HttpStatusCode.BadRequest).UsingMessageFormatter(
-                        exception => JsonConvert.SerializeObject(new
+                    x.ForException<RecordNotFoundException>().ReturnStatusCode(HttpStatusCode.NotFound)
+                        .UsingMessageFormatter((e, c, h) => c.WriteAsyncObject(new TestResponse
                         {
-                            error = new
-                            {
-                                message = "Oops, something went wrong"
-                            }
+                            Message = "An exception occured"
                         }));
-                    x.MessageFormatter(exception => "This will be overriden");
                 });
 
                 app.Map(requestUri, config =>
                 {
-                    config.Run(context => throw new ArgumentException("An invalid argument supplied"));
+                    config.Run(context => throw new RecordNotFoundException("Record could not be found"));
                 });
             });
 
@@ -50,28 +47,29 @@ namespace GlobalExceptionHandler.Tests.WebApi.ForExceptionTests
             using (var client = server.CreateClient())
             {
                 var requestMessage = new HttpRequestMessage(new HttpMethod("GET"), requestUri);
+                requestMessage.Headers.Accept.Clear();
+                requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("text/xml"));
                 _response = client.SendAsync(requestMessage).Result;
             }
         }
-
+        
         [Fact]
         public void Returns_correct_response_type()
         {
-            _response.Content.Headers.ContentType.MediaType.ShouldBe("application/json");
+            _response.Content.Headers.ContentType.MediaType.ShouldBe("text/xml");
         }
 
         [Fact]
         public void Returns_correct_status_code()
         {
-            _response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+            _response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
         }
 
         [Fact]
-        public async Task Overrides_global_custom_message()
+        public async Task Returns_correct_body()
         {
             var content = await _response.Content.ReadAsStringAsync();
-            content.ShouldBe(@"{""error"":{""message"":""Oops, something went wrong""}}");
+            content.ShouldContain("<Message>An exception occured</Message>");
         }
     }
-*/
 }

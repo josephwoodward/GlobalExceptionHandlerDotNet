@@ -15,4 +15,7 @@
     <ProjectReference Include="..\GlobalExceptionHandlerDotNet.Mvc\GlobalExceptionHandlerDotNet.Mvc.csproj" />
     <ProjectReference Include="..\GlobalExceptionHandler\GlobalExceptionHandler.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="WebApi\ForExceptionTests" />
+  </ItemGroup>
 </Project>

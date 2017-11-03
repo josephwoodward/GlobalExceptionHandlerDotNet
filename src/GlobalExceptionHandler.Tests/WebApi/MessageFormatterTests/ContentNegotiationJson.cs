@@ -1,6 +1,6 @@
-using System;
-using System.Net;
+﻿using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using GlobalExceptionHandler.Tests.Exceptions;
 using GlobalExceptionHandler.Tests.WebApi.Fixtures;
@@ -8,45 +8,37 @@ using GlobalExceptionHandler.WebApi;
 using GlobalExceptionHandlerDotNet.Mvc;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.TestHost;
 using Shouldly;
 using Xunit;
 
-namespace GlobalExceptionHandler.Tests.WebApi
+namespace GlobalExceptionHandler.Tests.WebApi.MessageFormatterTests
 {
-/*
-    public class HandleExceptionTests : IClassFixture<WebApiServerFixture>
+    public class ContentNegotiationJson : IClassFixture<WebApiServerFixture>
     {
         private readonly HttpResponseMessage _response;
 
-        public HandleExceptionTests(WebApiServerFixture fixture)
+        public ContentNegotiationJson(WebApiServerFixture fixture)
         {
             // Arrange
             const string requestUri = "/api/productnotfound";
+            
             var webHost = fixture.CreateWebHost();
+
             webHost.Configure(app =>
             {
-	            app.UseExceptionHandler(new ExceptionHandlerOptions().SetHandler(x =>
-	            {
-					x.ForException<ApplicationException>()
-						.ReturnStatusCode(HttpStatusCode.BadGateway)
-						.UsingMessageFormatter((e, c) => c.Response.WriteAsync("my custom message for applicaiton exceptions"));
-
-		            x.ForException<NullReferenceException>()
-			            .ReturnStatusCode(HttpStatusCode.Conflict)
-			            .UsingMessageFormatter((e, c) => c.WriteObjectAsync(new { MyMessage = "hello world" }));
-				}));
-
                 app.UseWebApiGlobalExceptionHandler(x =>
                 {
-                    x.ContentType = "application/json";
-                    x.ForException<ProductNotFoundException>().ReturnStatusCode(HttpStatusCode.NotFound);
+                    x.ForException<RecordNotFoundException>().ReturnStatusCode(HttpStatusCode.NotFound)
+                        .UsingMessageFormatter((e, c, h) => c.WriteAsyncObject(new TestResponse
+                        {
+                            Message = "An exception occured"
+                        }));
                 });
 
                 app.Map(requestUri, config =>
                 {
-                    config.Run(context => throw new ProductNotFoundException("Record could not be found"));
+                    config.Run(context => throw new RecordNotFoundException("Record could not be found"));
                 });
             });
 
@@ -55,10 +47,12 @@ namespace GlobalExceptionHandler.Tests.WebApi
             using (var client = server.CreateClient())
             {
                 var requestMessage = new HttpRequestMessage(new HttpMethod("GET"), requestUri);
+                requestMessage.Headers.Accept.Clear();
+                requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 _response = client.SendAsync(requestMessage).Result;
             }
         }
-
+        
         [Fact]
         public void Returns_correct_response_type()
         {
@@ -75,8 +69,7 @@ namespace GlobalExceptionHandler.Tests.WebApi
         public async Task Returns_correct_body()
         {
             var content = await _response.Content.ReadAsStringAsync();
-            content.ShouldContain(nameof(ProductNotFoundException));
+            content.ShouldContain("{\"message\":\"An exception occured\"}");
         }
     }
-*/
 }

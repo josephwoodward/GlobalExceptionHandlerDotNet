@@ -8,7 +8,15 @@ using Microsoft.AspNetCore.Http;
 namespace GlobalExceptionHandler.WebApi
 {
 	public class ExceptionHandlerConfiguration
-	{
+	{		
+		private readonly IDictionary<Type, ExceptionConfig> _exceptionConfiguration = new Dictionary<Type, ExceptionConfig>();
+		private Type[] _exceptionConfgurationTypesSortedByDepthDescending;		
+		private Func<Exception, HttpContext, Task> _logger;
+
+		internal Func<Exception, HttpContext, HandlerContext, Task> DefaultFormatter { get; private set; }
+		internal IDictionary<Type, ExceptionConfig> ExceptionConfiguration => _exceptionConfiguration;
+		
+		public string ContentType { get; set; }
 		public ExceptionHandlerConfiguration(Func<Exception, HttpContext, HandlerContext, Task> defaultFormatter) => DefaultFormatter = defaultFormatter;
 
 		public IHasStatusCode ForException<T>() where T : Exception
@@ -22,18 +30,6 @@ namespace GlobalExceptionHandler.WebApi
 			DefaultFormatter = formatter;
 		}
 		
-		private readonly IDictionary<Type, ExceptionConfig> _exceptionConfiguration = new Dictionary<Type, ExceptionConfig>();
-
-		private Type[] _exceptionConfgurationTypesSortedByDepthDescending;
-		
-		private Func<Exception, HttpContext, Task> _logger;
-
-		internal IDictionary<Type, ExceptionConfig> ExceptionConfiguration => _exceptionConfiguration;
-
-		internal Func<Exception, HttpContext, HandlerContext, Task> DefaultFormatter { get; private set; }
-		
-		public string ContentType { get; set; }
-
 		public void OnError(Func<Exception, HttpContext, Task> log)
 		{
 			_logger = log;
@@ -61,6 +57,7 @@ namespace GlobalExceptionHandler.WebApi
 					{
 						var config = ExceptionConfiguration[type];
 						context.Response.StatusCode = (int)config.StatusCode;
+						context.Response.ContentType = ContentType;
 					
 						if (_logger != null)
 						{

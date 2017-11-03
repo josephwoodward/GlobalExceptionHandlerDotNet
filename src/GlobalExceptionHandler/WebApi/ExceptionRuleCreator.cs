@@ -13,9 +13,11 @@ namespace GlobalExceptionHandler.WebApi
     }
 
     public interface IHasMessageFormatter
-    {
+    {   
+        void UsingMessageFormatter(Func<Exception, HttpContext, string> formatter);
+        
         void UsingMessageFormatter(Func<Exception, HttpContext, Task> formatter);
-
+        
         void UsingMessageFormatter(Func<Exception, HttpContext, HandlerContext, Task> formatter);
     }
 
@@ -42,25 +44,46 @@ namespace GlobalExceptionHandler.WebApi
             return this;
         }
 
-        public void UsingMessageFormatter(Func<Exception, HttpContext> formatter)
+        public void UsingMessageFormatter(Func<Exception, HttpContext, string> formatter)
         {
-            Task Func(Exception exception, HttpContext context, HandlerContext arg3) => formatter.Invoke(exception, context);
-            UsingMessageFormatter(Func);
+            Task Formatter(Exception x, HttpContext y, HandlerContext b)
+            {
+                var s = formatter.Invoke(x, y);
+                y.Response.WriteAsync(s);
+                return Task.CompletedTask;
+            }
+
+            UsingMessageFormatter(Formatter);
+        }
+
+        public void UsingMessageFormatter(Func<Exception, HttpContext, Task> formatter)
+        {
+            if (formatter == null)
+                throw new NullReferenceException(nameof(formatter));
+
+            Task Formatter(Exception x, HttpContext y, HandlerContext b)
+            {
+                formatter.Invoke(x, y);
+                return Task.CompletedTask;
+            }
+
+            UsingMessageFormatter(Formatter);
+        }
+        
+        public void UsingMessageFormatter(Func<Exception, string, Task> formatter)
+        {
+            SetMessageFormatter((exception, context, arg3) => Task.CompletedTask);
         }
 
         public void UsingMessageFormatter(Func<Exception, HttpContext, HandlerContext, Task> formatter)
         {
-            Func<Exception, HttpContext, HandlerContext, Task> res = (e, h, c) =>
-            {
-                return 
-            };
-            SetMessageFormatter(res);
+            SetMessageFormatter(formatter);
         }
 
         private void SetMessageFormatter(Func<Exception, HttpContext, HandlerContext, Task> formatter)
         {
-			if (formatter == null)
-			    throw new ArgumentNullException(nameof(formatter));
+            if (formatter == null)
+                throw new NullReferenceException(nameof(formatter));
 
 	        ExceptionConfig exceptionConfig = _configurations[_currentFluentlyConfiguredType];
 	        exceptionConfig.Formatter = formatter;

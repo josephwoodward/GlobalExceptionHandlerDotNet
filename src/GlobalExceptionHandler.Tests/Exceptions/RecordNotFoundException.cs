@@ -2,17 +2,17 @@ using System;
 
 namespace GlobalExceptionHandler.Tests.Exceptions
 {
-    public class ProductNotFoundException : Exception
+    public class RecordNotFoundException : Exception
     {
-        public ProductNotFoundException()
+        public RecordNotFoundException()
         {
         }
 
-        public ProductNotFoundException(string message) : base(message)
+        public RecordNotFoundException(string message) : base(message)
         {
         }
 
-        public ProductNotFoundException(string message, Exception inner) : base(message, inner)
+        public RecordNotFoundException(string message, Exception inner) : base(message, inner)
         {
         }
     }

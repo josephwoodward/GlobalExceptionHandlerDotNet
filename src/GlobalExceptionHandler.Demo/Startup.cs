@@ -46,7 +46,6 @@ namespace GlobalExceptionHandler.Demo
                     }));
             });
 */
-
             app.UseExceptionHandler().WithConventions(x =>
             {
                 x.ForException<ArgumentException>().ReturnStatusCode(HttpStatusCode.Conflict).UsingMessageFormatter((e, c) => c.WriteAsyncObject(new DemoOutput

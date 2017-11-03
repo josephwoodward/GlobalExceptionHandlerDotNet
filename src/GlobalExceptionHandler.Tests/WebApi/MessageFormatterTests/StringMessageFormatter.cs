@@ -1,7 +1,7 @@
-using System;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using GlobalExceptionHandler.Tests.Exceptions;
 using GlobalExceptionHandler.Tests.WebApi.Fixtures;
 using GlobalExceptionHandler.WebApi;
 using Microsoft.AspNetCore.Builder;
@@ -9,27 +9,34 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Shouldly;
 using Xunit;
-using static System.Threading.Tasks.Task;
 
-namespace GlobalExceptionHandler.Tests.WebApi.GlobalFormatterTests
+namespace GlobalExceptionHandler.Tests.WebApi.MessageFormatterTests
 {
-    public class BasicTests : IClassFixture<WebApiServerFixture>
+    public class StringMessageFormatter : IClassFixture<WebApiServerFixture>
     {
         private readonly HttpResponseMessage _response;
-
-        public BasicTests(WebApiServerFixture fixture)
+        private const string Response = "Hello World!";
+        
+        public StringMessageFormatter(WebApiServerFixture fixture)
         {
             // Arrange
             const string requestUri = "/api/productnotfound";
+            
             var webHost = fixture.CreateWebHost();
+
             webHost.Configure(app =>
             {
-                app.UseExceptionHandler().WithConventions(x =>
+                app.UseWebApiGlobalExceptionHandler(x =>
                 {
                     x.ContentType = "application/json";
+                    x.ForException<RecordNotFoundException>().ReturnStatusCode(HttpStatusCode.NotFound)
+                        .UsingMessageFormatter((exception, context) => Response);
                 });
 
-                app.Map(requestUri, config => { config.Run(context => throw new ArgumentException("Invalid request")); });
+                app.Map(requestUri, config =>
+                {
+                    config.Run(context => throw new RecordNotFoundException("Record could not be found"));
+                });
             });
 
             // Act
@@ -42,22 +49,10 @@ namespace GlobalExceptionHandler.Tests.WebApi.GlobalFormatterTests
         }
 
         [Fact]
-        public void Returns_correct_response_type()
-        {
-            _response.Content.Headers.ContentType.MediaType.ShouldBe("application/json");
-        }
-
-        [Fact]
-        public void Returns_correct_status_code()
-        {
-            _response.StatusCode.ShouldBe(HttpStatusCode.InternalServerError);
-        }
-
-        [Fact]
-        public async Task Returns_correct_body()
+        public async Task Correct_response_message()
         {
             var content = await _response.Content.ReadAsStringAsync();
-            content.ShouldBe(@"{""error"":{""exception"":""ArgumentException"",""message"":""Invalid request""}}");
+            content.ShouldBe(Response);
         }
     }
 }

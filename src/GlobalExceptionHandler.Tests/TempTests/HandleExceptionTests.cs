@@ -37,32 +37,28 @@ namespace GlobalExceptionHandler.Tests.WebApi
 			            .ReturnStatusCode(HttpStatusCode.Conflict)
 			            .UsingMessageFormatter((e, c, h) => c.WriteAsyncObject(new TestResponse
 			            {
-				            Message = "Hello World 1",
-				            StatusCode = (int)HttpStatusCode.Conflict
+				            Message = "Hello World 1"
 			            }));
 
 		            x.ForException<Level1ExceptionB>()
 			            .ReturnStatusCode(HttpStatusCode.Ambiguous)
 			            .UsingMessageFormatter((e, c, h) => c.WriteAsyncObject(new TestResponse
 			            {
-				            Message = "Hello World 1",
-				            StatusCode = (int)HttpStatusCode.Ambiguous
+				            Message = "Hello World 1"
 			            }));
 
 		            x.ForException<Level2ExceptionA>()
 			            .ReturnStatusCode(HttpStatusCode.ExpectationFailed)
 			            .UsingMessageFormatter((e, c, h) => c.WriteAsyncObject(new TestResponse
 			            {
-				            Message = "Hello World 1",
-				            StatusCode = (int)HttpStatusCode.ExpectationFailed
+				            Message = "Hello World 1"
 			            }));
 
 		            x.ForException<Level2ExceptionB>()
 			            .ReturnStatusCode(HttpStatusCode.Forbidden)
 			            .UsingMessageFormatter((e, c, h) => c.WriteAsyncObject(new TestResponse
 			            {
-				            Message = "Hello World 1",
-				            StatusCode = (int)HttpStatusCode.Forbidden
+				            Message = "Hello World 1"
 			            }));
 				});
 
