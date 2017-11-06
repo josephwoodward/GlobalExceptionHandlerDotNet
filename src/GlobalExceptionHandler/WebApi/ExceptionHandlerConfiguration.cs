@@ -15,8 +15,10 @@ namespace GlobalExceptionHandler.WebApi
 
 		internal Func<Exception, HttpContext, HandlerContext, Task> DefaultFormatter { get; private set; }
 		internal IDictionary<Type, ExceptionConfig> ExceptionConfiguration => _exceptionConfiguration;
-		
-		public string ContentType { get; set; }
+
+		public string ContentType { private get; set; } = "application/json";
+		public bool DebugMode { private get; set; }
+
 		public ExceptionHandlerConfiguration(Func<Exception, HttpContext, HandlerContext, Task> defaultFormatter) => DefaultFormatter = defaultFormatter;
 
 		public IHasStatusCode ForException<T>() where T : Exception
@@ -49,7 +51,12 @@ namespace GlobalExceptionHandler.WebApi
 			return async context =>
 			{
 				var exception = context.Features.Get<IExceptionHandlerFeature>().Error;
-
+				if (_logger != null)
+					await _logger(exception, context);
+				
+				context.Response.ContentType = ContentType;
+				
+				// If any custom exceptions are set
 				foreach (var type in _exceptionConfgurationTypesSortedByDepthDescending)
 				{
 					// ReSharper disable once UseMethodIsInstanceOfType TODO: Fire those guys
@@ -57,17 +64,14 @@ namespace GlobalExceptionHandler.WebApi
 					{
 						var config = ExceptionConfiguration[type];
 						context.Response.StatusCode = (int)config.StatusCode;
-						context.Response.ContentType = ContentType;
-					
-						if (_logger != null)
-						{
-							await _logger(exception, context);
-						}
 						
 						await config.Formatter(exception, context, handlerContext);
 						return;
 					}
 				}
+
+				var formatter = DebugMode ? DefaultFormatter : ExceptionConfig.SafeFormatterWithDetails;
+				await formatter(exception, context, handlerContext);
 			};
 		}
 	}

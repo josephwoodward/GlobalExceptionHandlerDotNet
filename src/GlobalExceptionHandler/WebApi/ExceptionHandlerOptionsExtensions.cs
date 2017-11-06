@@ -7,7 +7,7 @@ namespace GlobalExceptionHandler.WebApi
     {
         public static ExceptionHandlerOptions SetHandler(this ExceptionHandlerOptions exceptionHandlerOptions, Action<ExceptionHandlerConfiguration> configurationAction)
         {
-            var configuration = new ExceptionHandlerConfiguration(ExceptionConfig.DefaultFormatter);
+            var configuration = new ExceptionHandlerConfiguration(ExceptionConfig.UnsafeFormatterWithDetails);
             configurationAction(configuration);
 
             exceptionHandlerOptions.ExceptionHandler = configuration.BuildHandler();

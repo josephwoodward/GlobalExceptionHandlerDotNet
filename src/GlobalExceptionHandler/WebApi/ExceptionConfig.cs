@@ -8,15 +8,13 @@ namespace GlobalExceptionHandler.WebApi
 	public class ExceptionConfig
 	{
 		public HttpStatusCode StatusCode { get; set; }
-
-		/*public Func<Exception, HttpContext, Task> Formatter { get; set; } = DefaultFormatter;*/
 		
-		public Func<Exception, HttpContext, HandlerContext, Task> Formatter { get; set; } = DefaultFormatter;
+		public Func<Exception, HttpContext, HandlerContext, Task> Formatter { get; set; } = UnsafeFormatterWithDetails;
 
-		public static Task DefaultFormatter(Exception exception, HttpContext httpContext, HandlerContext handlerContext)
+		public static Task UnsafeFormatterWithDetails(Exception exception, HttpContext httpContext, HandlerContext handlerContext)
 			=> httpContext.Response.WriteAsync(exception.ToString());
 
-		public static Task SimpleMessageWithNoDetails(Exception exception, HttpContext httpContext, HandlerContext handlerContext)
+		public static Task SafeFormatterWithDetails(Exception exception, HttpContext httpContext, HandlerContext handlerContext)
 			=> httpContext.Response.WriteAsync("An error occurred while processing your request");
 	}
 }

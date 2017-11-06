@@ -9,15 +9,14 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Shouldly;
 using Xunit;
-using static System.Threading.Tasks.Task;
 
 namespace GlobalExceptionHandler.Tests.WebApi.GlobalFormatterTests
 {
-    public class BasicTests : IClassFixture<WebApiServerFixture>
+    public class DebugModeDisabledTests : IClassFixture<WebApiServerFixture>
     {
         private readonly HttpResponseMessage _response;
-
-        public BasicTests(WebApiServerFixture fixture)
+        
+        public DebugModeDisabledTests(WebApiServerFixture fixture)
         {
             // Arrange
             const string requestUri = "/api/productnotfound";
@@ -26,7 +25,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.GlobalFormatterTests
             {
                 app.UseExceptionHandler().WithConventions(x =>
                 {
-                    x.ContentType = "application/json";
+                    x.DebugMode = false;
                 });
 
                 app.Map(requestUri, config => { config.Run(context => throw new ArgumentException("Invalid request")); });
@@ -57,7 +56,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.GlobalFormatterTests
         public async Task Returns_correct_body()
         {
             var content = await _response.Content.ReadAsStringAsync();
-            content.ShouldBe("An error occurred while processing your request");
+            content.ShouldNotBe("System.ArgumentException: Invalid request");
         }
     }
 }
