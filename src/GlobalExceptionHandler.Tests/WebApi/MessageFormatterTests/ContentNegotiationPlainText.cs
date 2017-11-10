@@ -24,7 +24,6 @@ namespace GlobalExceptionHandler.Tests.WebApi.MessageFormatterTests
             const string requestUri = "/api/productnotfound";
             
             var webHost = fixture.CreateWebHost();
-
             webHost.Configure(app =>
             {
                 app.UseWebApiGlobalExceptionHandler(x =>

@@ -17,6 +17,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.MessageFormatterTests
     public class ContentNegotiationJson : IClassFixture<WebApiServerFixture>
     {
         private readonly HttpResponseMessage _response;
+        private const string ContentType = "application/json";
 
         public ContentNegotiationJson(WebApiServerFixture fixture)
         {
@@ -24,16 +25,15 @@ namespace GlobalExceptionHandler.Tests.WebApi.MessageFormatterTests
             const string requestUri = "/api/productnotfound";
             
             var webHost = fixture.CreateWebHost();
-
             webHost.Configure(app =>
             {
                 app.UseWebApiGlobalExceptionHandler(x =>
                 {
                     x.ForException<RecordNotFoundException>().ReturnStatusCode(HttpStatusCode.NotFound)
-                        .UsingMessageFormatter((e, c, h) => c.WriteAsyncObject(new TestResponse
+                        .UsingMessageFormatter(new TestResponse
                         {
                             Message = "An exception occured"
-                        }));
+                        });
                 });
 
                 app.Map(requestUri, config =>
@@ -48,7 +48,8 @@ namespace GlobalExceptionHandler.Tests.WebApi.MessageFormatterTests
             {
                 var requestMessage = new HttpRequestMessage(new HttpMethod("GET"), requestUri);
                 requestMessage.Headers.Accept.Clear();
-                requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(ContentType));
+
                 _response = client.SendAsync(requestMessage).Result;
             }
         }
@@ -56,7 +57,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.MessageFormatterTests
         [Fact]
         public void Returns_correct_response_type()
         {
-            _response.Content.Headers.ContentType.MediaType.ShouldBe("application/json");
+            _response.Content.Headers.ContentType.MediaType.ShouldBe(ContentType);
         }
 
         [Fact]
