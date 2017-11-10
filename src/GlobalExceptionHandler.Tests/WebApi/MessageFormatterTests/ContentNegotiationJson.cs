@@ -27,7 +27,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.MessageFormatterTests
             var webHost = fixture.CreateWebHost();
             webHost.Configure(app =>
             {
-                app.UseWebApiGlobalExceptionHandler(x =>
+                app.UseExceptionHandler().WithConventions(x =>
                 {
                     x.ForException<RecordNotFoundException>().ReturnStatusCode(HttpStatusCode.NotFound)
                         .UsingMessageFormatter(new TestResponse

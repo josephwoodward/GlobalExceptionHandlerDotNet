@@ -15,9 +15,9 @@ namespace GlobalExceptionHandler.WebApi
 
 		internal Func<Exception, HttpContext, HandlerContext, Task> DefaultFormatter { get; private set; }
 		internal IDictionary<Type, ExceptionConfig> ExceptionConfiguration => _exceptionConfiguration;
-
-		public string ContentType { private get; set; } = "application/json";
-		public bool DebugMode { private get; set; }
+		
+		public string ContentType { get; set; }
+		public bool DebugMode { get; set; }
 
 		public ExceptionHandlerConfiguration(Func<Exception, HttpContext, HandlerContext, Task> defaultFormatter) => DefaultFormatter = defaultFormatter;
 
