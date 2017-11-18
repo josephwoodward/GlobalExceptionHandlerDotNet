@@ -13,7 +13,7 @@
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\GlobalExceptionHandlerDotNet.Mvc\GlobalExceptionHandlerDotNet.Mvc.csproj" />
+    <ProjectReference Include="..\GlobalExceptionHandler.ContentNegotiation.Mvc\GlobalExceptionHandler.ContentNegotiation.Mvc.csproj" />
     <ProjectReference Include="..\GlobalExceptionHandler\GlobalExceptionHandler.csproj" />
   </ItemGroup>
 </Project>

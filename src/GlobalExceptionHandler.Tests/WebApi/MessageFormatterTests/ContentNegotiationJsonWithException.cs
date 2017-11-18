@@ -14,11 +14,12 @@ using Xunit;
 
 namespace GlobalExceptionHandler.Tests.WebApi.MessageFormatterTests
 {
-    public class ContentNegotiationXml : IClassFixture<WebApiServerFixture>
+    public class ContentNegotiationJsonWithException : IClassFixture<WebApiServerFixture>
     {
         private readonly HttpResponseMessage _response;
+        private const string ContentType = "application/json";
 
-        public ContentNegotiationXml(WebApiServerFixture fixture)
+        public ContentNegotiationJsonWithException(WebApiServerFixture fixture)
         {
             // Arrange
             const string requestUri = "/api/productnotfound";
@@ -29,7 +30,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.MessageFormatterTests
                 app.UseExceptionHandler().WithConventions(x =>
                 {
                     x.ForException<RecordNotFoundException>().ReturnStatusCode(HttpStatusCode.NotFound)
-                        .UsingMessageFormatter(new TestResponse
+                        .UsingMessageFormatter(e => new TestResponse
                         {
                             Message = "An exception occured"
                         });
@@ -47,7 +48,8 @@ namespace GlobalExceptionHandler.Tests.WebApi.MessageFormatterTests
             {
                 var requestMessage = new HttpRequestMessage(new HttpMethod("GET"), requestUri);
                 requestMessage.Headers.Accept.Clear();
-                requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("text/xml"));
+                requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(ContentType));
+
                 _response = client.SendAsync(requestMessage).Result;
             }
         }
@@ -55,7 +57,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.MessageFormatterTests
         [Fact]
         public void Returns_correct_response_type()
         {
-            _response.Content.Headers.ContentType.MediaType.ShouldBe("text/xml");
+            _response.Content.Headers.ContentType.MediaType.ShouldBe(ContentType);
         }
 
         [Fact]
@@ -68,7 +70,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.MessageFormatterTests
         public async Task Returns_correct_body()
         {
             var content = await _response.Content.ReadAsStringAsync();
-            content.ShouldContain("<Message>An exception occured</Message>");
+            content.ShouldContain("{\"message\":\"An exception occured\"}");
         }
     }
 }

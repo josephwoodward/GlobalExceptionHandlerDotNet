@@ -2,10 +2,10 @@
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using GlobalExceptionHandler.ContentNegotiation.Mvc;
 using GlobalExceptionHandler.Tests.Exceptions;
 using GlobalExceptionHandler.Tests.WebApi.Fixtures;
 using GlobalExceptionHandler.WebApi;
-using GlobalExceptionHandlerDotNet.Mvc;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;

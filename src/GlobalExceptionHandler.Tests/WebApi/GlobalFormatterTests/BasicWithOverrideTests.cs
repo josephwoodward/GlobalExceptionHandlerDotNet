@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using GlobalExceptionHandler.Tests.Exceptions;
 using GlobalExceptionHandler.Tests.WebApi.Fixtures;
+using GlobalExceptionHandler.WebApi;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
@@ -13,7 +14,6 @@ using Xunit;
 
 namespace GlobalExceptionHandler.Tests.WebApi.GlobalFormatterTests
 {
-/*
     public class BasicWithOverrideTests : IClassFixture<WebApiServerFixture>
     {
         private readonly HttpResponseMessage _response;
@@ -25,7 +25,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.GlobalFormatterTests
             var webHost = fixture.CreateWebHost();
             webHost.Configure(app =>
             {
-                app.UseWebApiGlobalExceptionHandler(x =>
+                app.UseExceptionHandler().WithConventions(x =>
                 {
                     x.ContentType = "application/json";
                     x.ForException<NeverThrownException>().ReturnStatusCode(HttpStatusCode.BadRequest);
@@ -72,5 +72,4 @@ namespace GlobalExceptionHandler.Tests.WebApi.GlobalFormatterTests
             content.ShouldBe(@"{""error"":{""message"":""Something went wrong""}}");
         }
     }
-*/
 }

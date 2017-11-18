@@ -12,7 +12,7 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.3.0-beta5-build3769" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\GlobalExceptionHandlerDotNet.Mvc\GlobalExceptionHandlerDotNet.Mvc.csproj" />
+    <ProjectReference Include="..\GlobalExceptionHandler.ContentNegotiation.Mvc\GlobalExceptionHandler.ContentNegotiation.Mvc.csproj" />
     <ProjectReference Include="..\GlobalExceptionHandler\GlobalExceptionHandler.csproj" />
   </ItemGroup>
   <ItemGroup>

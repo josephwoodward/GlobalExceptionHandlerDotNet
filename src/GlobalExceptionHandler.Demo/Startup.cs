@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net;
+using GlobalExceptionHandler.ContentNegotiation.Mvc;
 using GlobalExceptionHandler.WebApi;
-using GlobalExceptionHandlerDotNet.Mvc;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Formatters;
@@ -35,33 +35,13 @@ namespace GlobalExceptionHandler.Demo
             if (env.IsDevelopment())
                 app.UseDeveloperExceptionPage();
 
-/*
-            app.UseWebApiGlobalExceptionHandler(x =>
-            {
-                x.ForException<ArgumentException>()
-                    .ReturnStatusCode(HttpStatusCode.Conflict)
-                    .UsingMessageFormatter((e, c) => c.WriteAsyncObject(new DemoOutput
-                    {
-                        Message = e.Message
-                    }));
-            });
-*/
             app.UseExceptionHandler().WithConventions(x =>
             {
-                x.ForException<ArgumentException>().ReturnStatusCode(HttpStatusCode.Conflict).UsingMessageFormatter((e, c) => c.WriteAsyncObject(new DemoOutput
+                x.ForException<ArgumentException>().ReturnStatusCode(HttpStatusCode.Conflict).UsingMessageFormatter(e => new DemoOutput
                     {
                         Message = e.Message
-                    }));
+                    });
             });
-
-            /*app.UseExceptionHandler(new ExceptionHandlerOptions().SetHandler(x =>
-            {
-                x.ForException<ArgumentException>().ReturnStatusCode(HttpStatusCode.Conflict)
-                    .UsingMessageFormatter((e, c) => c.WriteAsyncObject(new DemoOutput
-                    {
-                        Message = e.Message
-                    }));
-            }));*/
 
             app.UseMvc();
         }

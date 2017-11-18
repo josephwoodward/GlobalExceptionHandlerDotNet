@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
@@ -13,10 +14,11 @@ namespace GlobalExceptionHandler.WebApi
 		private Type[] _exceptionConfgurationTypesSortedByDepthDescending;		
 		private Func<Exception, HttpContext, Task> _logger;
 
+		internal Func<Exception, HttpContext, HandlerContext, Task> CustomFormatter { get; private set; } 
 		internal Func<Exception, HttpContext, HandlerContext, Task> DefaultFormatter { get; private set; }
 		internal IDictionary<Type, ExceptionConfig> ExceptionConfiguration => _exceptionConfiguration;
-		
-		public string ContentType { get; set; }
+
+		public string ContentType { get; set; } = "application/json";
 		public bool DebugMode { get; set; }
 
 		public ExceptionHandlerConfiguration(Func<Exception, HttpContext, HandlerContext, Task> defaultFormatter) => DefaultFormatter = defaultFormatter;
@@ -26,10 +28,22 @@ namespace GlobalExceptionHandler.WebApi
 			var type = typeof(T);
 			return new ExceptionRuleCreator(_exceptionConfiguration, type);
 		}
-
-		public void DefaultMessageFormatter(Func<Exception, HttpContext, HandlerContext, Task> formatter)
+		
+		public void MessageFormatter(Func<Exception, string> formatter)
 		{
-			DefaultFormatter = formatter;
+			Task Formatter(Exception x, HttpContext y, HandlerContext b)
+			{
+				var s = formatter.Invoke(x);
+				y.Response.WriteAsync(s);
+				return Task.CompletedTask;
+			}
+			
+			MessageFormatter(Formatter);
+		}
+		
+		public void MessageFormatter(Func<Exception, HttpContext, HandlerContext, Task> formatter)
+		{
+			CustomFormatter = formatter;
 		}
 		
 		public void OnError(Func<Exception, HttpContext, Task> log)
@@ -54,7 +68,8 @@ namespace GlobalExceptionHandler.WebApi
 				if (_logger != null)
 					await _logger(exception, context);
 				
-				context.Response.ContentType = ContentType;
+				if (ContentType != null)
+					context.Response.ContentType = ContentType;
 				
 				// If any custom exceptions are set
 				foreach (var type in _exceptionConfgurationTypesSortedByDepthDescending)
@@ -70,9 +85,17 @@ namespace GlobalExceptionHandler.WebApi
 					}
 				}
 
+				// Global default format output
+
+				if (CustomFormatter != null)
+				{
+					await CustomFormatter(exception, context, handlerContext);
+					return;
+				}
+					
 				var formatter = DebugMode ? DefaultFormatter : ExceptionConfig.SafeFormatterWithDetails;
 				await formatter(exception, context, handlerContext);
 			};
-		}
+		}		
 	}
 }

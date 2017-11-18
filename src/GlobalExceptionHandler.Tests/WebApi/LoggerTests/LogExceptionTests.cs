@@ -26,7 +26,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.LoggerTests
             var webHost = fixture.CreateWebHost();
             webHost.Configure(app =>
             {
-                app.UseWebApiGlobalExceptionHandler(x =>
+                app.UseExceptionHandler().WithConventions(x =>
                 {
                     x.OnError((ex, context) =>
                     {

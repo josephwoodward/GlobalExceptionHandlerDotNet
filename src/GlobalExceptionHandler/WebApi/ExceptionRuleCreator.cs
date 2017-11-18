@@ -14,6 +14,8 @@ namespace GlobalExceptionHandler.WebApi
 
     public interface IHasMessageFormatter
     {   
+/*        void UsingMessageFormatter(Action<string> formatter);*/
+        
         void UsingMessageFormatter(Func<Exception, HttpContext, string> formatter);
         
         void UsingMessageFormatter(Func<Exception, HttpContext, Task> formatter);

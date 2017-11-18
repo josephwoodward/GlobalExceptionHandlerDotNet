@@ -14,11 +14,11 @@ using Xunit;
 
 namespace GlobalExceptionHandler.Tests.WebApi.MessageFormatterTests
 {
-    public class ContentNegotiationXml : IClassFixture<WebApiServerFixture>
+    public class ContentNegotiationXmlWithException : IClassFixture<WebApiServerFixture>
     {
         private readonly HttpResponseMessage _response;
 
-        public ContentNegotiationXml(WebApiServerFixture fixture)
+        public ContentNegotiationXmlWithException(WebApiServerFixture fixture)
         {
             // Arrange
             const string requestUri = "/api/productnotfound";
@@ -29,7 +29,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.MessageFormatterTests
                 app.UseExceptionHandler().WithConventions(x =>
                 {
                     x.ForException<RecordNotFoundException>().ReturnStatusCode(HttpStatusCode.NotFound)
-                        .UsingMessageFormatter(new TestResponse
+                        .UsingMessageFormatter(e => new TestResponse
                         {
                             Message = "An exception occured"
                         });

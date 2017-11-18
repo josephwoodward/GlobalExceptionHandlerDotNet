@@ -6,6 +6,7 @@ namespace GlobalExceptionHandler.WebApi
 {
     public static class WebApiExceptionHandlingExtensions
     {
+        [Obsolete("UseWebApiGlobalExceptionHandler is obsolete, use app.UseExceptionHandler().WithConventions(..) instead", true)]
         public static IApplicationBuilder UseWebApiGlobalExceptionHandler(this IApplicationBuilder app, Action<ExceptionHandlerConfiguration> configuration)
         {
             if (app == null)
