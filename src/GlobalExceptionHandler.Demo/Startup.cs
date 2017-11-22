@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Net;
-using GlobalExceptionHandler.ContentNegotiation.Mvc;
 using GlobalExceptionHandler.WebApi;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 
 namespace GlobalExceptionHandler.Demo
 {
@@ -22,28 +20,17 @@ namespace GlobalExceptionHandler.Demo
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc(options =>
-            {
-                options.RespectBrowserAcceptHeader = true;
-                options.OutputFormatters.Add(new XmlSerializerOutputFormatter());
-            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            if (env.IsDevelopment())
-                app.UseDeveloperExceptionPage();
+            app.Map("/demo", x => x.Run(y => throw new ArgumentException("boo!")));
 
-            app.UseExceptionHandler().WithConventions(x =>
+            app.UseExceptionHandler().WithConventions(x => x.MessageFormatter(e => JsonConvert.SerializeObject(new
             {
-                x.ForException<ArgumentException>().ReturnStatusCode(HttpStatusCode.Conflict).UsingMessageFormatter(e => new DemoOutput
-                    {
-                        Message = e.Message
-                    });
-            });
-
-            app.UseMvc();
+                Message = "Something went wrong"
+            })));
         }
     }
 

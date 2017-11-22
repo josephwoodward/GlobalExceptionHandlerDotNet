@@ -2,53 +2,33 @@
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using GlobalExceptionHandler.Tests.WebApi.Fixtures;
+using GlobalExceptionHandler.Tests.Fixtures;
+using GlobalExceptionHandler.WebApi;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
-using Newtonsoft.Json;
 using Shouldly;
 using Xunit;
 
-namespace GlobalExceptionHandler.Tests.WebApi
+namespace GlobalExceptionHandler.Tests.WebApi.GlobalFormatterTests
 {
-/*
-    public class FailingTests : IClassFixture<WebApiServerFixture>
+    public class BareMetalTests : IClassFixture<WebApiServerFixture>
     {
         private readonly HttpResponseMessage _response;
 
-        public FailingTests(WebApiServerFixture fixture)
+        public BareMetalTests(WebApiServerFixture fixture)
         {
             // Arrange
             const string requestUri = "/api/productnotfound";
             var webHost = fixture.CreateWebHost();
             webHost.Configure(app =>
             {
-                app.UseWebApiGlobalExceptionHandler(x =>
+                app.UseExceptionHandler().WithConventions(x =>
                 {
                     x.ContentType = "application/json";
-                    x.MessageFormatter(exception => JsonConvert.SerializeObject(new
-                    {
-                        error = new
-                        {
-                            message = "Something went wrong!"
-                        }
-                    }));
-                    x.ForException<DivideByZeroException>().ReturnStatusCode(HttpStatusCode.BadRequest).UsingMessageFormatter(
-                        exception => JsonConvert.SerializeObject(new
-                        {
-                            error = new
-                            {
-                                exception = exception.GetType().Name,
-                                message = exception.Message
-                            }
-                        }));
                 });
 
-                app.Map(requestUri, config =>
-                {
-                    config.Run(context => throw new ArgumentException("Can't divide by zero"));
-                });
+                app.Map(requestUri, config => { config.Run(context => throw new ArgumentException("Invalid request")); });
             });
 
             // Act
@@ -73,11 +53,10 @@ namespace GlobalExceptionHandler.Tests.WebApi
         }
 
         [Fact]
-        public async Task Returns_correct_body()
+        public async Task Returns_empty_body()
         {
             var content = await _response.Content.ReadAsStringAsync();
-            content.ShouldContain("Something went wrong!");
+            content.ShouldBeEmpty();
         }
     }
-*/
 }

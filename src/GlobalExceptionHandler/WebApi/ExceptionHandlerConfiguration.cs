@@ -55,7 +55,7 @@ namespace GlobalExceptionHandler.WebApi
 		{
 			var handlerContext = new HandlerContext
 			{
-				DefaultContentType = ContentType
+				ContentType = ContentType
 			};
 			
 			_exceptionConfgurationTypesSortedByDepthDescending = _exceptionConfiguration.Keys
@@ -86,15 +86,14 @@ namespace GlobalExceptionHandler.WebApi
 				}
 
 				// Global default format output
-
 				if (CustomFormatter != null)
 				{
 					await CustomFormatter(exception, context, handlerContext);
 					return;
 				}
-					
-				var formatter = DebugMode ? DefaultFormatter : ExceptionConfig.SafeFormatterWithDetails;
-				await formatter(exception, context, handlerContext);
+
+				if (DebugMode)
+					await DefaultFormatter(exception, context, handlerContext);
 			};
 		}		
 	}

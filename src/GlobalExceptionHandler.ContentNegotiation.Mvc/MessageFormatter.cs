@@ -30,6 +30,30 @@ namespace GlobalExceptionHandler.ContentNegotiation.Mvc
 
             formatter.UsingMessageFormatter(Formatter);
         }
+        
+        public static void UsingMessageFormatter<T>(this IHasMessageFormatter formatter, Func<Exception, HttpContext, T> f)
+        {
+            Task Formatter(Exception e, HttpContext c, HandlerContext b)
+            {
+                c.Response.ContentType = null;
+                c.WriteAsyncObject(f(e, c));
+                return Task.CompletedTask;
+            }
+
+            formatter.UsingMessageFormatter(Formatter);
+        }
+        
+        public static void UsingMessageFormatter<T>(this IHasMessageFormatter formatter, Func<Exception, HttpContext, HandlerContext, T> f)
+        {
+            Task Formatter(Exception e, HttpContext c, HandlerContext b)
+            {
+                c.Response.ContentType = null;
+                c.WriteAsyncObject(f(e, c, b));
+                return Task.CompletedTask;
+            }
+
+            formatter.UsingMessageFormatter(Formatter);
+        }
 
     }
 }

@@ -2,13 +2,13 @@
 
 [![Build status](https://ci.appveyor.com/api/projects/status/kdbepiak0m6olxw7?svg=true)](https://ci.appveyor.com/project/JoeMighty/globalexceptionhandlerdotnet)
 
-GlobalExceptionHandlerDotNet allows you to configure exceptions handling as a convention as opposed to explicitly within each controller action. This could be particularly helpful in the following circumstances:
+GlobalExceptionHandlerDotNet allows you to configure exception handling as a convention with your ASP.NET Core application pipeline as opposed to explicitly handling them within each controller action. This could be particularly helpful in the following circumstances:
 
 - Reduce boiler plate try-catch logic in your controllers
-- Catch and appropriately handle exceptions outside of the MVC/WebAPI framework
+- Catch and appropriately handle exceptions outside of the ASP.NET Core framework
 - You don't want error codes being visible by consuming APIs (return 500 for every exception)
 
-This middleware currently supports **WebAPI** with **MVC** support in the works.
+This middleware targets the ASP.NET Core pipeline with an optional dependency on the MVC framework for content negotiation if so desired.
 
 ## Installation
 
@@ -23,7 +23,7 @@ or via the .NET Core CLI:
 $ dotnet add package GlobalExceptionHandler
 ```
 
-## Web API Setup
+## Setup
 
 Within your `Startup.cs` file's `Configure` method (be sure to call before `UseMvc()`):
 

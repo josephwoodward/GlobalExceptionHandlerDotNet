@@ -4,7 +4,7 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using GlobalExceptionHandler.ContentNegotiation.Mvc;
 using GlobalExceptionHandler.Tests.Exceptions;
-using GlobalExceptionHandler.Tests.WebApi.Fixtures;
+using GlobalExceptionHandler.Tests.Fixtures;
 using GlobalExceptionHandler.WebApi;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.TestHost;
 using Shouldly;
 using Xunit;
 
-namespace GlobalExceptionHandler.Tests.WebApi.MessageFormatterTests
+namespace GlobalExceptionHandler.Tests.WebApi.ContentNegotiationTests
 {
     public class ContentNegotiationJsonWithException : IClassFixture<WebApiServerFixture>
     {
@@ -24,7 +24,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.MessageFormatterTests
             // Arrange
             const string requestUri = "/api/productnotfound";
             
-            var webHost = fixture.CreateWebHost();
+            var webHost = fixture.CreateWebHostWithMvc();
             webHost.Configure(app =>
             {
                 app.UseExceptionHandler().WithConventions(x =>

@@ -2,7 +2,7 @@ using System;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using GlobalExceptionHandler.Tests.WebApi.Fixtures;
+using GlobalExceptionHandler.Tests.Fixtures;
 using GlobalExceptionHandler.WebApi;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -20,7 +20,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.GlobalFormatterTests
         {
             // Arrange
             const string requestUri = "/api/productnotfound";
-            var webHost = fixture.CreateWebHost();
+            var webHost = fixture.CreateWebHostWithMvc();
             webHost.Configure(app =>
             {
                 app.UseExceptionHandler().WithConventions(x =>

@@ -4,7 +4,7 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using GlobalExceptionHandler.ContentNegotiation.Mvc;
 using GlobalExceptionHandler.Tests.Exceptions;
-using GlobalExceptionHandler.Tests.WebApi.Fixtures;
+using GlobalExceptionHandler.Tests.Fixtures;
 using GlobalExceptionHandler.WebApi;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -12,24 +12,27 @@ using Microsoft.AspNetCore.TestHost;
 using Shouldly;
 using Xunit;
 
-namespace GlobalExceptionHandler.Tests.WebApi.MessageFormatterTests
+namespace GlobalExceptionHandler.Tests.Tests.ContentNegotiationTests
 {
-    public class ContentNegotiationPlainText : IClassFixture<WebApiServerFixture>
+    public class ContentNegotiationXmlWithException : IClassFixture<WebApiServerFixture>
     {
         private readonly HttpResponseMessage _response;
 
-        public ContentNegotiationPlainText(WebApiServerFixture fixture)
+        public ContentNegotiationXmlWithException(WebApiServerFixture fixture)
         {
             // Arrange
             const string requestUri = "/api/productnotfound";
             
-            var webHost = fixture.CreateWebHost();
+            var webHost = fixture.CreateWebHostWithXmlFormatters();
             webHost.Configure(app =>
             {
                 app.UseExceptionHandler().WithConventions(x =>
                 {
                     x.ForException<RecordNotFoundException>().ReturnStatusCode(HttpStatusCode.NotFound)
-                        .UsingMessageFormatter((e, c, h) => c.WriteAsyncObject(e.Message));
+                        .UsingMessageFormatter(e => new TestResponse
+                        {
+                            Message = "An exception occured"
+                        });
                 });
 
                 app.Map(requestUri, config =>
@@ -44,7 +47,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.MessageFormatterTests
             {
                 var requestMessage = new HttpRequestMessage(new HttpMethod("GET"), requestUri);
                 requestMessage.Headers.Accept.Clear();
-                requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("text/plain"));
+                requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("text/xml"));
                 _response = client.SendAsync(requestMessage).Result;
             }
         }
@@ -52,7 +55,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.MessageFormatterTests
         [Fact]
         public void Returns_correct_response_type()
         {
-            _response.Content.Headers.ContentType.MediaType.ShouldBe("text/plain");
+            _response.Content.Headers.ContentType.MediaType.ShouldBe("text/xml");
         }
 
         [Fact]
@@ -65,7 +68,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.MessageFormatterTests
         public async Task Returns_correct_body()
         {
             var content = await _response.Content.ReadAsStringAsync();
-            content.ShouldContain("Record could not be found");
+            content.ShouldContain("<Message>An exception occured</Message>");
         }
     }
 }

@@ -4,8 +4,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using GlobalExceptionHandler.ContentNegotiation.Mvc;
-using GlobalExceptionHandler.Tests.Exceptions;
-using GlobalExceptionHandler.Tests.WebApi.Fixtures;
+using GlobalExceptionHandler.Tests.Fixtures;
 using GlobalExceptionHandler.WebApi;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -14,52 +13,45 @@ using Microsoft.AspNetCore.TestHost;
 using Shouldly;
 using Xunit;
 
-namespace GlobalExceptionHandler.Tests.WebApi
+namespace GlobalExceptionHandler.Tests.WebApi.MessageFormatterTests
 {
-    public class HandleExceptionTests2 : IClassFixture<WebApiServerFixture>
+    public class TypeTests : IClassFixture<WebApiServerFixture>
     {
         private readonly HttpResponseMessage _response;
 
-        public HandleExceptionTests2(WebApiServerFixture fixture)
+        public TypeTests(WebApiServerFixture fixture)
         {
             // Arrange
             const string requestUri = "/api/productnotfound";
-            var webHost = fixture.CreateWebHost();
+            var webHost = fixture.CreateWebHostWithXmlFormatters();
             webHost.Configure(app =>
             {
 	            app.UseExceptionHandler().WithConventions(x =>
 	            {
 					x.ForException<BaseException>()
 						.ReturnStatusCode(HttpStatusCode.BadGateway)
-						.UsingMessageFormatter((e, c, h) => c.Response.WriteAsync("my custom message for applicaiton exceptions"));
+						.UsingMessageFormatter((e, c, h) => c.Response.WriteAsync("<Message>Not Thrown Message</Message>"));
 
 		            x.ForException<Level1ExceptionA>()
 			            .ReturnStatusCode(HttpStatusCode.Conflict)
-			            .UsingMessageFormatter((e, c, h) => c.WriteAsyncObject(new TestResponse
+			            .UsingMessageFormatter(new TestResponse
 			            {
-				            Message = "Hello World 1"
-			            }));
+				            Message = "Conflict"
+			            });
 
 		            x.ForException<Level1ExceptionB>()
-			            .ReturnStatusCode(HttpStatusCode.Ambiguous)
-			            .UsingMessageFormatter((e, c, h) => c.WriteAsyncObject(new TestResponse
+			            .ReturnStatusCode(HttpStatusCode.BadRequest)
+			            .UsingMessageFormatter(e => new TestResponse
 			            {
-				            Message = "Hello World 1"
-			            }));
-
-		            x.ForException<Level2ExceptionA>()
-			            .ReturnStatusCode(HttpStatusCode.ExpectationFailed)
-			            .UsingMessageFormatter((e, c, h) => c.WriteAsyncObject(new TestResponse
-			            {
-				            Message = "Hello World 1"
-			            }));
+				            Message = "Bad Request"
+			            });
 
 		            x.ForException<Level2ExceptionB>()
 			            .ReturnStatusCode(HttpStatusCode.Forbidden)
-			            .UsingMessageFormatter((e, c, h) => c.WriteAsyncObject(new TestResponse
+			            .UsingMessageFormatter(new TestResponse
 			            {
-				            Message = "Hello World 1"
-			            }));
+				            Message = "Forbidden"
+			            });
 				});
 
                 app.Map(requestUri, config =>
@@ -88,24 +80,24 @@ namespace GlobalExceptionHandler.Tests.WebApi
         [Fact]
         public void Returns_correct_status_code()
         {
-            _response.StatusCode.ShouldBe(HttpStatusCode.Ambiguous);
+            _response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
         }
 
         [Fact]
         public async Task Returns_correct_body()
         {
             var content = await _response.Content.ReadAsStringAsync();
-            content.ShouldContain(@"<Message>Hello World 1</Message>");
+            content.ShouldContain(@"<Message>Bad Request</Message>");
         }
     }
 
-	class BaseException : Exception { }
+	internal class BaseException : Exception { }
 
-	class Level1ExceptionA : BaseException { }
+	internal class Level1ExceptionA : BaseException { }
 
-	class Level1ExceptionB : BaseException { }
+	internal class Level1ExceptionB : BaseException { }
 
-	class Level2ExceptionA : Level1ExceptionA { }
+	internal class Level2ExceptionA : Level1ExceptionA { }
 
-	class Level2ExceptionB : Level1ExceptionB { }
+	internal class Level2ExceptionB : Level1ExceptionB { }
 }
