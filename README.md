@@ -105,13 +105,16 @@ x.OnError((exception, httpContext) =>
 Specify the returned content type (default is `application/json)`.
 
 - `MessageFormatter(Func<Exception, string>)`  
-Set a default message formatter, that any unhandled exceptions will trigger.
+Set a default message formatter that any unhandled exception will trigger.
 
 ```csharp
 x.MessageFormatter((exception) => {
     return "Oops, something went wrong! Check the logs for more information.";
 });
 ```
+
+-`DebugMode`
+Enabling debug mode will cause GlobalExceptionHandlerDotNet to return the full exception thrown. **This is disabled by default and should not be set in production.**
 
 ## Content Negotiation
 
