@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
@@ -40,6 +39,19 @@ namespace GlobalExceptionHandler.WebApi
 			
 			MessageFormatter(Formatter);
 		}
+		
+		public void MessageFormatter(Func<Exception, HttpContext, string> formatter)
+		{
+			Task Formatter(Exception x, HttpContext y, HandlerContext b)
+			{
+				var s = formatter.Invoke(x, y);
+				y.Response.WriteAsync(s);
+				return Task.CompletedTask;
+			}
+			
+			MessageFormatter(Formatter);
+		}
+
 		
 		public void MessageFormatter(Func<Exception, HttpContext, HandlerContext, Task> formatter)
 		{
