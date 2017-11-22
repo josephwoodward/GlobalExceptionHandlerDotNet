@@ -88,7 +88,7 @@ app.UseWebApiGlobalExceptionHandler(x =>
 });
 ```
 
-**Configuration Options:**
+## Configuration Options:
 
 - `OnError(Func<Exception, HttpContext, Task>)`  
 Logging endpoint allowing you to capture exception information.
@@ -105,7 +105,7 @@ x.OnError((exception, httpContext) =>
 Specify the returned content type (default is `application/json)`.
 
 - `MessageFormatter(Func<Exception, string>)`  
-Overrides default JSON message formatter; this is useful if you want to change the error response format or type (XML for instance).
+Set a default message formatter, that any unhandled exceptions will trigger.
 
 ```csharp
 x.MessageFormatter((exception) => {
@@ -113,6 +113,8 @@ x.MessageFormatter((exception) => {
 });
 ```
 
-## MVC Setup
+## Content Negotiation
 
-Work in progress.
+Because GlobalExceptionHandlerDotNet plugs into the .NET Core pipeline, it can also take advantage of content negotiation. This means that if a user requests a resource and sets the `Accept` header to `text/xml`, if an exception occurs then the content type will be formatted to the requested format type.
+
+To enable content negotiation against ASP.NET Core MVC you will need to include [GlobalExceptionHandler.ContentNegotiation.Mvc](#)
