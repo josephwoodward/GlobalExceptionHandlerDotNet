@@ -113,7 +113,7 @@ x.MessageFormatter((exception) => {
 });
 ```
 
--`DebugMode`
+- `DebugMode`
 Enabling debug mode will cause GlobalExceptionHandlerDotNet to return the full exception thrown. **This is disabled by default and should not be set in production.**
 
 ## Content Negotiation
