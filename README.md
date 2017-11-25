@@ -2,13 +2,13 @@
 
 [![Build status](https://ci.appveyor.com/api/projects/status/kdbepiak0m6olxw7?svg=true)](https://ci.appveyor.com/project/JoeMighty/globalexceptionhandlerdotnet)
 
-GlobalExceptionHandlerDotNet allows you to configure exceptions handling as a convention as opposed to explicitly within each controller action. This could be particularly helpful in the following circumstances:
+GlobalExceptionHandlerDotNet allows you to configure exception handling as a convention with your ASP.NET Core application pipeline as opposed to explicitly handling them within each controller action. This could be particularly helpful in the following circumstances:
 
 - Reduce boiler plate try-catch logic in your controllers
-- Catch and appropriately handle exceptions outside of the MVC/WebAPI framework
+- Catch and appropriately handle exceptions outside of the ASP.NET Core framework
 - You don't want error codes being visible by consuming APIs (return 500 for every exception)
 
-This middleware currently supports **WebAPI** with **MVC** support in the works.
+This middleware targets the ASP.NET Core pipeline with an optional dependency on the MVC framework for content negotiation if so desired.
 
 ## Installation
 
@@ -23,37 +23,45 @@ or via the .NET Core CLI:
 $ dotnet add package GlobalExceptionHandler
 ```
 
-## Web API Setup
-
-Within your `Startup.cs` file's `Configure` method (be sure to call before `UseMvc()`):
+## Basic Setup
 
 ```csharp
-public class Startup
+// Startup.cs
+
+public void Configure(IApplicationBuilder app, IHostingEnvironment env)
 {
-    public void Configure(IApplicationBuilder app, IHostingEnvironment env)
-    {
-        app.UseWebApiGlobalExceptionHandler(x =>
+    app.UseExceptionHandler().WithConventions(x => {
+        x.ContentType = "application/json";
+        x.MessageFormatter(s => JsonConvert.SerializeObject(new
         {
-            x.ForException<PageNotFoundException>().ReturnStatusCode(HttpStatusCode.NotFound);
-        });
-
-        app.UseMvc();
-    }
+            Message = "An error occured whilst processing your request"
+        }));
+    });
+    
+    app.Map("/error", x => x.Run(y => throw new Exception()));
 }
 ```
 
-Returns the following default exception message:
+Any exception thrown by your application will result in the follow response:
 
-```json
+```http
+HTTP/1.1 500 Internal Server Error
+Date: Fri, 24 Nov 2017 09:17:05 GMT
+Content-Type: application/json
+Server: Kestrel
+Cache-Control: no-cache
+Pragma: no-cache
+Transfer-Encoding: chunked
+Expires: -1
+
 {
-    "error": {
-        "exception": "PageNotFoundException",
-        "message": "Page could not be found"
-    }
+  "Message": "An error occured whilst processing your request"
 }
 ```
 
-This exception message can be overridden via the `ExceptionFormatter` method like so:
+## Handling specific exceptions
+
+You can handle specific exceptions explicitly like so:
 
 ```csharp
 
@@ -88,7 +96,7 @@ app.UseWebApiGlobalExceptionHandler(x =>
 });
 ```
 
-**Configuration Options:**
+## Configuration Options:
 
 - `OnError(Func<Exception, HttpContext, Task>)`  
 Logging endpoint allowing you to capture exception information.
@@ -105,7 +113,7 @@ x.OnError((exception, httpContext) =>
 Specify the returned content type (default is `application/json)`.
 
 - `MessageFormatter(Func<Exception, string>)`  
-Overrides default JSON message formatter; this is useful if you want to change the error response format or type (XML for instance).
+Set a default message formatter that any unhandled exception will trigger.
 
 ```csharp
 x.MessageFormatter((exception) => {
@@ -113,6 +121,11 @@ x.MessageFormatter((exception) => {
 });
 ```
 
-## MVC Setup
+- `DebugMode`
+Enabling debug mode will cause GlobalExceptionHandlerDotNet to return the full exception thrown. **This is disabled by default and should not be set in production.**
 
-Work in progress.
+## Content Negotiation
+
+Because GlobalExceptionHandlerDotNet plugs into the .NET Core pipeline, it can also take advantage of content negotiation. This means that if a user requests a resource and sets the `Accept` header to `text/xml`, if an exception occurs then the content type will be formatted to the requested format type.
+
+To enable content negotiation against ASP.NET Core MVC you will need to include [GlobalExceptionHandler.ContentNegotiation.Mvc](#)

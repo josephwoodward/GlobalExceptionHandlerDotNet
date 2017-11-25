@@ -1,52 +1,48 @@
-﻿using System;
+using System;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using GlobalExceptionHandler.Tests.WebApi.Fixtures;
+using GlobalExceptionHandler.Tests.Exceptions;
+using GlobalExceptionHandler.Tests.Fixtures;
+using GlobalExceptionHandler.WebApi;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.TestHost;
 using Newtonsoft.Json;
 using Shouldly;
 using Xunit;
 
-namespace GlobalExceptionHandler.Tests.WebApi
+namespace GlobalExceptionHandler.Tests.WebApi.OldApiTests
 {
-    public class FailingTests : IClassFixture<WebApiServerFixture>
+    public class OldApiTests : IClassFixture<WebApiServerFixture>
     {
         private readonly HttpResponseMessage _response;
-
-        public FailingTests(WebApiServerFixture fixture)
+        
+        public OldApiTests(WebApiServerFixture fixture)
         {
             // Arrange
             const string requestUri = "/api/productnotfound";
-            var webHost = fixture.CreateWebHost();
+            var webHost = fixture.CreateWebHostWithMvc();
             webHost.Configure(app =>
             {
-                app.UseWebApiGlobalExceptionHandler(x =>
+                app.UseExceptionHandler().WithConventions(x =>
                 {
                     x.ContentType = "application/json";
+                    x.ForException<RecordNotFoundException>().ReturnStatusCode(HttpStatusCode.NotFound);
                     x.MessageFormatter(exception => JsonConvert.SerializeObject(new
                     {
                         error = new
                         {
-                            message = "Something went wrong!"
+                            exception = exception.GetType().Name,
+                            message = exception.Message
                         }
                     }));
-                    x.ForException<DivideByZeroException>().ReturnStatusCode(HttpStatusCode.BadRequest).UsingMessageFormatter(
-                        exception => JsonConvert.SerializeObject(new
-                        {
-                            error = new
-                            {
-                                exception = exception.GetType().Name,
-                                message = exception.Message
-                            }
-                        }));
                 });
 
                 app.Map(requestUri, config =>
                 {
-                    config.Run(context => throw new ArgumentException("Can't divide by zero"));
+                    config.Run(context => throw new NullReferenceException("Object is null"));
                 });
             });
 
@@ -58,7 +54,7 @@ namespace GlobalExceptionHandler.Tests.WebApi
                 _response = client.SendAsync(requestMessage).Result;
             }
         }
-
+        
         [Fact]
         public void Returns_correct_response_type()
         {
@@ -75,7 +71,7 @@ namespace GlobalExceptionHandler.Tests.WebApi
         public async Task Returns_correct_body()
         {
             var content = await _response.Content.ReadAsStringAsync();
-            content.ShouldContain("Something went wrong!");
+            content.ShouldBe("{\"error\":{\"exception\":\"NullReferenceException\",\"message\":\"Object is null\"}}");
         }
     }
 }

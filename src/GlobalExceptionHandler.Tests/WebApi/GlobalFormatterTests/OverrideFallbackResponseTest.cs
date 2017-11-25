@@ -2,7 +2,8 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using GlobalExceptionHandler.Tests.Exceptions;
-using GlobalExceptionHandler.Tests.WebApi.Fixtures;
+using GlobalExceptionHandler.Tests.Fixtures;
+using GlobalExceptionHandler.WebApi;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
@@ -10,39 +11,30 @@ using Newtonsoft.Json;
 using Shouldly;
 using Xunit;
 
-namespace GlobalExceptionHandler.Tests.WebApi
+namespace GlobalExceptionHandler.Tests.WebApi.GlobalFormatterTests
 {
-    public class CustomMessageFormatterTests : IClassFixture<WebApiServerFixture>
+    public class OverrideFallbackResponseTest : IClassFixture<WebApiServerFixture>
     {
         private readonly HttpResponseMessage _response;
-        private const string ExceptionMessage = "Product could not be found";
 
-        public CustomMessageFormatterTests(WebApiServerFixture fixture)
+        public OverrideFallbackResponseTest(WebApiServerFixture fixture)
         {
             // Arrange
             const string requestUri = "/api/productnotfound";
-            var webHost = fixture.CreateWebHost();
-
+            var webHost = fixture.CreateWebHostWithMvc();
             webHost.Configure(app =>
             {
-                app.UseWebApiGlobalExceptionHandler(x =>
-                {
+                app.UseExceptionHandler().WithConventions(x => {
                     x.ContentType = "application/json";
-                    x.ForException<ProductNotFoundException>().ReturnStatusCode(HttpStatusCode.NotFound);
-                    x.MessageFormatter(exception => JsonConvert.SerializeObject(new
+                    x.MessageFormatter(s => JsonConvert.SerializeObject(new
                     {
-                        error = new
-                        {
-                            exception = exception.GetType().Name,
-                            message = exception.Message
-                        }
+                        Message = "An error occured whilst processing your request"
                     }));
+                    x.ForException<RecordNotFoundException>().ReturnStatusCode(HttpStatusCode.NotFound)
+                        .UsingMessageFormatter((e, c) => JsonConvert.SerializeObject(new {e.Message}));
                 });
 
-                app.Map(requestUri, config =>
-                {
-                    config.Run(context => throw new ProductNotFoundException(ExceptionMessage));
-                });
+                app.Map(requestUri, config => { config.Run(context => throw new RecordNotFoundException("Record could not be found")); });
             });
 
             // Act
@@ -67,10 +59,10 @@ namespace GlobalExceptionHandler.Tests.WebApi
         }
 
         [Fact]
-        public async Task Returns_custom_message()
+        public async Task Returns_global_exception_message()
         {
             var content = await _response.Content.ReadAsStringAsync();
-            content.ShouldBe(@"{""error"":{""exception"":""ProductNotFoundException"",""message"":""Product could not be found""}}");
+            content.ShouldBe("{\"Message\":\"Record could not be found\"}");
         }
     }
 }

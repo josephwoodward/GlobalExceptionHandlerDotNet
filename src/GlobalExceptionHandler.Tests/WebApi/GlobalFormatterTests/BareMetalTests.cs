@@ -1,37 +1,31 @@
+﻿using System;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using GlobalExceptionHandler.Tests.Exceptions;
-using GlobalExceptionHandler.Tests.WebApi.Fixtures;
+using GlobalExceptionHandler.Tests.Fixtures;
+using GlobalExceptionHandler.WebApi;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Shouldly;
 using Xunit;
 
-namespace GlobalExceptionHandler.Tests.WebApi
+namespace GlobalExceptionHandler.Tests.WebApi.GlobalFormatterTests
 {
-    public class HandleExceptionTests : IClassFixture<WebApiServerFixture>
+    public class BareMetalTests : IClassFixture<WebApiServerFixture>
     {
         private readonly HttpResponseMessage _response;
 
-        public HandleExceptionTests(WebApiServerFixture fixture)
+        public BareMetalTests(WebApiServerFixture fixture)
         {
             // Arrange
             const string requestUri = "/api/productnotfound";
             var webHost = fixture.CreateWebHost();
             webHost.Configure(app =>
             {
-                app.UseWebApiGlobalExceptionHandler(x =>
-                {
-                    x.ContentType = "application/json";
-                    x.ForException<ProductNotFoundException>().ReturnStatusCode(HttpStatusCode.NotFound);
-                });
+                app.UseExceptionHandler().WithConventions();
 
-                app.Map(requestUri, config =>
-                {
-                    config.Run(context => throw new ProductNotFoundException("Record could not be found"));
-                });
+                app.Map(requestUri, config => { config.Run(context => throw new ArgumentException("Invalid request")); });
             });
 
             // Act
@@ -46,20 +40,20 @@ namespace GlobalExceptionHandler.Tests.WebApi
         [Fact]
         public void Returns_correct_response_type()
         {
-            _response.Content.Headers.ContentType.MediaType.ShouldBe("application/json");
+            _response.Content.Headers.ContentType.ShouldBeNull();
         }
 
         [Fact]
         public void Returns_correct_status_code()
         {
-            _response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
+            _response.StatusCode.ShouldBe(HttpStatusCode.InternalServerError);
         }
 
         [Fact]
-        public async Task Returns_correct_body()
+        public async Task Returns_empty_body()
         {
             var content = await _response.Content.ReadAsStringAsync();
-            content.ShouldContain(nameof(ProductNotFoundException));
+            content.ShouldBeEmpty();
         }
     }
 }

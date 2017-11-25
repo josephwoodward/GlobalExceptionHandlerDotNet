@@ -5,15 +5,15 @@ using Microsoft.AspNetCore.Http;
 
 namespace GlobalExceptionHandler.WebApi
 {
-    public class WebApiExceptionHandlingMiddleware
+/*public class WebApiExceptionHandlingMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly Action<WebApiExceptionHandlingOptionsSetup> _setOptions;
+        private readonly Action<ExceptionHandlerConfiguration> _setOptions;
 
         private OptionsContainer _optionsContainer;
         private string _contentType = "application/json"; // Default content type
 
-        public WebApiExceptionHandlingMiddleware(RequestDelegate next, Action<WebApiExceptionHandlingOptionsSetup> setOptions)
+        public WebApiExceptionHandlingMiddleware(RequestDelegate next, Action<ExceptionHandlerConfiguration> setOptions)
         {
             _next = next;
             _setOptions = setOptions;
@@ -48,12 +48,12 @@ namespace GlobalExceptionHandler.WebApi
             }
         }
 
-        private IExceptionConfig GetHandlerSettings(Type exceptionType)
+        private ExceptionConfig GetHandlerSettings(Type exceptionType)
         {
-            if (_optionsContainer.Exceptions.TryGetValue(exceptionType, out IExceptionConfig context))
+            if (_optionsContainer.Exceptions.TryGetValue(exceptionType, out ExceptionConfig context))
             {
                 context.Formatter = context.Formatter ?? _optionsContainer.GlobalFormatter;
-                context.StatusCode = context.StatusCode ?? _optionsContainer.GlobalStatusCode;
+                context.StatusCode = context.StatusCode;
 
                 return context;
             }
@@ -65,7 +65,7 @@ namespace GlobalExceptionHandler.WebApi
             };
         }
 
-        private async Task WriteExceptionAsync(HttpContext context, Exception exception, IExceptionConfig exceptionParams)
+        private async Task WriteExceptionAsync(HttpContext context, Exception exception, ExceptionConfig exceptionParams)
         {
             var response = context.Response;
             response.ContentType = _contentType;
@@ -74,5 +74,4 @@ namespace GlobalExceptionHandler.WebApi
 
             await response.WriteAsync(message).ConfigureAwait(false);
         }
-    }
-}
+    }*/}

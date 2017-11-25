@@ -1,4 +1,3 @@
-﻿using System;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -14,34 +13,27 @@ using Xunit;
 
 namespace GlobalExceptionHandler.Tests.WebApi.GlobalFormatterTests
 {
-    public class BasicWithOverrideTests : IClassFixture<WebApiServerFixture>
+    public class FallBackResponseTest : IClassFixture<WebApiServerFixture>
     {
         private readonly HttpResponseMessage _response;
 
-        public BasicWithOverrideTests(WebApiServerFixture fixture)
+        public FallBackResponseTest(WebApiServerFixture fixture)
         {
             // Arrange
             const string requestUri = "/api/productnotfound";
             var webHost = fixture.CreateWebHostWithMvc();
             webHost.Configure(app =>
             {
-                app.UseExceptionHandler().WithConventions(x =>
-                {
+                app.UseExceptionHandler().WithConventions(x => {
                     x.ContentType = "application/json";
-                    x.ForException<NeverThrownException>().ReturnStatusCode(HttpStatusCode.BadRequest);
-                    x.MessageFormatter(exception => JsonConvert.SerializeObject(new
+                    x.MessageFormatter(s => JsonConvert.SerializeObject(new
                     {
-                        error = new
-                        {
-                            message = "Something went wrong"
-                        }
+                        Message = "An error occured whilst processing your request"
                     }));
+                    x.ForException<RecordNotFoundException>().ReturnStatusCode(HttpStatusCode.NotFound);
                 });
 
-                app.Map(requestUri, config =>
-                {
-                    config.Run(context => throw new ArgumentException("Invalid request"));
-                });
+                app.Map(requestUri, config => { config.Run(context => throw new RecordNotFoundException()); });
             });
 
             // Act
@@ -62,14 +54,14 @@ namespace GlobalExceptionHandler.Tests.WebApi.GlobalFormatterTests
         [Fact]
         public void Returns_correct_status_code()
         {
-            _response.StatusCode.ShouldBe(HttpStatusCode.InternalServerError);
+            _response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
         }
 
         [Fact]
-        public async Task Returns_correct_body()
+        public async Task Returns_global_exception_message()
         {
             var content = await _response.Content.ReadAsStringAsync();
-            content.ShouldBe(@"{""error"":{""message"":""Something went wrong""}}");
+            content.ShouldBe("{\"Message\":\"An error occured whilst processing your request\"}");
         }
     }
 }

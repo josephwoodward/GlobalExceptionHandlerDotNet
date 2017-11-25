@@ -1,24 +1,22 @@
-﻿using System;
+using System;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using GlobalExceptionHandler.Tests.Exceptions;
 using GlobalExceptionHandler.Tests.Fixtures;
 using GlobalExceptionHandler.WebApi;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
-using Newtonsoft.Json;
 using Shouldly;
 using Xunit;
 
 namespace GlobalExceptionHandler.Tests.WebApi.GlobalFormatterTests
 {
-    public class BasicWithOverrideTests : IClassFixture<WebApiServerFixture>
+    public class DebugModeDisabledTests : IClassFixture<WebApiServerFixture>
     {
         private readonly HttpResponseMessage _response;
-
-        public BasicWithOverrideTests(WebApiServerFixture fixture)
+        
+        public DebugModeDisabledTests(WebApiServerFixture fixture)
         {
             // Arrange
             const string requestUri = "/api/productnotfound";
@@ -27,21 +25,10 @@ namespace GlobalExceptionHandler.Tests.WebApi.GlobalFormatterTests
             {
                 app.UseExceptionHandler().WithConventions(x =>
                 {
-                    x.ContentType = "application/json";
-                    x.ForException<NeverThrownException>().ReturnStatusCode(HttpStatusCode.BadRequest);
-                    x.MessageFormatter(exception => JsonConvert.SerializeObject(new
-                    {
-                        error = new
-                        {
-                            message = "Something went wrong"
-                        }
-                    }));
+                    x.DebugMode = false;
                 });
 
-                app.Map(requestUri, config =>
-                {
-                    config.Run(context => throw new ArgumentException("Invalid request"));
-                });
+                app.Map(requestUri, config => { config.Run(context => throw new ArgumentException("Invalid request")); });
             });
 
             // Act
@@ -56,7 +43,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.GlobalFormatterTests
         [Fact]
         public void Returns_correct_response_type()
         {
-            _response.Content.Headers.ContentType.MediaType.ShouldBe("application/json");
+            _response.Content.Headers.ContentType.ShouldBeNull();
         }
 
         [Fact]
@@ -69,7 +56,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.GlobalFormatterTests
         public async Task Returns_correct_body()
         {
             var content = await _response.Content.ReadAsStringAsync();
-            content.ShouldBe(@"{""error"":{""message"":""Something went wrong""}}");
+            content.ShouldBeEmpty();
         }
     }
 }
