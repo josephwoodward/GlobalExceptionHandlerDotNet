@@ -23,7 +23,7 @@ namespace GlobalExceptionHandler.WebApi
                 depthOfY++;
             }
 
-            return depthOfY.CompareTo(depthOfX);
+            return depthOfX.CompareTo(depthOfY);
         }
     }
 }

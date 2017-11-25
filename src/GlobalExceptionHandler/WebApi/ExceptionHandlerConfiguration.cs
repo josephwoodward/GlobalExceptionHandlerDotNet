@@ -81,7 +81,7 @@ namespace GlobalExceptionHandler.WebApi
 			};
 			
 			_exceptionConfgurationTypesSortedByDepthDescending = _exceptionConfiguration.Keys
-				.OrderBy(x => x, new ExceptionTypePolymorphicComparer())
+				.OrderByDescending(x => x, new ExceptionTypePolymorphicComparer())
 				.ToArray();
 
 			return async context =>
