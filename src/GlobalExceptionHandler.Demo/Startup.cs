@@ -1,11 +1,7 @@
-﻿using System;
-using System.Net;
-using GlobalExceptionHandler.ContentNegotiation.Mvc;
+﻿using System.Net;
 using GlobalExceptionHandler.WebApi;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
@@ -21,21 +17,22 @@ namespace GlobalExceptionHandler.Demo
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            app.Map("/demo", x => x.Run(y => throw new ArgumentException("boo!")));
-
-            app.UseExceptionHandler().WithConventions(x => x.MessageFormatter((e, c) => JsonConvert.SerializeObject(new
-            {
-                Message = "Hello World!"
-            })));
+            app.UseExceptionHandler().WithConventions(x => {
+                x.ContentType = "application/json";
+                x.MessageFormatter(s => JsonConvert.SerializeObject(new
+                {
+                    Message = "An error occured whilst processing your request"
+                }));
+                x.ForException<RecordNotFoundException>().ReturnStatusCode(HttpStatusCode.NotFound);
+            });
+            
+            app.Map("/error", x => x.Run(y => throw new RecordNotFoundException()));
         }
     }
 

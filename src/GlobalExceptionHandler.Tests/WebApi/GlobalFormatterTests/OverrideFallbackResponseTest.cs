@@ -1,7 +1,7 @@
-using System;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using GlobalExceptionHandler.Tests.Exceptions;
 using GlobalExceptionHandler.Tests.Fixtures;
 using GlobalExceptionHandler.WebApi;
 using Microsoft.AspNetCore.Builder;
@@ -10,31 +10,31 @@ using Microsoft.AspNetCore.TestHost;
 using Newtonsoft.Json;
 using Shouldly;
 using Xunit;
-using static System.Threading.Tasks.Task;
 
 namespace GlobalExceptionHandler.Tests.WebApi.GlobalFormatterTests
 {
-    public class BasicTests : IClassFixture<WebApiServerFixture>
+    public class OverrideFallbackResponseTest : IClassFixture<WebApiServerFixture>
     {
         private readonly HttpResponseMessage _response;
 
-        public BasicTests(WebApiServerFixture fixture)
+        public OverrideFallbackResponseTest(WebApiServerFixture fixture)
         {
             // Arrange
             const string requestUri = "/api/productnotfound";
             var webHost = fixture.CreateWebHostWithMvc();
             webHost.Configure(app =>
             {
-                app.UseExceptionHandler().WithConventions(x =>
-                {
+                app.UseExceptionHandler().WithConventions(x => {
                     x.ContentType = "application/json";
-                    x.MessageFormatter(c => JsonConvert.SerializeObject(new TestResponse
+                    x.MessageFormatter(s => JsonConvert.SerializeObject(new
                     {
-                        Message = c.Message
+                        Message = "An error occured whilst processing your request"
                     }));
+                    x.ForException<RecordNotFoundException>().ReturnStatusCode(HttpStatusCode.NotFound)
+                        .UsingMessageFormatter((e, c) => JsonConvert.SerializeObject(new {e.Message}));
                 });
 
-                app.Map(requestUri, config => { config.Run(context => throw new ArgumentException("Invalid request")); });
+                app.Map(requestUri, config => { config.Run(context => throw new RecordNotFoundException("Record could not be found")); });
             });
 
             // Act
@@ -55,14 +55,14 @@ namespace GlobalExceptionHandler.Tests.WebApi.GlobalFormatterTests
         [Fact]
         public void Returns_correct_status_code()
         {
-            _response.StatusCode.ShouldBe(HttpStatusCode.InternalServerError);
+            _response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
         }
 
         [Fact]
-        public async Task Returns_empty_body()
+        public async Task Returns_global_exception_message()
         {
             var content = await _response.Content.ReadAsStringAsync();
-            content.ShouldBe("{\"Message\":\"Invalid request\"}");
+            content.ShouldBe("{\"Message\":\"Record could not be found\"}");
         }
     }
 }

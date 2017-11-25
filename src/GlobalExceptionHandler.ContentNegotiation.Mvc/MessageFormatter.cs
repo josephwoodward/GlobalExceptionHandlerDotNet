@@ -7,7 +7,7 @@ namespace GlobalExceptionHandler.ContentNegotiation.Mvc
 {
     public static class MessageFormatters
     {
-        public static void UsingMessageFormatter<T>(this IHasMessageFormatter formatter, T response)
+        public static void UsingMessageFormatter<T>(this IHandledFormatters formatter, T response)
         {
             Task Formatter(Exception x, HttpContext c, HandlerContext b)
             {
@@ -19,7 +19,7 @@ namespace GlobalExceptionHandler.ContentNegotiation.Mvc
             formatter.UsingMessageFormatter(Formatter);
         }
         
-        public static void UsingMessageFormatter<T>(this IHasMessageFormatter formatter, Func<Exception, T> f)
+        public static void UsingMessageFormatter<T>(this IHandledFormatters formatter, Func<Exception, T> f)
         {
             Task Formatter(Exception e, HttpContext c, HandlerContext b)
             {
@@ -31,7 +31,7 @@ namespace GlobalExceptionHandler.ContentNegotiation.Mvc
             formatter.UsingMessageFormatter(Formatter);
         }
         
-        public static void UsingMessageFormatter<T>(this IHasMessageFormatter formatter, Func<Exception, HttpContext, T> f)
+        public static void UsingMessageFormatter<T>(this IHandledFormatters formatter, Func<Exception, HttpContext, T> f)
         {
             Task Formatter(Exception e, HttpContext c, HandlerContext b)
             {
@@ -43,7 +43,7 @@ namespace GlobalExceptionHandler.ContentNegotiation.Mvc
             formatter.UsingMessageFormatter(Formatter);
         }
         
-        public static void UsingMessageFormatter<T>(this IHasMessageFormatter formatter, Func<Exception, HttpContext, HandlerContext, T> f)
+        public static void UsingMessageFormatter<T>(this IHandledFormatters formatter, Func<Exception, HttpContext, HandlerContext, T> f)
         {
             Task Formatter(Exception e, HttpContext c, HandlerContext b)
             {

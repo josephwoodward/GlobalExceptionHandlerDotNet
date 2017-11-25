@@ -8,21 +8,10 @@ namespace GlobalExceptionHandler.WebApi
 {
     public interface IHasStatusCode
     {
-        IHasMessageFormatter ReturnStatusCode(HttpStatusCode statusCode);
+        IHandledFormatters ReturnStatusCode(HttpStatusCode statusCode);
     }
 
-    public interface IHasMessageFormatter
-    {   
-/*        void UsingMessageFormatter(Action<string> formatter);*/
-        
-        void UsingMessageFormatter(Func<Exception, HttpContext, string> formatter);
-        
-        void UsingMessageFormatter(Func<Exception, HttpContext, Task> formatter);
-        
-        void UsingMessageFormatter(Func<Exception, HttpContext, HandlerContext, Task> formatter);
-    }
-
-    public class ExceptionRuleCreator : IHasStatusCode, IHasMessageFormatter
+    public class ExceptionRuleCreator : IHasStatusCode, IHandledFormatters
     {
         private readonly IDictionary<Type, ExceptionConfig> _configurations;
         private readonly Type _currentFluentlyConfiguredType;
@@ -33,7 +22,7 @@ namespace GlobalExceptionHandler.WebApi
             _currentFluentlyConfiguredType = currentFluentlyConfiguredType;
         }
 
-        public IHasMessageFormatter ReturnStatusCode(HttpStatusCode statusCode)
+        public IHandledFormatters ReturnStatusCode(HttpStatusCode statusCode)
         {
             var exceptionConfig = new ExceptionConfig
             {

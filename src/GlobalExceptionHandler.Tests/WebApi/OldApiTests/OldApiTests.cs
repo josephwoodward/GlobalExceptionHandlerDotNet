@@ -28,6 +28,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.OldApiTests
             {
                 app.UseExceptionHandler().WithConventions(x =>
                 {
+                    x.ContentType = "application/json";
                     x.ForException<RecordNotFoundException>().ReturnStatusCode(HttpStatusCode.NotFound);
                     x.MessageFormatter(exception => JsonConvert.SerializeObject(new
                     {

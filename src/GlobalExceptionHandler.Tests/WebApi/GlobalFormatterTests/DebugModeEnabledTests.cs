@@ -43,7 +43,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.GlobalFormatterTests
         [Fact]
         public void Returns_correct_response_type()
         {
-            _response.Content.Headers.ContentType.MediaType.ShouldBe("application/json");
+            _response.Content.Headers.ContentType.ShouldBeNull();
         }
 
         [Fact]

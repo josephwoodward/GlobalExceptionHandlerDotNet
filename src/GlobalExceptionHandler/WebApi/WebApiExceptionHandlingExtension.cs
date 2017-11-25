@@ -15,7 +15,12 @@ namespace GlobalExceptionHandler.WebApi
 
             return app.UseExceptionHandler(new ExceptionHandlerOptions().SetHandler(configuration));
         }
-        
+
+        public static IApplicationBuilder WithConventions(this IApplicationBuilder app)
+        {
+            return WithConventions(app, configuration => { });
+        }
+
         public static IApplicationBuilder WithConventions(this IApplicationBuilder app, Action<ExceptionHandlerConfiguration> configuration)
         {
             if (app == null)

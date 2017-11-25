@@ -23,37 +23,45 @@ or via the .NET Core CLI:
 $ dotnet add package GlobalExceptionHandler
 ```
 
-## Setup
-
-Within your `Startup.cs` file's `Configure` method (be sure to call before `UseMvc()`):
+## Basic Setup
 
 ```csharp
-public class Startup
+// Startup.cs
+
+public void Configure(IApplicationBuilder app, IHostingEnvironment env)
 {
-    public void Configure(IApplicationBuilder app, IHostingEnvironment env)
-    {
-        app.UseWebApiGlobalExceptionHandler(x =>
+    app.UseExceptionHandler().WithConventions(x => {
+        x.ContentType = "application/json";
+        x.MessageFormatter(s => JsonConvert.SerializeObject(new
         {
-            x.ForException<PageNotFoundException>().ReturnStatusCode(HttpStatusCode.NotFound);
-        });
-
-        app.UseMvc();
-    }
+            Message = "An error occured whilst processing your request"
+        }));
+    });
+    
+    app.Map("/error", x => x.Run(y => throw new Exception()));
 }
 ```
 
-Returns the following default exception message:
+Any exception thrown by your application will result in the follow response:
 
-```json
+```http
+HTTP/1.1 500 Internal Server Error
+Date: Fri, 24 Nov 2017 09:17:05 GMT
+Content-Type: application/json
+Server: Kestrel
+Cache-Control: no-cache
+Pragma: no-cache
+Transfer-Encoding: chunked
+Expires: -1
+
 {
-    "error": {
-        "exception": "PageNotFoundException",
-        "message": "Page could not be found"
-    }
+  "Message": "An error occured whilst processing your request"
 }
 ```
 
-This exception message can be overridden via the `ExceptionFormatter` method like so:
+## Handling specific exceptions
+
+You can handle specific exceptions explicitly like so:
 
 ```csharp
 

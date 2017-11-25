@@ -1,31 +1,39 @@
-﻿using System;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using GlobalExceptionHandler.Tests.Exceptions;
 using GlobalExceptionHandler.Tests.Fixtures;
 using GlobalExceptionHandler.WebApi;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
+using Newtonsoft.Json;
 using Shouldly;
 using Xunit;
 
 namespace GlobalExceptionHandler.Tests.WebApi.GlobalFormatterTests
 {
-    public class BareMetalTests : IClassFixture<WebApiServerFixture>
+    public class FallBackResponseTest : IClassFixture<WebApiServerFixture>
     {
         private readonly HttpResponseMessage _response;
 
-        public BareMetalTests(WebApiServerFixture fixture)
+        public FallBackResponseTest(WebApiServerFixture fixture)
         {
             // Arrange
             const string requestUri = "/api/productnotfound";
-            var webHost = fixture.CreateWebHost();
+            var webHost = fixture.CreateWebHostWithMvc();
             webHost.Configure(app =>
             {
-                app.UseExceptionHandler().WithConventions();
+                app.UseExceptionHandler().WithConventions(x => {
+                    x.ContentType = "application/json";
+                    x.MessageFormatter(s => JsonConvert.SerializeObject(new
+                    {
+                        Message = "An error occured whilst processing your request"
+                    }));
+                    x.ForException<RecordNotFoundException>().ReturnStatusCode(HttpStatusCode.NotFound);
+                });
 
-                app.Map(requestUri, config => { config.Run(context => throw new ArgumentException("Invalid request")); });
+                app.Map(requestUri, config => { config.Run(context => throw new RecordNotFoundException()); });
             });
 
             // Act
@@ -40,20 +48,20 @@ namespace GlobalExceptionHandler.Tests.WebApi.GlobalFormatterTests
         [Fact]
         public void Returns_correct_response_type()
         {
-            _response.Content.Headers.ContentType.ShouldBeNull();
+            _response.Content.Headers.ContentType.MediaType.ShouldBe("application/json");
         }
 
         [Fact]
         public void Returns_correct_status_code()
         {
-            _response.StatusCode.ShouldBe(HttpStatusCode.InternalServerError);
+            _response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
         }
 
         [Fact]
-        public async Task Returns_empty_body()
+        public async Task Returns_global_exception_message()
         {
             var content = await _response.Content.ReadAsStringAsync();
-            content.ShouldBeEmpty();
+            content.ShouldBe("{\"Message\":\"An error occured whilst processing your request\"}");
         }
     }
 }

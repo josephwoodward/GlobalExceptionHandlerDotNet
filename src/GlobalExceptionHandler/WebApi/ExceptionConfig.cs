@@ -9,7 +9,7 @@ namespace GlobalExceptionHandler.WebApi
 	{
 		public HttpStatusCode StatusCode { get; set; }
 		
-		public Func<Exception, HttpContext, HandlerContext, Task> Formatter { get; set; } = UnsafeFormatterWithDetails;
+		public Func<Exception, HttpContext, HandlerContext, Task> Formatter { get; set; }
 
 		public static Task UnsafeFormatterWithDetails(Exception exception, HttpContext httpContext, HandlerContext handlerContext)
 			=> httpContext.Response.WriteAsync(exception.ToString());
