@@ -29,7 +29,11 @@ namespace GlobalExceptionHandler.Demo
                 {
                     Message = "An error occured whilst processing your request"
                 }));
-                x.ForException<RecordNotFoundException>().ReturnStatusCode(HttpStatusCode.NotFound);
+                x.ForException<RecordNotFoundException>().ReturnStatusCode(HttpStatusCode.NotFound)
+                    .UsingMessageFormatter((ex, context) => JsonConvert.SerializeObject(new
+                    {
+                        Message = "Record could not be found"
+                    }));
             });
             
             app.Map("/error", x => x.Run(y => throw new RecordNotFoundException()));

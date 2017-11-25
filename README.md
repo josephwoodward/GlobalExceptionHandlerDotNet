@@ -23,7 +23,7 @@ or via the .NET Core CLI:
 $ dotnet add package GlobalExceptionHandler
 ```
 
-## Basic Setup
+## Bare Bones Setup
 
 ```csharp
 // Startup.cs
@@ -61,38 +61,80 @@ Expires: -1
 
 ## Handling specific exceptions
 
-You can handle specific exceptions explicitly like so:
+You can explicitly handle exceptions like so:
 
 ```csharp
-
-app.UseWebApiGlobalExceptionHandler(x =>
-{
-    x.ForException<PageNotFoundException>().ReturnStatusCode(HttpStatusCode.NotFound);
-    x.MessageFormatter(exception => JsonConvert.SerializeObject(new
+app.UseExceptionHandler().WithConventions(x => {
+    x.ContentType = "application/json";
+    x.MessageFormatter(s => JsonConvert.SerializeObject(new
     {
-        error = new
-        {
-            exception = exception.GetType().Name,
-            message = exception.Message
-        }
+        Message = "An error occured whilst processing your request"
     }));
+
+    x.ForException<RecordNotFoundException>().ReturnStatusCode(HttpStatusCode.NotFound);
 });
 ```
 
-Alternatively you can set the formatter to be unique per exception registered. This will override the root `x.MessageFormatter` referenced above.
+```http
+HTTP/1.1 404 Not Found
+Date: Sat, 25 Nov 2017 01:47:51 GMT
+Content-Type: application/json
+Server: Kestrel
+Cache-Control: no-cache
+Pragma: no-cache
+Transfer-Encoding: chunked
+Expires: -1
+
+{
+  "Message": "An error occured whilst processing your request"
+}
+```
+
+### Per exception responses  
+
+Or provide a custom error response for the exception type thrown:
 
 ```csharp
-app.UseWebApiGlobalExceptionHandler(x =>
-{
-    x.ForException<ArgumentException>().ReturnStatusCode(HttpStatusCode.BadRequest).UsingMessageFormatter(
-        exception => JsonConvert.SerializeObject(new
-        {
-            error = new
-            {
-                message = "Oops, something went wrong"
-            }
+app.UseExceptionHandler().WithConventions(x => {
+    x.ContentType = "application/json";
+    x.MessageFormatter(s => JsonSerializer(new
+    {
+        Message = "An error occured whilst processing your request"
+    }));
+
+    x.ForException<RecordNotFoundException>()
+        .ReturnStatusCode(HttpStatusCode.NotFound)
+        .UsingMessageFormatter((ex, context) => JsonSerializer(new {
+            Message = "Record could not be found"
         }));
-    x.MessageFormatter(exception => "This formatter will be overridden when an ArgumentException is thrown");
+});
+```
+
+Response:
+
+```json
+HTTP/1.1 404 Not Found
+...
+{
+  "Message": "Record could not be found"
+}
+```
+
+Alternatively you could output the exception content if you prefer:
+
+```csharp
+app.UseExceptionHandler().WithConventions(x => {
+    x.ContentType = "application/json";
+    x.MessageFormatter(s => JsonSerializer(new
+    {
+        Message = "An error occured whilst processing your request"
+    }));
+
+    x.ForException<RecordNotFoundException>()
+        .ReturnStatusCode(HttpStatusCode.NotFound)
+        .UsingMessageFormatter((ex, context) => JsonSerializer(new {
+            Message = ex.Message
+        }));
 });
 ```
 
