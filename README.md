@@ -102,8 +102,7 @@ app.UseExceptionHandler().WithConventions(x => {
         Message = "An error occured whilst processing your request"
     }));
 
-    x.ForException<RecordNotFoundException>()
-        .ReturnStatusCode(HttpStatusCode.NotFound)
+    x.ForException<RecordNotFoundException>().ReturnStatusCode(HttpStatusCode.NotFound)
         .UsingMessageFormatter((ex, context) => JsonSerializer(new {
             Message = "Record could not be found"
         }));
@@ -130,8 +129,7 @@ app.UseExceptionHandler().WithConventions(x => {
         Message = "An error occured whilst processing your request"
     }));
 
-    x.ForException<RecordNotFoundException>()
-        .ReturnStatusCode(HttpStatusCode.NotFound)
+    x.ForException<RecordNotFoundException>().ReturnStatusCode(HttpStatusCode.NotFound)
         .UsingMessageFormatter((ex, context) => JsonSerializer(new {
             Message = ex.Message
         }));
