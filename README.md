@@ -138,16 +138,15 @@ app.UseExceptionHandler().WithConventions(x => {
 
 ## Content Negotiation
 
-Because GlobalExceptionHandlerDotNet plugs into the .NET Core pipeline, it can also take advantage of content negotiation provided by the ASP.NET Core MVC framework, enabling the clients to didcate the preferred content type.
+GlobalExceptionHandlerDotNet plugs into the .NET Core pipeline, meaning you can also take advantage of content negotiation provided by the ASP.NET Core MVC framework, enabling the clients to didcate the preferred content type.
 
-To enable content negotiation against ASP.NET Core MVC you will need to include [GlobalExceptionHandler.ContentNegotiation.Mvc](#)
+To enable content negotiation against ASP.NET Core MVC you will need to include the [GlobalExceptionHandler.ContentNegotiation.Mvc](#) package.
 
-## Configuration Options:
+## Logging
 
-- `OnError(Func<Exception, HttpContext, Task>)`  
-Logging endpoint allowing you to capture exception information.
+Under most circumstances you'll want to keep a log of any exceptions thrown in your log aggregator of choice. You can do this via the `OnError` endpoint:
+
 ```csharp
-// Example
 x.OnError((exception, httpContext) =>
 {
     _logger.Error(exception.Message);
@@ -155,10 +154,12 @@ x.OnError((exception, httpContext) =>
 });
 ```
 
+## Configuration Options:
+
 - `ContentType`  
 Specify the returned content type (default is `application/json)`.
 
-- `MessageFormatter(Func<Exception, HttpContext, string>)`  
+- `MessageFormatter(...)`  
 Set a default message formatter that any unhandled exception will trigger.
 
 ```csharp

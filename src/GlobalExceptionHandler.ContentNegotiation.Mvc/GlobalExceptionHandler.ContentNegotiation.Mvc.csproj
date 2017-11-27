@@ -1,6 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>GlobalExceptionHandler.ContentNegotiation.Mvc</AssemblyName>
+    <PackageId>GlobalExceptionHandler.ContentNegotiation.Mvc</PackageId>
+    <PackageTags>global exception handler;asp.net core;.net core</PackageTags>
+    <title>Content negotiation for GlobalExceptionHandlerDotNet when using ASP.NET Core MVC</title>
+    <VersionPrefix>1.0.0</VersionPrefix>
+    <Authors>Joseph Woodward</Authors>
+    <Description>Enable content negotiation for GlobalExceptionHandlerDotNet when using ASP.NET Core MVC</Description>
+    <PackageProjectUrl>https://github.com/JosephWoodward/GlobalExceptionHandlerDotNet</PackageProjectUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/JosephWoodward/GlobalExceptionHandlerDotNet/master/assets/logo_128_128.png</PackageIconUrl>
+    <PackageLicenseUrl>https://github.com/JosephWoodward/GlobalExceptionHandlerDotNet/blob/master/LICENSE</PackageLicenseUrl>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.0.0" />
