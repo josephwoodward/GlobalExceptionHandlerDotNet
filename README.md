@@ -25,6 +25,8 @@ $ dotnet add package GlobalExceptionHandler
 
 ## Bare Bones Setup
 
+Version 2 now hangs off of the ASP.NET Core `UseExceptionHandler()` endpoint, adding a convention based API around it via the `WithConventions()` call:
+
 ```csharp
 // Startup.cs
 
