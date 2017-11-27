@@ -140,7 +140,9 @@ app.UseExceptionHandler().WithConventions(x => {
 
 GlobalExceptionHandlerDotNet plugs into the .NET Core pipeline, meaning you can also take advantage of content negotiation provided by the ASP.NET Core MVC framework, enabling the clients to didcate the preferred content type.
 
-To enable content negotiation against ASP.NET Core MVC you will need to include the [GlobalExceptionHandler.ContentNegotiation.Mvc](#) package.
+To enable content negotiation against ASP.NET Core MVC you will need to include the [GlobalExceptionHandler.ContentNegotiation.Mvc](https://www.nuget.org/packages/GlobalExceptionHandler.ContentNegotiation.Mvc/) package.
+
+Note: Content negotiation is handled by ASP.NET Core MVC so this takes a dependency on MVC.
 
 ## Logging
 
