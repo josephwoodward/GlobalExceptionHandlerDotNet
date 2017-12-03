@@ -36,7 +36,7 @@ public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         x.ContentType = "application/json";
         x.MessageFormatter(s => JsonConvert.SerializeObject(new
         {
-            Message = "An error occured whilst processing your request"
+            Message = "An error occurred whilst processing your request"
         }));
     });
     
@@ -57,7 +57,7 @@ Transfer-Encoding: chunked
 Expires: -1
 
 {
-  "Message": "An error occured whilst processing your request"
+  "Message": "An error occurred whilst processing your request"
 }
 ```
 
@@ -70,7 +70,7 @@ app.UseExceptionHandler().WithConventions(x => {
     x.ContentType = "application/json";
     x.MessageFormatter(s => JsonConvert.SerializeObject(new
     {
-        Message = "An error occured whilst processing your request"
+        Message = "An error occurred whilst processing your request"
     }));
 
     x.ForException<RecordNotFoundException>().ReturnStatusCode(HttpStatusCode.NotFound);
@@ -88,7 +88,7 @@ Transfer-Encoding: chunked
 Expires: -1
 
 {
-  "Message": "An error occured whilst processing your request"
+  "Message": "An error occurred whilst processing your request"
 }
 ```
 
@@ -101,7 +101,7 @@ app.UseExceptionHandler().WithConventions(x => {
     x.ContentType = "application/json";
     x.MessageFormatter(s => JsonSerializer(new
     {
-        Message = "An error occured whilst processing your request"
+        Message = "An error occurred whilst processing your request"
     }));
 
     x.ForException<RecordNotFoundException>().ReturnStatusCode(HttpStatusCode.NotFound)
@@ -128,7 +128,7 @@ app.UseExceptionHandler().WithConventions(x => {
     x.ContentType = "application/json";
     x.MessageFormatter(s => JsonSerializer(new
     {
-        Message = "An error occured whilst processing your request"
+        Message = "An error occurred whilst processing your request"
     }));
 
     x.ForException<RecordNotFoundException>().ReturnStatusCode(HttpStatusCode.NotFound)
@@ -140,7 +140,7 @@ app.UseExceptionHandler().WithConventions(x => {
 
 ## Content Negotiation
 
-GlobalExceptionHandlerDotNet plugs into the .NET Core pipeline, meaning you can also take advantage of content negotiation provided by the ASP.NET Core MVC framework, enabling the clients to didcate the preferred content type.
+GlobalExceptionHandlerDotNet plugs into the .NET Core pipeline, meaning you can also take advantage of content negotiation provided by the ASP.NET Core MVC framework, enabling the clients to dictate the preferred content type.
 
 To enable content negotiation against ASP.NET Core MVC you will need to include the [GlobalExceptionHandler.ContentNegotiation.Mvc](https://www.nuget.org/packages/GlobalExceptionHandler.ContentNegotiation.Mvc/) package.
 
