@@ -146,6 +146,56 @@ To enable content negotiation against ASP.NET Core MVC you will need to include 
 
 Note: Content negotiation is handled by ASP.NET Core MVC so this takes a dependency on MVC.
 
+```csharp
+//Startup.cs
+
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddMvcCore().AddXmlSerializerFormatters();
+}
+
+public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+{
+    app.UseExceptionHandler().WithConventions(x =>
+    {
+        x.ForException<RecordNotFoundException>().ReturnStatusCode(HttpStatusCode.NotFound)
+            .UsingMessageFormatter(e => new ErrorResponse
+            {
+                Message = e.Message
+            });
+    });
+
+    app.Map("/error", x => x.Run(y => throw new RecordNotFoundException("Record could not be found")));
+}
+```
+
+Now when an exception is thrown and the consumer has provided the `Accept` header:
+
+```http
+GET /api/demo HTTP/1.1
+Host: localhost:5000
+Accept: text/xml
+```
+
+The response will be formatted according to the `Accept` header value:
+
+```http
+HTTP/1.1 404 Not Found
+Date: Tue, 05 Dec 2017 08:49:07 GMT
+Content-Type: text/xml; charset=utf-8
+Server: Kestrel
+Cache-Control: no-cache
+Pragma: no-cache
+Transfer-Encoding: chunked
+Expires: -1
+
+<ErrorResponse 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Message>Record could not be found</Message>
+</ErrorResponse>
+```
+
 ## Logging
 
 Under most circumstances you'll want to keep a log of any exceptions thrown in your log aggregator of choice. You can do this via the `OnError` endpoint:
