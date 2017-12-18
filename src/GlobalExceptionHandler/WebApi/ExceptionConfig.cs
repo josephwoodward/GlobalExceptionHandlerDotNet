@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
@@ -7,7 +6,7 @@ namespace GlobalExceptionHandler.WebApi
 {
 	public class ExceptionConfig
 	{
-		public HttpStatusCode StatusCode { get; set; }
+		public int StatusCode { get; set; }
 		
 		public Func<Exception, HttpContext, HandlerContext, Task> Formatter { get; set; }
 

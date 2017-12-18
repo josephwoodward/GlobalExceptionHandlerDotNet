@@ -6,6 +6,7 @@ using GlobalExceptionHandler.Tests.Fixtures;
 using GlobalExceptionHandler.WebApi;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.TestHost;
 using Newtonsoft.Json;
 using Shouldly;
@@ -30,7 +31,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.GlobalFormatterTests
                     {
                         Message = "An error occured whilst processing your request"
                     }));
-                    x.ForException<RecordNotFoundException>().ReturnStatusCode(HttpStatusCode.NotFound)
+                    x.ForException<RecordNotFoundException>().ReturnStatusCode(StatusCodes.Status404NotFound)
                         .UsingMessageFormatter((e, c) => JsonConvert.SerializeObject(new {e.Message}));
                 });
 

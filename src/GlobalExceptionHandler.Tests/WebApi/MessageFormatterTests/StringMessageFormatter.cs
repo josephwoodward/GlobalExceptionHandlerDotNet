@@ -6,6 +6,7 @@ using GlobalExceptionHandler.Tests.Fixtures;
 using GlobalExceptionHandler.WebApi;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.TestHost;
 using Shouldly;
 using Xunit;
@@ -28,7 +29,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.MessageFormatterTests
                 app.UseExceptionHandler().WithConventions(x =>
                 {
                     x.ContentType = "application/json";
-                    x.ForException<RecordNotFoundException>().ReturnStatusCode(HttpStatusCode.NotFound)
+                    x.ForException<RecordNotFoundException>().ReturnStatusCode(StatusCodes.Status404NotFound)
                         .UsingMessageFormatter((exception, context) => Response);
                 });
 
