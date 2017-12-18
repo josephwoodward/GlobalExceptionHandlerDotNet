@@ -7,6 +7,7 @@ using GlobalExceptionHandler.Tests.Fixtures;
 using GlobalExceptionHandler.WebApi;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.TestHost;
 using Newtonsoft.Json;
 using Shouldly;
@@ -28,7 +29,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.GlobalFormatterTests
                 app.UseExceptionHandler().WithConventions(x =>
                 {
                     x.ContentType = "application/json";
-                    x.ForException<NeverThrownException>().ReturnStatusCode(HttpStatusCode.BadRequest);
+                    x.ForException<NeverThrownException>().ReturnStatusCode(StatusCodes.Status400BadRequest);
                     x.MessageFormatter(exception => JsonConvert.SerializeObject(new
                     {
                         error = new

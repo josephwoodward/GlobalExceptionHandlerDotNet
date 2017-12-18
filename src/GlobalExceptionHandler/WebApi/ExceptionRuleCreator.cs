@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
@@ -8,7 +7,7 @@ namespace GlobalExceptionHandler.WebApi
 {
     public interface IHasStatusCode
     {
-        IHandledFormatters ReturnStatusCode(HttpStatusCode statusCode);
+        IHandledFormatters ReturnStatusCode(int statusCode);
     }
 
     public class ExceptionRuleCreator : IHasStatusCode, IHandledFormatters
@@ -22,7 +21,7 @@ namespace GlobalExceptionHandler.WebApi
             _currentFluentlyConfiguredType = currentFluentlyConfiguredType;
         }
 
-        public IHandledFormatters ReturnStatusCode(HttpStatusCode statusCode)
+        public IHandledFormatters ReturnStatusCode(int statusCode)
         {
             var exceptionConfig = new ExceptionConfig
             {

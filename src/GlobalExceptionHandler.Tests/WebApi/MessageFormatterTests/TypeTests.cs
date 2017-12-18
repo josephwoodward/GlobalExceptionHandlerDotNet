@@ -29,25 +29,25 @@ namespace GlobalExceptionHandler.Tests.WebApi.MessageFormatterTests
 	            app.UseExceptionHandler().WithConventions(x =>
 	            {
 					x.ForException<BaseException>()
-						.ReturnStatusCode(HttpStatusCode.BadGateway)
+						.ReturnStatusCode(StatusCodes.Status502BadGateway)
 						.UsingMessageFormatter((e, c, h) => c.Response.WriteAsync("<Message>Not Thrown Message</Message>"));
 
 		            x.ForException<Level1ExceptionA>()
-			            .ReturnStatusCode(HttpStatusCode.Conflict)
+			            .ReturnStatusCode(StatusCodes.Status409Conflict)
 			            .UsingMessageFormatter(new TestResponse
 			            {
 				            Message = "Conflict"
 			            });
 
 		            x.ForException<Level1ExceptionB>()
-			            .ReturnStatusCode(HttpStatusCode.BadRequest)
+			            .ReturnStatusCode(StatusCodes.Status400BadRequest)
 			            .UsingMessageFormatter(e => new TestResponse
 			            {
 				            Message = "Bad Request"
 			            });
 
 		            x.ForException<Level2ExceptionB>()
-			            .ReturnStatusCode(HttpStatusCode.Forbidden)
+			            .ReturnStatusCode(StatusCodes.Status403Forbidden)
 			            .UsingMessageFormatter(new TestResponse
 			            {
 				            Message = "Forbidden"

@@ -29,7 +29,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.OldApiTests
                 app.UseExceptionHandler().WithConventions(x =>
                 {
                     x.ContentType = "application/json";
-                    x.ForException<RecordNotFoundException>().ReturnStatusCode(HttpStatusCode.NotFound);
+                    x.ForException<RecordNotFoundException>().ReturnStatusCode(StatusCodes.Status404NotFound);
                     x.MessageFormatter(exception => JsonConvert.SerializeObject(new
                     {
                         error = new
