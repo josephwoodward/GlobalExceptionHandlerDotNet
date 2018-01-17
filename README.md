@@ -99,13 +99,13 @@ Or provide a custom error response for the exception type thrown:
 ```csharp
 app.UseExceptionHandler().WithConventions(x => {
     x.ContentType = "application/json";
-    x.MessageFormatter(s => JsonSerializer(new
+    x.MessageFormatter(s => JsonConvert.SerializeObject(new
     {
         Message = "An error occurred whilst processing your request"
     }));
 
     x.ForException<RecordNotFoundException>().ReturnStatusCode(StatusCodes.Status404NotFound)
-        .UsingMessageFormatter((ex, context) => JsonSerializer(new {
+        .UsingMessageFormatter((ex, context) => JsonConvert.SerializeObject(new {
             Message = "Record could not be found"
         }));
 });
@@ -126,13 +126,13 @@ Alternatively you could output the exception content if you prefer:
 ```csharp
 app.UseExceptionHandler().WithConventions(x => {
     x.ContentType = "application/json";
-    x.MessageFormatter(s => JsonSerializer(new
+    x.MessageFormatter(s => JsonConvert.SerializeObject(new
     {
         Message = "An error occurred whilst processing your request"
     }));
 
     x.ForException<RecordNotFoundException>().ReturnStatusCode(StatusCodes.Status404NotFound)
-        .UsingMessageFormatter((ex, context) => JsonSerializer(new {
+        .UsingMessageFormatter((ex, context) => JsonConvert.SerializeObject(new {
             Message = ex.Message
         }));
 });
