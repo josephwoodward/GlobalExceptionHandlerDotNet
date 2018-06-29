@@ -1,9 +1,17 @@
-﻿using GlobalExceptionHandler.WebApi;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using GlobalExceptionHandler.WebApi;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
 namespace GlobalExceptionHandler.Demo
@@ -17,13 +25,17 @@ namespace GlobalExceptionHandler.Demo
 
         public IConfiguration Configuration { get; }
 
+        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 
+        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            app.UseExceptionHandler().WithConventions(x => {
+            app.UseExceptionHandler().WithConventions(x =>
+            {
                 x.ContentType = "application/json";
                 x.MessageFormatter(s => JsonConvert.SerializeObject(new
                 {
@@ -35,13 +47,8 @@ namespace GlobalExceptionHandler.Demo
                         Message = "Record could not be found"
                     }));
             });
-            
+
             app.Map("/error", x => x.Run(y => throw new RecordNotFoundException()));
         }
-    }
-
-    public class DemoOutput
-    {
-        public string Message { get; set; }
     }
 }
