@@ -1,7 +1,9 @@
 ﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -22,7 +24,10 @@ namespace GlobalExceptionHandler.WebApi
 
         public static IApplicationBuilder WithConventions(this IApplicationBuilder app)
         {
-            return WithConventions(app, configuration => { });
+            return WithConventions(app, configuration =>
+            {
+                
+            });
         }
 
         public static IApplicationBuilder WithConventions(this IApplicationBuilder app, Action<ExceptionHandlerConfiguration> configuration)
@@ -32,7 +37,7 @@ namespace GlobalExceptionHandler.WebApi
             if (configuration == null)
                 throw new ArgumentNullException(nameof(configuration));
 
-            var opts = new ExceptionHandlerOptions{ ExceptionHandler = ctx => Task.CompletedTask };
+            var opts = new ExceptionHandlerOptions()/*{ExceptionHandler = ctx => Task.CompletedTask}*/;
             opts.SetHandler(configuration);
             
             return app.UseExceptionHandler(opts);

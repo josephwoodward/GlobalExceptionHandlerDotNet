@@ -23,9 +23,19 @@ namespace GlobalExceptionHandler.Tests.WebApi.GlobalFormatterTests
             var webHost = fixture.CreateWebHost();
             webHost.Configure(app =>
             {
-                app.UseExceptionHandler().WithConventions();
+                app.WithConventions();
 
-                app.Map(requestUri, config => { config.Run(context => throw new ArgumentException("Invalid request")); });
+                app.Map(requestUri, config =>
+                {
+                    config.Run(context => throw new ArgumentException("Invalid request"));
+                });
+                app.Map("/test", config =>
+                {
+                    config.Run(context =>
+                    {
+                        return Task.FromResult("Working");
+                    });
+                });
             });
 
             // Act
