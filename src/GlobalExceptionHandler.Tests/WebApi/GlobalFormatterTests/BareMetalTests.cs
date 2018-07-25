@@ -23,7 +23,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.GlobalFormatterTests
             var webHost = fixture.CreateWebHost();
             webHost.Configure(app =>
             {
-                app.WithConventions();
+                app.UseGlobalExceptionHandler();
 
                 app.Map(requestUri, config =>
                 {

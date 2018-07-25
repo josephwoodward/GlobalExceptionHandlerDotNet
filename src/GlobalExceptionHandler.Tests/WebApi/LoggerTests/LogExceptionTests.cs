@@ -26,7 +26,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.LoggerTests
             var webHost = fixture.CreateWebHostWithMvc();
             webHost.Configure(app =>
             {
-                app.UseExceptionHandler().WithConventions(x =>
+                app.UseGlobalExceptionHandler(x =>
                 {
                     x.OnError((ex, context) =>
                     {
@@ -34,7 +34,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.LoggerTests
                         _context = context;
                         return Task.CompletedTask;
                     });
-                    x.ForException<ArgumentException>().ReturnStatusCode(StatusCodes.Status500InternalServerError).UsingMessageFormatter(
+                    x.ForExceptionFor<ArgumentException>().ReturnStatusCode(StatusCodes.Status500InternalServerError).UsingMessageFormatter(
                         (e, c, h) =>
                         {
                             _exception = e;

@@ -25,13 +25,13 @@ namespace GlobalExceptionHandler.Tests.WebApi.GlobalFormatterTests
             var webHost = fixture.CreateWebHostWithMvc();
             webHost.Configure(app =>
             {
-                app.UseExceptionHandler().WithConventions(x => {
+                app.UseGlobalExceptionHandler(x => {
                     x.ContentType = "application/json";
                     x.MessageFormatter(s => JsonConvert.SerializeObject(new
                     {
                         Message = "An error occured whilst processing your request"
                     }));
-                    x.ForException<RecordNotFoundException>().ReturnStatusCode(StatusCodes.Status404NotFound)
+                    x.ForExceptionFor<RecordNotFoundException>().ReturnStatusCode(StatusCodes.Status404NotFound)
                         .UsingMessageFormatter((e, c) => JsonConvert.SerializeObject(new {e.Message}));
                 });
 

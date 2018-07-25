@@ -28,9 +28,9 @@ namespace GlobalExceptionHandler.Tests.WebApi.ContentNegotiationTests
             var webHost = fixture.CreateWebHostWithMvc();
             webHost.Configure(app =>
             {
-                app.UseExceptionHandler().WithConventions(x =>
+                app.UseGlobalExceptionHandler(x =>
                 {
-                    x.ForException<RecordNotFoundException>().ReturnStatusCode(StatusCodes.Status404NotFound)
+                    x.ForExceptionFor<RecordNotFoundException>().ReturnStatusCode(StatusCodes.Status404NotFound)
                         .UsingMessageFormatter(new TestResponse
                         {
                             Message = "An exception occured"

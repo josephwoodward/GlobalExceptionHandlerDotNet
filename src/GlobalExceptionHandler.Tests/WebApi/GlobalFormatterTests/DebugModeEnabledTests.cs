@@ -23,7 +23,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.GlobalFormatterTests
             var webHost = fixture.CreateWebHostWithMvc();
             webHost.Configure(app =>
             {
-                app.UseExceptionHandler().WithConventions(x =>
+                app.UseGlobalExceptionHandler(x =>
                 {
                     x.DebugMode = true;
                 });

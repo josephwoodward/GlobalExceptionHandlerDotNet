@@ -26,10 +26,10 @@ namespace GlobalExceptionHandler.Tests.WebApi.GlobalFormatterTests
             var webHost = fixture.CreateWebHostWithMvc();
             webHost.Configure(app =>
             {
-                app.UseExceptionHandler().WithConventions(x =>
+                app.UseGlobalExceptionHandler(x =>
                 {
                     x.ContentType = "application/json";
-                    x.ForException<NeverThrownException>().ReturnStatusCode(StatusCodes.Status400BadRequest);
+                    x.ForExceptionFor<NeverThrownException>().ReturnStatusCode(StatusCodes.Status400BadRequest);
                     x.MessageFormatter(exception => JsonConvert.SerializeObject(new
                     {
                         error = new

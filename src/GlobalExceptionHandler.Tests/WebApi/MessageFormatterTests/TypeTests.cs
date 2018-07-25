@@ -26,27 +26,27 @@ namespace GlobalExceptionHandler.Tests.WebApi.MessageFormatterTests
             var webHost = fixture.CreateWebHostWithXmlFormatters();
             webHost.Configure(app =>
             {
-	            app.UseExceptionHandler().WithConventions(x =>
+	            app.UseGlobalExceptionHandler(x =>
 	            {
-					x.ForException<BaseException>()
+					x.ForExceptionFor<BaseException>()
 						.ReturnStatusCode(StatusCodes.Status502BadGateway)
 						.UsingMessageFormatter((e, c, h) => c.Response.WriteAsync("<Message>Not Thrown Message</Message>"));
 
-		            x.ForException<Level1ExceptionA>()
+		            x.ForExceptionFor<Level1ExceptionA>()
 			            .ReturnStatusCode(StatusCodes.Status409Conflict)
 			            .UsingMessageFormatter(new TestResponse
 			            {
 				            Message = "Conflict"
 			            });
 
-		            x.ForException<Level1ExceptionB>()
+		            x.ForExceptionFor<Level1ExceptionB>()
 			            .ReturnStatusCode(StatusCodes.Status400BadRequest)
 			            .UsingMessageFormatter(e => new TestResponse
 			            {
 				            Message = "Bad Request"
 			            });
 
-		            x.ForException<Level2ExceptionB>()
+		            x.ForExceptionFor<Level2ExceptionB>()
 			            .ReturnStatusCode(StatusCodes.Status403Forbidden)
 			            .UsingMessageFormatter(new TestResponse
 			            {

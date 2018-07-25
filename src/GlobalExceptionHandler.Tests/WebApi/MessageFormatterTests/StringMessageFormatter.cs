@@ -26,10 +26,10 @@ namespace GlobalExceptionHandler.Tests.WebApi.MessageFormatterTests
             var webHost = fixture.CreateWebHostWithMvc();
             webHost.Configure(app =>
             {
-                app.UseExceptionHandler().WithConventions(x =>
+                app.UseGlobalExceptionHandler(x =>
                 {
                     x.ContentType = "application/json";
-                    x.ForException<RecordNotFoundException>().ReturnStatusCode(StatusCodes.Status404NotFound)
+                    x.ForExceptionFor<RecordNotFoundException>().ReturnStatusCode(StatusCodes.Status404NotFound)
                         .UsingMessageFormatter((exception, context) => Response);
                 });
 
