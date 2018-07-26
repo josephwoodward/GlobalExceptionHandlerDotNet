@@ -27,11 +27,11 @@ namespace GlobalExceptionHandler.Tests.WebApi.GlobalFormatterTests
             {
                 app.UseGlobalExceptionHandler(x => {
                     x.ContentType = "application/json";
-                    x.MessageFormatter(s => JsonConvert.SerializeObject(new
+                    x.DefaultResponseBody(s => JsonConvert.SerializeObject(new
                     {
                         Message = "An error occured whilst processing your request"
                     }));
-                    x.ForExceptionFor<RecordNotFoundException>().ReturnStatusCode(StatusCodes.Status404NotFound);
+                    x.ForException<RecordNotFoundException>().ReturnStatusCode(StatusCodes.Status404NotFound);
                 });
 
                 app.Map(requestUri, config => { config.Run(context => throw new RecordNotFoundException()); });

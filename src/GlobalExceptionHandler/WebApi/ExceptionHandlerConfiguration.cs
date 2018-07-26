@@ -22,13 +22,20 @@ namespace GlobalExceptionHandler.WebApi
 
 		public ExceptionHandlerConfiguration(Func<Exception, HttpContext, HandlerContext, Task> defaultFormatter) => DefaultFormatter = defaultFormatter;
 
-		public IHasStatusCode ForExceptionFor<T>() where T : Exception
+		[Obsolete("ForException<T> is obsolete and will be removed soon, use Map<T> instead", false)]
+		public IHasStatusCode ForException<T>() where T : Exception
 		{
 			var type = typeof(T);
 			return new ExceptionRuleCreator(_exceptionConfiguration, type);
 		}
 		
-		public void MessageFormatter(Func<Exception, string> formatter)
+		public IHasStatusCode Map<T>() where T : Exception
+		{
+			var type = typeof(T);
+			return new ExceptionRuleCreator(_exceptionConfiguration, type);
+		}
+		
+		public void DefaultResponseBody(Func<Exception, string> formatter)
 		{
 			Task Formatter(Exception x, HttpContext y, HandlerContext b)
 			{
@@ -37,10 +44,10 @@ namespace GlobalExceptionHandler.WebApi
 				return Task.CompletedTask;
 			}
 			
-			MessageFormatter(Formatter);
+			DefaultResponseBody(Formatter);
 		}
 		
-		public void MessageFormatter(Func<Exception, HttpContext, Task> formatter)
+		public void DefaultResponseBody(Func<Exception, HttpContext, Task> formatter)
 		{
 			Task Formatter(Exception x, HttpContext y, HandlerContext b)
 			{
@@ -48,10 +55,16 @@ namespace GlobalExceptionHandler.WebApi
 				return Task.CompletedTask;
 			}
 			
-			MessageFormatter(Formatter);
+			DefaultResponseBody(Formatter);
 		}
-		
-		public void MessageFormatter(Func<Exception, HttpContext, string> formatter)
+
+		public void MessageFormatter(Func<Exception, HttpContext, string> formatter) => DefaultResponseBody(formatter);
+
+		public void MessageFormatter(Func<Exception, HttpContext, Task> formatter) => DefaultResponseBody(formatter);
+
+		public void MessageFormatter(Func<Exception, HttpContext, HandlerContext, Task> formatter) => DefaultResponseBody(formatter);
+
+		public void DefaultResponseBody(Func<Exception, HttpContext, string> formatter)
 		{
 			Task Formatter(Exception x, HttpContext y, HandlerContext b)
 			{
@@ -60,10 +73,10 @@ namespace GlobalExceptionHandler.WebApi
 				return Task.CompletedTask;
 			}
 			
-			MessageFormatter(Formatter);
+			DefaultResponseBody(Formatter);
 		}
 
-		public void MessageFormatter(Func<Exception, HttpContext, HandlerContext, Task> formatter)
+		public void DefaultResponseBody(Func<Exception, HttpContext, HandlerContext, Task> formatter)
 		{
 			CustomFormatter = formatter;
 		}

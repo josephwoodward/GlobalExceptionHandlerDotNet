@@ -7,7 +7,15 @@ namespace GlobalExceptionHandler.ContentNegotiation.Mvc
 {
     public static class MessageFormatters
     {
+        [Obsolete("UsingMessageFormatter(..) is obsolete and will be removed soon, use WithBody(..) instead", false)]
         public static void UsingMessageFormatter<T>(this IHandledFormatters formatter, T response)
+            => WithBody(formatter, response);
+
+        [Obsolete("UsingMessageFormatter(..) is obsolete and will be removed soon, use WithBody(..) instead", false)]
+        public static void UsingMessageFormatter<T>(this IHandledFormatters formatter, Func<Exception, T> f)
+            => WithBody(formatter, f);
+        
+        public static void WithBody<T>(this IHandledFormatters formatter, T response)
         {
             Task Formatter(Exception x, HttpContext c, HandlerContext b)
             {
@@ -16,10 +24,10 @@ namespace GlobalExceptionHandler.ContentNegotiation.Mvc
                 return Task.CompletedTask;
             }
 
-            formatter.UsingMessageFormatter(Formatter);
+            formatter.WithBody(Formatter);
         }
         
-        public static void UsingMessageFormatter<T>(this IHandledFormatters formatter, Func<Exception, T> f)
+        public static void WithBody<T>(this IHandledFormatters formatter, Func<Exception, T> f)
         {
             Task Formatter(Exception e, HttpContext c, HandlerContext b)
             {
@@ -28,7 +36,7 @@ namespace GlobalExceptionHandler.ContentNegotiation.Mvc
                 return Task.CompletedTask;
             }
 
-            formatter.UsingMessageFormatter(Formatter);
+            formatter.WithBody(Formatter);
         }
         
         public static void UsingMessageFormatter<T>(this IHandledFormatters formatter, Func<Exception, HttpContext, T> f)
@@ -40,7 +48,7 @@ namespace GlobalExceptionHandler.ContentNegotiation.Mvc
                 return Task.CompletedTask;
             }
 
-            formatter.UsingMessageFormatter(Formatter);
+            formatter.WithBody(Formatter);
         }
         
         public static void UsingMessageFormatter<T>(this IHandledFormatters formatter, Func<Exception, HttpContext, HandlerContext, T> f)
@@ -52,8 +60,7 @@ namespace GlobalExceptionHandler.ContentNegotiation.Mvc
                 return Task.CompletedTask;
             }
 
-            formatter.UsingMessageFormatter(Formatter);
+            formatter.WithBody(Formatter);
         }
-
     }
 }

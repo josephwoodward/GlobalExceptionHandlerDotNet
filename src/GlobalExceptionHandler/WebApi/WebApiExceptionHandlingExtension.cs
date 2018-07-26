@@ -55,7 +55,7 @@ namespace GlobalExceptionHandler.WebApi
             if (configuration == null)
                 throw new ArgumentNullException(nameof(configuration));
 
-            var opts = new ExceptionHandlerOptions()/*{ExceptionHandler = ctx => Task.CompletedTask}*/;
+            var opts = new ExceptionHandlerOptions();
             opts.SetHandler(configuration);
             
             return app.UseExceptionHandler(opts);

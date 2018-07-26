@@ -34,7 +34,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.LoggerTests
                         _context = context;
                         return Task.CompletedTask;
                     });
-                    x.ForExceptionFor<ArgumentException>().ReturnStatusCode(StatusCodes.Status500InternalServerError).UsingMessageFormatter(
+                    x.ForException<ArgumentException>().ReturnStatusCode(StatusCodes.Status500InternalServerError).UsingMessageFormatter(
                         (e, c, h) =>
                         {
                             _exception = e;

@@ -7,7 +7,9 @@ namespace GlobalExceptionHandler.WebApi
 {
     public interface IHasStatusCode
     {
+        [Obsolete("ReturnStatusCode(..) is obsolete and will be removed soon, use ToStatusCode(..) instead", false)]
         IHandledFormatters ReturnStatusCode(int statusCode);
+        IHandledFormatters ToStatusCode(int statusCode);
     }
 
     public class ExceptionRuleCreator : IHasStatusCode, IHandledFormatters
@@ -21,7 +23,9 @@ namespace GlobalExceptionHandler.WebApi
             _currentFluentlyConfiguredType = currentFluentlyConfiguredType;
         }
 
-        public IHandledFormatters ReturnStatusCode(int statusCode)
+        public IHandledFormatters ReturnStatusCode(int statusCode) => ToStatusCode(statusCode);
+        
+        public IHandledFormatters ToStatusCode(int statusCode)
         {
             var exceptionConfig = new ExceptionConfig
             {
@@ -34,6 +38,15 @@ namespace GlobalExceptionHandler.WebApi
         }
 
         public void UsingMessageFormatter(Func<Exception, HttpContext, string> formatter)
+            => WithBody(formatter);
+
+        public void UsingMessageFormatter(Func<Exception, HttpContext, Task> formatter) 
+            => WithBody(formatter);
+
+        public void UsingMessageFormatter(Func<Exception, HttpContext, HandlerContext, Task> formatter)
+            => WithBody(formatter);
+
+        public void WithBody(Func<Exception, HttpContext, string> formatter)
         {
             Task Formatter(Exception x, HttpContext y, HandlerContext b)
             {
@@ -45,7 +58,7 @@ namespace GlobalExceptionHandler.WebApi
             UsingMessageFormatter(Formatter);
         }
 
-        public void UsingMessageFormatter(Func<Exception, HttpContext, Task> formatter)
+        public void WithBody(Func<Exception, HttpContext, Task> formatter)
         {
             if (formatter == null)
                 throw new NullReferenceException(nameof(formatter));
@@ -59,15 +72,11 @@ namespace GlobalExceptionHandler.WebApi
             UsingMessageFormatter(Formatter);
         }
         
-        public void UsingMessageFormatter(Func<Exception, string, Task> formatter)
-        {
-            SetMessageFormatter((exception, context, arg3) => Task.CompletedTask);
-        }
+        public void AndResponse(Func<Exception, string, Task> formatter)
+            => SetMessageFormatter((exception, context, arg3) => Task.CompletedTask);
 
-        public void UsingMessageFormatter(Func<Exception, HttpContext, HandlerContext, Task> formatter)
-        {
-            SetMessageFormatter(formatter);
-        }
+        public void WithBody(Func<Exception, HttpContext, HandlerContext, Task> formatter)
+            => SetMessageFormatter(formatter);
 
         private void SetMessageFormatter(Func<Exception, HttpContext, HandlerContext, Task> formatter)
         {

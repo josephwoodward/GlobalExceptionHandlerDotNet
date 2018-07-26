@@ -37,11 +37,11 @@ namespace GlobalExceptionHandler.Demo
             app.UseGlobalExceptionHandler(x =>
             {
                 x.ContentType = "application/json";
-                x.MessageFormatter(s => JsonConvert.SerializeObject(new
+                x.DefaultResponseBody(s => JsonConvert.SerializeObject(new
                 {
                     Message = "An error occured whilst processing your request"
                 }));
-                x.ForExceptionFor<RecordNotFoundException>().ReturnStatusCode(StatusCodes.Status404NotFound)
+                x.ForException<RecordNotFoundException>().ReturnStatusCode(StatusCodes.Status404NotFound)
                     .UsingMessageFormatter((ex, context) => JsonConvert.SerializeObject(new
                     {
                         Message = "Record could not be found"

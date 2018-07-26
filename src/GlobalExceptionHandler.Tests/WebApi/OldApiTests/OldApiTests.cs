@@ -29,8 +29,8 @@ namespace GlobalExceptionHandler.Tests.WebApi.OldApiTests
                 app.UseGlobalExceptionHandler(x =>
                 {
                     x.ContentType = "application/json";
-                    x.ForExceptionFor<RecordNotFoundException>().ReturnStatusCode(StatusCodes.Status404NotFound);
-                    x.MessageFormatter(exception => JsonConvert.SerializeObject(new
+                    x.ForException<RecordNotFoundException>().ReturnStatusCode(StatusCodes.Status404NotFound);
+                    x.DefaultResponseBody(exception => JsonConvert.SerializeObject(new
                     {
                         error = new
                         {

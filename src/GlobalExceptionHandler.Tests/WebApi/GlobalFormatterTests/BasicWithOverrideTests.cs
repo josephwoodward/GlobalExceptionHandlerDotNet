@@ -29,8 +29,8 @@ namespace GlobalExceptionHandler.Tests.WebApi.GlobalFormatterTests
                 app.UseGlobalExceptionHandler(x =>
                 {
                     x.ContentType = "application/json";
-                    x.ForExceptionFor<NeverThrownException>().ReturnStatusCode(StatusCodes.Status400BadRequest);
-                    x.MessageFormatter(exception => JsonConvert.SerializeObject(new
+                    x.ForException<NeverThrownException>().ReturnStatusCode(StatusCodes.Status400BadRequest);
+                    x.DefaultResponseBody(exception => JsonConvert.SerializeObject(new
                     {
                         error = new
                         {

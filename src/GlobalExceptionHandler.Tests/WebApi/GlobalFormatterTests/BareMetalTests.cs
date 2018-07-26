@@ -31,10 +31,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.GlobalFormatterTests
                 });
                 app.Map("/test", config =>
                 {
-                    config.Run(context =>
-                    {
-                        return Task.FromResult("Working");
-                    });
+                    config.Run(context => Task.FromResult("Working"));
                 });
             });
 
