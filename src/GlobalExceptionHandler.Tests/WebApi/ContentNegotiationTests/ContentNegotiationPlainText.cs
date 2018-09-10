@@ -29,8 +29,8 @@ namespace GlobalExceptionHandler.Tests.WebApi.ContentNegotiationTests
             {
                 app.UseGlobalExceptionHandler(x =>
                 {
-                    x.ForException<RecordNotFoundException>().ReturnStatusCode(StatusCodes.Status404NotFound)
-                        .UsingMessageFormatter((e, c, h) => c.WriteAsyncObject(e.Message));
+                    x.Map<RecordNotFoundException>().ToStatusCode(StatusCodes.Status404NotFound)
+                        .WithBody((e, c, h) => c.WriteAsyncObject(e.Message));
                 });
 
                 app.Map(requestUri, config =>

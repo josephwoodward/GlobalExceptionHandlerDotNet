@@ -30,8 +30,8 @@ namespace GlobalExceptionHandler.Tests.WebApi.ContentNegotiationTests
             {
                 app.UseGlobalExceptionHandler(x =>
                 {
-                    x.ForException<RecordNotFoundException>().ReturnStatusCode(StatusCodes.Status404NotFound)
-                        .UsingMessageFormatter(new TestResponse
+                    x.Map<RecordNotFoundException>().ToStatusCode(StatusCodes.Status404NotFound)
+                        .WithBody(new TestResponse
                         {
                             Message = "An exception occured"
                         });

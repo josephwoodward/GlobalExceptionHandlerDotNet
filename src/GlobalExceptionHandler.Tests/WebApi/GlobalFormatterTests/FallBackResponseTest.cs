@@ -31,7 +31,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.GlobalFormatterTests
                     {
                         Message = "An error occured whilst processing your request"
                     }));
-                    x.ForException<RecordNotFoundException>().ReturnStatusCode(StatusCodes.Status404NotFound);
+                    x.Map<RecordNotFoundException>().ToStatusCode(StatusCodes.Status404NotFound);
                 });
 
                 app.Map(requestUri, config => { config.Run(context => throw new RecordNotFoundException()); });

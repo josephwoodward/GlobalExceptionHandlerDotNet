@@ -29,8 +29,8 @@ namespace GlobalExceptionHandler.Tests.WebApi.MessageFormatterTests
                 app.UseGlobalExceptionHandler(x =>
                 {
                     x.ContentType = "application/json";
-                    x.ForException<RecordNotFoundException>().ReturnStatusCode(StatusCodes.Status404NotFound)
-                        .UsingMessageFormatter((exception, context) => Response);
+                    x.Map<RecordNotFoundException>().ToStatusCode(StatusCodes.Status404NotFound)
+                        .WithBody((exception, context) => Response);
                 });
 
                 app.Map(requestUri, config =>

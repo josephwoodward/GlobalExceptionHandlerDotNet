@@ -29,7 +29,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.GlobalFormatterTests
                 app.UseGlobalExceptionHandler(x =>
                 {
                     x.ContentType = "application/json";
-                    x.ForException<NeverThrownException>().ReturnStatusCode(StatusCodes.Status400BadRequest);
+                    x.Map<NeverThrownException>().ToStatusCode(StatusCodes.Status400BadRequest);
                     x.DefaultResponseBody(exception => JsonConvert.SerializeObject(new
                     {
                         error = new

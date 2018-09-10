@@ -28,27 +28,27 @@ namespace GlobalExceptionHandler.Tests.WebApi.MessageFormatterTests
             {
 	            app.UseGlobalExceptionHandler(x =>
 	            {
-					x.ForException<BaseException>()
-						.ReturnStatusCode(StatusCodes.Status502BadGateway)
-						.UsingMessageFormatter((e, c, h) => c.Response.WriteAsync("<Message>Not Thrown Message</Message>"));
+					x.Map<BaseException>()
+						.ToStatusCode(StatusCodes.Status502BadGateway)
+						.WithBody((e, c, h) => c.Response.WriteAsync("<Message>Not Thrown Message</Message>"));
 
-		            x.ForException<Level1ExceptionA>()
-			            .ReturnStatusCode(StatusCodes.Status409Conflict)
-			            .UsingMessageFormatter(new TestResponse
+		            x.Map<Level1ExceptionA>()
+			            .ToStatusCode(StatusCodes.Status409Conflict)
+			            .WithBody(new TestResponse
 			            {
 				            Message = "Conflict"
 			            });
 
-		            x.ForException<Level1ExceptionB>()
-			            .ReturnStatusCode(StatusCodes.Status400BadRequest)
-			            .UsingMessageFormatter(e => new TestResponse
+		            x.Map<Level1ExceptionB>()
+			            .ToStatusCode(StatusCodes.Status400BadRequest)
+			            .WithBody(e => new TestResponse
 			            {
 				            Message = "Bad Request"
 			            });
 
-		            x.ForException<Level2ExceptionB>()
-			            .ReturnStatusCode(StatusCodes.Status403Forbidden)
-			            .UsingMessageFormatter(new TestResponse
+		            x.Map<Level2ExceptionB>()
+			            .ToStatusCode(StatusCodes.Status403Forbidden)
+			            .WithBody(new TestResponse
 			            {
 				            Message = "Forbidden"
 			            });

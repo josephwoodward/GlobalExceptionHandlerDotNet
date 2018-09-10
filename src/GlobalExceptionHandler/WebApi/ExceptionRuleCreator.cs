@@ -23,7 +23,8 @@ namespace GlobalExceptionHandler.WebApi
             _currentFluentlyConfiguredType = currentFluentlyConfiguredType;
         }
 
-        public IHandledFormatters ReturnStatusCode(int statusCode) => ToStatusCode(statusCode);
+        public IHandledFormatters ReturnStatusCode(int statusCode)
+            => ToStatusCode(statusCode);
         
         public IHandledFormatters ToStatusCode(int statusCode)
         {

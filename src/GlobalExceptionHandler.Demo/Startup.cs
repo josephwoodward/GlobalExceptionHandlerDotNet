@@ -1,17 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using GlobalExceptionHandler.WebApi;
+﻿using GlobalExceptionHandler.WebApi;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
 namespace GlobalExceptionHandler.Demo
@@ -41,8 +34,8 @@ namespace GlobalExceptionHandler.Demo
                 {
                     Message = "An error occured whilst processing your request"
                 }));
-                x.ForException<RecordNotFoundException>().ReturnStatusCode(StatusCodes.Status404NotFound)
-                    .UsingMessageFormatter((ex, context) => JsonConvert.SerializeObject(new
+                x.Map<RecordNotFoundException>().ToStatusCode(StatusCodes.Status404NotFound)
+                    .WithBody((ex, context) => JsonConvert.SerializeObject(new
                     {
                         Message = "Record could not be found"
                     }));
