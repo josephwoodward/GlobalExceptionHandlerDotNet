@@ -10,6 +10,7 @@ namespace GlobalExceptionHandler.WebApi
         [Obsolete("ReturnStatusCode(..) is obsolete and will be removed soon, use ToStatusCode(..) instead", false)]
         IHandledFormatters ReturnStatusCode(int statusCode);
         IHandledFormatters ToStatusCode(int statusCode);
+        IHandledFormatters ToStatusCode(Func<Exception, int> statusCodeResolver);
     }
 
     public class ExceptionRuleCreator : IHasStatusCode, IHandledFormatters
@@ -30,12 +31,26 @@ namespace GlobalExceptionHandler.WebApi
         {
             var exceptionConfig = new ExceptionConfig
             {
-                StatusCode = statusCode
+                StatusCode = ex => statusCode
             };
 
             _configurations.Add(_currentFluentlyConfiguredType, exceptionConfig);
 
+            ToStatusCode(exception => statusCode);
+            
             return this;
+        }
+
+        public IHandledFormatters ToStatusCode(Func<Exception, int> statusCodeResolver)
+        {
+            var exceptionConfig = new ExceptionConfig
+            {
+                StatusCode = statusCodeResolver
+            };
+
+            _configurations.Add(_currentFluentlyConfiguredType, exceptionConfig);
+
+            return this;            
         }
 
         public void UsingMessageFormatter(Func<Exception, HttpContext, string> formatter)

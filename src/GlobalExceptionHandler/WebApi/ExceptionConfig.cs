@@ -6,7 +6,7 @@ namespace GlobalExceptionHandler.WebApi
 {
 	public class ExceptionConfig
 	{
-		public int StatusCode { get; set; }
+		public Func<Exception, int> StatusCode { get; set; }
 		
 		public Func<Exception, HttpContext, HandlerContext, Task> Formatter { get; set; }
 
