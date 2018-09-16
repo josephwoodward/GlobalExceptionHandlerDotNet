@@ -25,16 +25,14 @@ $ dotnet add package GlobalExceptionHandler
 
 ## Bare Bones Setup
 
-Version 2 now hangs off of the ASP.NET Core `UseExceptionHandler()` endpoint, adding a convention based API around it via the `WithConventions()` call:
-
 ```csharp
 // Startup.cs
 
 public void Configure(IApplicationBuilder app, IHostingEnvironment env)
 {
-    app.UseExceptionHandler().WithConventions(x => {
+    app.UseGlobalExceptionHandler(x => {
         x.ContentType = "application/json";
-        x.MessageFormatter(s => JsonConvert.SerializeObject(new
+        x.ResponseBody(s => JsonConvert.SerializeObject(new
         {
             Message = "An error occurred whilst processing your request"
         }));
@@ -66,14 +64,14 @@ Expires: -1
 You can explicitly handle exceptions like so:
 
 ```csharp
-app.UseExceptionHandler().WithConventions(x => {
+app.UseGlobalExceptionHandler(x => {
     x.ContentType = "application/json";
-    x.MessageFormatter(s => JsonConvert.SerializeObject(new
+    x.ResponseBody(s => JsonConvert.SerializeObject(new
     {
         Message = "An error occurred whilst processing your request"
     }));
 
-    x.ForException<RecordNotFoundException>().ReturnStatusCode(StatusCodes.Status404NotFound);
+    x.Map<RecordNotFoundException>().ToStatusCode(StatusCodes.Status404NotFound);
 });
 ```
 
@@ -92,20 +90,33 @@ Expires: -1
 }
 ```
 
+### Runtime Status Code
+
+You can return the approprite status code at runtime using the following overload:
+
+```csharp
+app.UseGlobalExceptionHandler(x =>
+{
+    x.ContentType = "application/json";
+    x.Map<HttpServiceException>().ToStatusCode(ex => ex.StatusCode).WithBody((e, c) => "Something went wrong");
+    ...
+});
+```
+
 ### Per exception responses  
 
 Or provide a custom error response for the exception type thrown:
 
 ```csharp
-app.UseExceptionHandler().WithConventions(x => {
+app.UseGlobalExceptionHandler(x => {
     x.ContentType = "application/json";
-    x.MessageFormatter(s => JsonConvert.SerializeObject(new
+    x.ResponseBody(s => JsonConvert.SerializeObject(new
     {
         Message = "An error occurred whilst processing your request"
     }));
 
-    x.ForException<RecordNotFoundException>().ReturnStatusCode(StatusCodes.Status404NotFound)
-        .UsingMessageFormatter((ex, context) => JsonConvert.SerializeObject(new {
+    x.Map<RecordNotFoundException>().ToStatusCode(StatusCodes.Status404NotFound)
+        .WithBody((ex, context) => JsonConvert.SerializeObject(new {
             Message = "Record could not be found"
         }));
 });
@@ -124,15 +135,15 @@ HTTP/1.1 404 Not Found
 Alternatively you could output the exception content if you prefer:
 
 ```csharp
-app.UseExceptionHandler().WithConventions(x => {
+app.UseGlobalExceptionHandler(x => {
     x.ContentType = "application/json";
-    x.MessageFormatter(s => JsonConvert.SerializeObject(new
+    x.ResponseBody(s => JsonConvert.SerializeObject(new
     {
         Message = "An error occurred whilst processing your request"
     }));
 
-    x.ForException<RecordNotFoundException>().ReturnStatusCode(StatusCodes.Status404NotFound)
-        .UsingMessageFormatter((ex, context) => JsonConvert.SerializeObject(new {
+    x.Map<RecordNotFoundException>().ToStatusCode(StatusCodes.Status404NotFound)
+        .WithBody((ex, context) => JsonConvert.SerializeObject(new {
             Message = ex.Message
         }));
 });
@@ -156,10 +167,10 @@ public void ConfigureServices(IServiceCollection services)
 
 public void Configure(IApplicationBuilder app, IHostingEnvironment env)
 {
-    app.UseExceptionHandler().WithConventions(x =>
+    app.UseGlobalExceptionHandler(x =>
     {
-        x.ForException<RecordNotFoundException>().ReturnStatusCode(StatusCodes.Status404NotFound)
-            .UsingMessageFormatter(e => new ErrorResponse
+        x.Map<RecordNotFoundException>().ToStatusCode(StatusCodes.Status404NotFound)
+            .WithBody(e => new ErrorResponse
             {
                 Message = e.Message
             });
@@ -213,11 +224,11 @@ x.OnError((exception, httpContext) =>
 - `ContentType`  
 Specify the returned content type (default is `application/json)`.
 
-- `MessageFormatter(...)`  
-Set a default message formatter that any unhandled exception will trigger.
+- `ResponseBody(...)`  
+Set a default response body that any unhandled exception will trigger.
 
 ```csharp
-x.MessageFormatter((ex, context) => {
+x.ResponseBody((ex, context) => {
     return "Oops, something went wrong! Check the logs for more information.";
 });
 ```

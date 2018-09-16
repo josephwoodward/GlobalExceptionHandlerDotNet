@@ -30,7 +30,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.StatusCodeTests
                 {
                     x.ContentType = "application/json";
                     x.Map<ArgumentException>().ToStatusCode(StatusCodes.Status400BadRequest);
-                    x.DefaultResponseBody(c => JsonConvert.SerializeObject(new TestResponse
+                    x.ResponseBody(c => JsonConvert.SerializeObject(new TestResponse
                     {
                         Message = c.Message
                     }));

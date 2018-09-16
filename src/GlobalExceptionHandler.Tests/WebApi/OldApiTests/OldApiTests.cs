@@ -30,7 +30,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.OldApiTests
                 {
                     x.ContentType = "application/json";
                     x.Map<RecordNotFoundException>().ToStatusCode(StatusCodes.Status404NotFound);
-                    x.DefaultResponseBody(exception => JsonConvert.SerializeObject(new
+                    x.ResponseBody(exception => JsonConvert.SerializeObject(new
                     {
                         error = new
                         {

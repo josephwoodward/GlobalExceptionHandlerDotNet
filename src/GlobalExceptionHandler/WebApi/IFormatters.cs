@@ -26,19 +26,19 @@ namespace GlobalExceptionHandler.WebApi
 
     public interface IUnhandledFormatters
     {
-        [Obsolete("MessageFormatter(..) is obsolete and will be removed soon, use DefaultResponseBody(..) instead", false)]
+        [Obsolete("MessageFormatter(..) is obsolete and will be removed soon, use ResponseBody(..) instead", false)]
         void MessageFormatter(Func<Exception, HttpContext, string> formatter);
 
-        [Obsolete("MessageFormatter(..) is obsolete and will be removed soon, use DefaultResponseBody(..) instead", false)]
+        [Obsolete("MessageFormatter(..) is obsolete and will be removed soon, use ResponseBody(..) instead", false)]
         void MessageFormatter(Func<Exception, HttpContext, Task> formatter);
 
-        [Obsolete("MessageFormatter(..) is obsolete and will be removed soon, use DefaultResponseBody(..) instead", false)]
+        [Obsolete("MessageFormatter(..) is obsolete and will be removed soon, use ResponseBody(..) instead", false)]
         void MessageFormatter(Func<Exception, HttpContext, HandlerContext, Task> formatter);
         
-        void DefaultResponseBody(Func<Exception, HttpContext, string> formatter);
+        void ResponseBody(Func<Exception, HttpContext, string> formatter);
 
-        void DefaultResponseBody(Func<Exception, HttpContext, Task> formatter);
+        void ResponseBody(Func<Exception, HttpContext, Task> formatter);
 
-        void DefaultResponseBody(Func<Exception, HttpContext, HandlerContext, Task> formatter);
+        void ResponseBody(Func<Exception, HttpContext, HandlerContext, Task> formatter);
     }
 }

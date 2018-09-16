@@ -30,7 +30,7 @@ namespace GlobalExceptionHandler.Demo
             app.UseGlobalExceptionHandler(x =>
             {
                 x.ContentType = "application/json";
-                x.DefaultResponseBody(s => JsonConvert.SerializeObject(new
+                x.ResponseBody(s => JsonConvert.SerializeObject(new
                 {
                     Message = "An error occured whilst processing your request"
                 }));

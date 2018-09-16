@@ -28,7 +28,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.GlobalFormatterTests
                 app.UseGlobalExceptionHandler(x =>
                 {
                     x.ContentType = "application/json";
-                    x.DefaultResponseBody(c => JsonConvert.SerializeObject(new TestResponse
+                    x.ResponseBody(c => JsonConvert.SerializeObject(new TestResponse
                     {
                         Message = c.Message
                     }));

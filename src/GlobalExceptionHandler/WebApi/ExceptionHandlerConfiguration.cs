@@ -35,7 +35,7 @@ namespace GlobalExceptionHandler.WebApi
 			return new ExceptionRuleCreator(_exceptionConfiguration, type);
 		}
 		
-		public void DefaultResponseBody(Func<Exception, string> formatter)
+		public void ResponseBody(Func<Exception, string> formatter)
 		{
 			Task Formatter(Exception x, HttpContext y, HandlerContext b)
 			{
@@ -44,10 +44,10 @@ namespace GlobalExceptionHandler.WebApi
 				return Task.CompletedTask;
 			}
 			
-			DefaultResponseBody(Formatter);
+			ResponseBody(Formatter);
 		}
 		
-		public void DefaultResponseBody(Func<Exception, HttpContext, Task> formatter)
+		public void ResponseBody(Func<Exception, HttpContext, Task> formatter)
 		{
 			Task Formatter(Exception x, HttpContext y, HandlerContext b)
 			{
@@ -55,16 +55,16 @@ namespace GlobalExceptionHandler.WebApi
 				return Task.CompletedTask;
 			}
 			
-			DefaultResponseBody(Formatter);
+			ResponseBody(Formatter);
 		}
 
-		public void MessageFormatter(Func<Exception, HttpContext, string> formatter) => DefaultResponseBody(formatter);
+		public void MessageFormatter(Func<Exception, HttpContext, string> formatter) => ResponseBody(formatter);
 
-		public void MessageFormatter(Func<Exception, HttpContext, Task> formatter) => DefaultResponseBody(formatter);
+		public void MessageFormatter(Func<Exception, HttpContext, Task> formatter) => ResponseBody(formatter);
 
-		public void MessageFormatter(Func<Exception, HttpContext, HandlerContext, Task> formatter) => DefaultResponseBody(formatter);
+		public void MessageFormatter(Func<Exception, HttpContext, HandlerContext, Task> formatter) => ResponseBody(formatter);
 
-		public void DefaultResponseBody(Func<Exception, HttpContext, string> formatter)
+		public void ResponseBody(Func<Exception, HttpContext, string> formatter)
 		{
 			Task Formatter(Exception x, HttpContext y, HandlerContext b)
 			{
@@ -73,10 +73,10 @@ namespace GlobalExceptionHandler.WebApi
 				return Task.CompletedTask;
 			}
 			
-			DefaultResponseBody(Formatter);
+			ResponseBody(Formatter);
 		}
 
-		public void DefaultResponseBody(Func<Exception, HttpContext, HandlerContext, Task> formatter)
+		public void ResponseBody(Func<Exception, HttpContext, HandlerContext, Task> formatter)
 		{
 			CustomFormatter = formatter;
 		}
