@@ -26,20 +26,9 @@ namespace GlobalExceptionHandler.WebApi
 
         public IHandledFormatters ReturnStatusCode(int statusCode)
             => ToStatusCode(statusCode);
-        
+
         public IHandledFormatters ToStatusCode(int statusCode)
-        {
-            var exceptionConfig = new ExceptionConfig
-            {
-                StatusCode = ex => statusCode
-            };
-
-            _configurations.Add(_currentFluentlyConfiguredType, exceptionConfig);
-
-            ToStatusCode(exception => statusCode);
-            
-            return this;
-        }
+            => ToStatusCode(ex => statusCode);
 
         public IHandledFormatters ToStatusCode(Func<Exception, int> statusCodeResolver)
         {
@@ -50,7 +39,7 @@ namespace GlobalExceptionHandler.WebApi
 
             _configurations.Add(_currentFluentlyConfiguredType, exceptionConfig);
 
-            return this;            
+            return this;
         }
 
         public void UsingMessageFormatter(Func<Exception, HttpContext, string> formatter)
