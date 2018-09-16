@@ -13,13 +13,13 @@ using Newtonsoft.Json;
 using Shouldly;
 using Xunit;
 
-namespace GlobalExceptionHandler.Tests.WebApi.OldApiTests
+namespace GlobalExceptionHandler.Tests.WebApi.StatusCodeTests
 {
-    public class OldApiTests : IClassFixture<WebApiServerFixture>
+    public class BasicTests : IClassFixture<WebApiServerFixture>
     {
         private readonly HttpResponseMessage _response;
-        
-        public OldApiTests(WebApiServerFixture fixture)
+
+        public BasicTests(WebApiServerFixture fixture)
         {
             // Arrange
             const string requestUri = "/api/productnotfound";
@@ -29,21 +29,14 @@ namespace GlobalExceptionHandler.Tests.WebApi.OldApiTests
                 app.UseGlobalExceptionHandler(x =>
                 {
                     x.ContentType = "application/json";
-                    x.Map<RecordNotFoundException>().ToStatusCode(StatusCodes.Status404NotFound);
-                    x.DefaultResponseBody(exception => JsonConvert.SerializeObject(new
+                    x.Map<ArgumentException>().ToStatusCode(StatusCodes.Status400BadRequest);
+                    x.DefaultResponseBody(c => JsonConvert.SerializeObject(new TestResponse
                     {
-                        error = new
-                        {
-                            exception = exception.GetType().Name,
-                            message = exception.Message
-                        }
+                        Message = c.Message
                     }));
                 });
 
-                app.Map(requestUri, config =>
-                {
-                    config.Run(context => throw new NullReferenceException("Object is null"));
-                });
+                app.Map(requestUri, config => { config.Run(context => throw new ArgumentException("Invalid request")); });
             });
 
             // Act
@@ -54,7 +47,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.OldApiTests
                 _response = client.SendAsync(requestMessage).Result;
             }
         }
-        
+
         [Fact]
         public void Returns_correct_response_type()
         {
@@ -64,14 +57,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.OldApiTests
         [Fact]
         public void Returns_correct_status_code()
         {
-            _response.StatusCode.ShouldBe(HttpStatusCode.InternalServerError);
-        }
-
-        [Fact]
-        public async Task Returns_correct_body()
-        {
-            var content = await _response.Content.ReadAsStringAsync();
-            content.ShouldBe("{\"error\":{\"exception\":\"NullReferenceException\",\"message\":\"Object is null\"}}");
+            _response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
         }
     }
 }
