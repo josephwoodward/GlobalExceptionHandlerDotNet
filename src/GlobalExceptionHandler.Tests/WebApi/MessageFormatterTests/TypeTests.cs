@@ -17,13 +17,14 @@ namespace GlobalExceptionHandler.Tests.WebApi.MessageFormatterTests
 {
     public class TypeTests : IClassFixture<WebApiServerFixture>
     {
-        private readonly HttpResponseMessage _response;
+	    private const string ApiProductNotFound = "/api/productnotfound";
+	    private readonly HttpClient _client;
+	    private readonly HttpRequestMessage _requestMessage;
 
-        public TypeTests(WebApiServerFixture fixture)
+	    public TypeTests(WebApiServerFixture fixture)
         {
             // Arrange
-            const string requestUri = "/api/productnotfound";
-            var webHost = fixture.CreateWebHostWithXmlFormatters();
+	        var webHost = fixture.CreateWebHostWithXmlFormatters();
             webHost.Configure(app =>
             {
 	            app.UseGlobalExceptionHandler(x =>
@@ -54,39 +55,38 @@ namespace GlobalExceptionHandler.Tests.WebApi.MessageFormatterTests
 			            });
 				});
 
-                app.Map(requestUri, config =>
+                app.Map(ApiProductNotFound, config =>
                 {
                     config.Run(context => throw new Level1ExceptionB());
                 });
             });
+	        
+	        _requestMessage = new HttpRequestMessage(new HttpMethod("GET"), ApiProductNotFound);
+	        _requestMessage.Headers.Accept.Clear();
+	        _requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("text/xml"));
 
-            // Act
-            var server = new TestServer(webHost);
-            using (var client = server.CreateClient())
-            {
-                var requestMessage = new HttpRequestMessage(new HttpMethod("GET"), requestUri);
-                requestMessage.Headers.Accept.Clear();
-                requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("text/xml"));
-                _response = client.SendAsync(requestMessage).Result;
-            }
+	        _client = new TestServer(webHost).CreateClient();
         }
 
         [Fact]
-        public void Returns_correct_response_type()
+        public async Task Returns_correct_response_type()
         {
-            _response.Content.Headers.ContentType.MediaType.ShouldBe("text/xml");
+	        var response = await _client.SendAsync(_requestMessage);
+            response.Content.Headers.ContentType.MediaType.ShouldBe("text/xml");
         }
 
         [Fact]
-        public void Returns_correct_status_code()
+        public async Task Returns_correct_status_code()
         {
-            _response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+	        var response = await _client.SendAsync(_requestMessage);
+            response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
         }
 
         [Fact]
         public async Task Returns_correct_body()
         {
-            var content = await _response.Content.ReadAsStringAsync();
+	        var response = await _client.SendAsync(_requestMessage);
+            var content = await response.Content.ReadAsStringAsync();
             content.ShouldContain(@"<Message>Bad Request</Message>");
         }
     }

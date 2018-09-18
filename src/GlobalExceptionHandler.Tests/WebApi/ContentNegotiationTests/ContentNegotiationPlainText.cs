@@ -17,13 +17,14 @@ namespace GlobalExceptionHandler.Tests.WebApi.ContentNegotiationTests
 {
     public class ContentNegotiationPlainText : IClassFixture<WebApiServerFixture>
     {
-        private readonly HttpResponseMessage _response;
+        private const string ApiProductNotFound = "/api/productnotfound";
+        private readonly HttpRequestMessage _requestMessage;
+        private readonly HttpClient _client;
 
         public ContentNegotiationPlainText(WebApiServerFixture fixture)
         {
             // Arrange
-            const string requestUri = "/api/productnotfound";
-            
+
             var webHost = fixture.CreateWebHostWithMvc();
             webHost.Configure(app =>
             {
@@ -33,39 +34,38 @@ namespace GlobalExceptionHandler.Tests.WebApi.ContentNegotiationTests
                         .WithBody((e, c, h) => c.WriteAsyncObject(e.Message));
                 });
 
-                app.Map(requestUri, config =>
+                app.Map(ApiProductNotFound, config =>
                 {
                     config.Run(context => throw new RecordNotFoundException("Record could not be found"));
                 });
             });
 
-            // Act
-            var server = new TestServer(webHost);
-            using (var client = server.CreateClient())
-            {
-                var requestMessage = new HttpRequestMessage(new HttpMethod("GET"), requestUri);
-                requestMessage.Headers.Accept.Clear();
-                requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("text/plain"));
-                _response = client.SendAsync(requestMessage).Result;
-            }
+            _requestMessage = new HttpRequestMessage(new HttpMethod("GET"), ApiProductNotFound);
+            _requestMessage.Headers.Accept.Clear();
+            _requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("text/plain"));
+
+            _client = new TestServer(webHost).CreateClient();
         }
         
         [Fact]
-        public void Returns_correct_response_type()
+        public async Task Returns_correct_response_type()
         {
-            _response.Content.Headers.ContentType.MediaType.ShouldBe("text/plain");
+            var response = await _client.SendAsync(_requestMessage);
+            response.Content.Headers.ContentType.MediaType.ShouldBe("text/plain");
         }
 
         [Fact]
-        public void Returns_correct_status_code()
+        public async Task Returns_correct_status_code()
         {
-            _response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
+            var response = await _client.SendAsync(_requestMessage);
+            response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
         }
 
         [Fact]
         public async Task Returns_correct_body()
         {
-            var content = await _response.Content.ReadAsStringAsync();
+            var response = await _client.SendAsync(_requestMessage);
+            var content = await response.Content.ReadAsStringAsync();
             content.ShouldContain("Record could not be found");
         }
     }

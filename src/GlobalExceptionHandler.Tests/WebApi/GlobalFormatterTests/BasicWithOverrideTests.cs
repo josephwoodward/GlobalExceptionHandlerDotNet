@@ -17,12 +17,12 @@ namespace GlobalExceptionHandler.Tests.WebApi.GlobalFormatterTests
 {
     public class BasicWithOverrideTests : IClassFixture<WebApiServerFixture>
     {
-        private readonly HttpResponseMessage _response;
+        private const string ApiProductNotFound = "/api/productnotfound";
+        private HttpClient _client;
 
         public BasicWithOverrideTests(WebApiServerFixture fixture)
         {
             // Arrange
-            const string requestUri = "/api/productnotfound";
             var webHost = fixture.CreateWebHostWithMvc();
             webHost.Configure(app =>
             {
@@ -39,37 +39,34 @@ namespace GlobalExceptionHandler.Tests.WebApi.GlobalFormatterTests
                     }));
                 });
 
-                app.Map(requestUri, config =>
+                app.Map(ApiProductNotFound, config =>
                 {
                     config.Run(context => throw new ArgumentException("Invalid request"));
                 });
             });
 
-            // Act
-            var server = new TestServer(webHost);
-            using (var client = server.CreateClient())
-            {
-                var requestMessage = new HttpRequestMessage(new HttpMethod("GET"), requestUri);
-                _response = client.SendAsync(requestMessage).Result;
-            }
+            _client = new TestServer(webHost).CreateClient();
         }
 
         [Fact]
-        public void Returns_correct_response_type()
+        public async Task Returns_correct_response_type()
         {
-            _response.Content.Headers.ContentType.MediaType.ShouldBe("application/json");
+            var response = await _client.SendAsync(new HttpRequestMessage(new HttpMethod("GET"), ApiProductNotFound));
+            response.Content.Headers.ContentType.MediaType.ShouldBe("application/json");
         }
 
         [Fact]
-        public void Returns_correct_status_code()
+        public async Task Returns_correct_status_code()
         {
-            _response.StatusCode.ShouldBe(HttpStatusCode.InternalServerError);
+            var response = await _client.SendAsync(new HttpRequestMessage(new HttpMethod("GET"), ApiProductNotFound));
+            response.StatusCode.ShouldBe(HttpStatusCode.InternalServerError);
         }
 
         [Fact]
         public async Task Returns_correct_body()
         {
-            var content = await _response.Content.ReadAsStringAsync();
+            var response = await _client.SendAsync(new HttpRequestMessage(new HttpMethod("GET"), ApiProductNotFound));
+            var content = await response.Content.ReadAsStringAsync();
             content.ShouldBe(@"{""error"":{""message"":""Something went wrong""}}");
         }
     }

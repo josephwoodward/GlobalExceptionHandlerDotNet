@@ -1,4 +1,3 @@
-using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using GlobalExceptionHandler.Tests.Exceptions;
@@ -15,14 +14,13 @@ namespace GlobalExceptionHandler.Tests.WebApi.MessageFormatterTests
 {
     public class StringMessageFormatter : IClassFixture<WebApiServerFixture>
     {
-        private readonly HttpResponseMessage _response;
+        private readonly HttpClient _client;
         private const string Response = "Hello World!";
-        
+        private const string ApiProductNotFound = "/api/productnotfound";
+
         public StringMessageFormatter(WebApiServerFixture fixture)
         {
             // Arrange
-            const string requestUri = "/api/productnotfound";
-            
             var webHost = fixture.CreateWebHostWithMvc();
             webHost.Configure(app =>
             {
@@ -33,25 +31,23 @@ namespace GlobalExceptionHandler.Tests.WebApi.MessageFormatterTests
                         .WithBody((exception, context) => Response);
                 });
 
-                app.Map(requestUri, config =>
+                app.Map(ApiProductNotFound, config =>
                 {
                     config.Run(context => throw new RecordNotFoundException("Record could not be found"));
                 });
             });
 
-            // Act
-            var server = new TestServer(webHost);
-            using (var client = server.CreateClient())
-            {
-                var requestMessage = new HttpRequestMessage(new HttpMethod("GET"), requestUri);
-                _response = client.SendAsync(requestMessage).Result;
-            }
+            _client = new TestServer(webHost).CreateClient();
         }
 
         [Fact]
         public async Task Correct_response_message()
         {
-            var content = await _response.Content.ReadAsStringAsync();
+            // Act
+            var response = await _client.SendAsync(new HttpRequestMessage(new HttpMethod("GET"), ApiProductNotFound));
+            var content = await response.Content.ReadAsStringAsync();
+
+            // Assert
             content.ShouldBe(Response);
         }
     }

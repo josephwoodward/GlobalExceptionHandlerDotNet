@@ -17,14 +17,13 @@ namespace GlobalExceptionHandler.Tests.WebApi.ContentNegotiationTests
 {
     public class ContentNegotiationJsonWithException : IClassFixture<WebApiServerFixture>
     {
-        private readonly HttpResponseMessage _response;
-        private const string ContentType = "application/json";
+        private const string ApiProductNotFound = "/api/productnotfound";
+        private readonly HttpRequestMessage _requestMessage;
+        private readonly HttpClient _client;
 
         public ContentNegotiationJsonWithException(WebApiServerFixture fixture)
         {
             // Arrange
-            const string requestUri = "/api/productnotfound";
-            
             var webHost = fixture.CreateWebHostWithMvc();
             webHost.Configure(app =>
             {
@@ -37,40 +36,39 @@ namespace GlobalExceptionHandler.Tests.WebApi.ContentNegotiationTests
                         });
                 });
 
-                app.Map(requestUri, config =>
+                app.Map(ApiProductNotFound, config =>
                 {
                     config.Run(context => throw new RecordNotFoundException("Record could not be found"));
                 });
             });
 
             // Act
-            var server = new TestServer(webHost);
-            using (var client = server.CreateClient())
-            {
-                var requestMessage = new HttpRequestMessage(new HttpMethod("GET"), requestUri);
-                requestMessage.Headers.Accept.Clear();
-                requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(ContentType));
+            _requestMessage = new HttpRequestMessage(new HttpMethod("GET"), ApiProductNotFound);
+            _requestMessage.Headers.Accept.Clear();
+            _requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-                _response = client.SendAsync(requestMessage).Result;
-            }
+            _client = new TestServer(webHost).CreateClient();
         }
         
         [Fact]
-        public void Returns_correct_response_type()
+        public async Task Returns_correct_response_type()
         {
-            _response.Content.Headers.ContentType.MediaType.ShouldBe(ContentType);
+            var response = await _client.SendAsync(_requestMessage);
+            response.Content.Headers.ContentType.MediaType.ShouldBe("application/json");
         }
 
         [Fact]
-        public void Returns_correct_status_code()
+        public async Task Returns_correct_status_code()
         {
-            _response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
+            var response = await _client.SendAsync(_requestMessage);
+            response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
         }
 
         [Fact]
         public async Task Returns_correct_body()
         {
-            var content = await _response.Content.ReadAsStringAsync();
+            var response = await _client.SendAsync(_requestMessage);
+            var content = await response.Content.ReadAsStringAsync();
             content.ShouldContain("{\"message\":\"An exception occured\"}");
         }
     }
