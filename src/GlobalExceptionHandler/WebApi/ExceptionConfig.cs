@@ -4,9 +4,9 @@ using Microsoft.AspNetCore.Http;
 
 namespace GlobalExceptionHandler.WebApi
 {
-	public class ExceptionConfig
+	internal class ExceptionConfig
 	{
-		public int StatusCode { get; set; }
+		public Func<Exception, int> StatusCodeResolver { get; set; }
 		
 		public Func<Exception, HttpContext, HandlerContext, Task> Formatter { get; set; }
 

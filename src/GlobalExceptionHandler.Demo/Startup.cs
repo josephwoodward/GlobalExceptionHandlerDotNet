@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
@@ -17,31 +18,30 @@ namespace GlobalExceptionHandler.Demo
 
         public IConfiguration Configuration { get; }
 
+        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 
+        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            app.UseExceptionHandler().WithConventions(x => {
+            app.UseGlobalExceptionHandler(x =>
+            {
                 x.ContentType = "application/json";
-                x.MessageFormatter(s => JsonConvert.SerializeObject(new
+                x.ResponseBody(s => JsonConvert.SerializeObject(new
                 {
                     Message = "An error occured whilst processing your request"
                 }));
-                x.ForException<RecordNotFoundException>().ReturnStatusCode(StatusCodes.Status404NotFound)
-                    .UsingMessageFormatter((ex, context) => JsonConvert.SerializeObject(new
+                x.Map<RecordNotFoundException>().ToStatusCode(StatusCodes.Status404NotFound)
+                    .WithBody((ex, context) => JsonConvert.SerializeObject(new
                     {
                         Message = "Record could not be found"
                     }));
             });
-            
+
             app.Map("/error", x => x.Run(y => throw new RecordNotFoundException()));
         }
-    }
-
-    public class DemoOutput
-    {
-        public string Message { get; set; }
     }
 }

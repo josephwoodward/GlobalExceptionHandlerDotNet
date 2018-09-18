@@ -10,11 +10,11 @@ namespace GlobalExceptionHandler.WebApi
 	public class ExceptionHandlerConfiguration : IUnhandledFormatters
 	{		
 		private readonly IDictionary<Type, ExceptionConfig> _exceptionConfiguration = new Dictionary<Type, ExceptionConfig>();
-		private Type[] _exceptionConfgurationTypesSortedByDepthDescending;		
+		private Type[] _exceptionConfigurationTypesSortedByDepthDescending;		
 		private Func<Exception, HttpContext, Task> _logger;
 
 		internal Func<Exception, HttpContext, HandlerContext, Task> CustomFormatter { get; private set; } 
-		internal Func<Exception, HttpContext, HandlerContext, Task> DefaultFormatter { get; private set; }
+		internal Func<Exception, HttpContext, HandlerContext, Task> DefaultFormatter { get; }
 		internal IDictionary<Type, ExceptionConfig> ExceptionConfiguration => _exceptionConfiguration;
 
 		public string ContentType { get; set; }
@@ -22,13 +22,20 @@ namespace GlobalExceptionHandler.WebApi
 
 		public ExceptionHandlerConfiguration(Func<Exception, HttpContext, HandlerContext, Task> defaultFormatter) => DefaultFormatter = defaultFormatter;
 
+		[Obsolete("ForException<T> is obsolete and will be removed soon, use Map<T> instead", false)]
 		public IHasStatusCode ForException<T>() where T : Exception
 		{
 			var type = typeof(T);
 			return new ExceptionRuleCreator(_exceptionConfiguration, type);
 		}
 		
-		public void MessageFormatter(Func<Exception, string> formatter)
+		public IHasStatusCode Map<T>() where T : Exception
+		{
+			var type = typeof(T);
+			return new ExceptionRuleCreator(_exceptionConfiguration, type);
+		}
+		
+		public void ResponseBody(Func<Exception, string> formatter)
 		{
 			Task Formatter(Exception x, HttpContext y, HandlerContext b)
 			{
@@ -37,10 +44,10 @@ namespace GlobalExceptionHandler.WebApi
 				return Task.CompletedTask;
 			}
 			
-			MessageFormatter(Formatter);
+			ResponseBody(Formatter);
 		}
 		
-		public void MessageFormatter(Func<Exception, HttpContext, Task> formatter)
+		public void ResponseBody(Func<Exception, HttpContext, Task> formatter)
 		{
 			Task Formatter(Exception x, HttpContext y, HandlerContext b)
 			{
@@ -48,10 +55,16 @@ namespace GlobalExceptionHandler.WebApi
 				return Task.CompletedTask;
 			}
 			
-			MessageFormatter(Formatter);
+			ResponseBody(Formatter);
 		}
-		
-		public void MessageFormatter(Func<Exception, HttpContext, string> formatter)
+
+		public void MessageFormatter(Func<Exception, HttpContext, string> formatter) => ResponseBody(formatter);
+
+		public void MessageFormatter(Func<Exception, HttpContext, Task> formatter) => ResponseBody(formatter);
+
+		public void MessageFormatter(Func<Exception, HttpContext, HandlerContext, Task> formatter) => ResponseBody(formatter);
+
+		public void ResponseBody(Func<Exception, HttpContext, string> formatter)
 		{
 			Task Formatter(Exception x, HttpContext y, HandlerContext b)
 			{
@@ -60,10 +73,10 @@ namespace GlobalExceptionHandler.WebApi
 				return Task.CompletedTask;
 			}
 			
-			MessageFormatter(Formatter);
+			ResponseBody(Formatter);
 		}
 
-		public void MessageFormatter(Func<Exception, HttpContext, HandlerContext, Task> formatter)
+		public void ResponseBody(Func<Exception, HttpContext, HandlerContext, Task> formatter)
 		{
 			CustomFormatter = formatter;
 		}
@@ -80,7 +93,7 @@ namespace GlobalExceptionHandler.WebApi
 				ContentType = ContentType
 			};
 			
-			_exceptionConfgurationTypesSortedByDepthDescending = _exceptionConfiguration.Keys
+			_exceptionConfigurationTypesSortedByDepthDescending = _exceptionConfiguration.Keys
 				.OrderByDescending(x => x, new ExceptionTypePolymorphicComparer())
 				.ToArray();
 
@@ -94,13 +107,13 @@ namespace GlobalExceptionHandler.WebApi
 					context.Response.ContentType = ContentType;
 				
 				// If any custom exceptions are set
-				foreach (var type in _exceptionConfgurationTypesSortedByDepthDescending)
+				foreach (var type in _exceptionConfigurationTypesSortedByDepthDescending)
 				{
 					// ReSharper disable once UseMethodIsInstanceOfType TODO: Fire those guys
 					if (type.IsAssignableFrom(exception.GetType()))
 					{
 						var config = ExceptionConfiguration[type];
-						context.Response.StatusCode = (int)config.StatusCode;
+						context.Response.StatusCode = config.StatusCodeResolver(exception);
 
 						if (config.Formatter == null)
 							config.Formatter = CustomFormatter;

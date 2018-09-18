@@ -8,14 +8,11 @@ namespace GlobalExceptionHandler.Tests.Fixtures
     public class WebApiServerFixture
     {
         public IWebHostBuilder CreateWebHost()
-        {
-            return CreateWebHost(null);
-        }
+            => CreateWebHost(null);
+        
         
         public IWebHostBuilder CreateWebHostWithMvc()
-        {
-            return CreateWebHost(s => s.AddMvc());
-        }
+            =>CreateWebHost(s => s.AddMvc());
         
         public IWebHostBuilder CreateWebHostWithXmlFormatters()
         {

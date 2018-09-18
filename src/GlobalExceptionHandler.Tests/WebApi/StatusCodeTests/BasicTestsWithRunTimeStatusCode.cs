@@ -13,42 +13,36 @@ using Newtonsoft.Json;
 using Shouldly;
 using Xunit;
 
-namespace GlobalExceptionHandler.Tests.WebApi.OldApiTests
+namespace GlobalExceptionHandler.Tests.WebApi.StatusCodeTests
 {
-    public class OldApiTests : IClassFixture<WebApiServerFixture>
+    public class BasicTestsWithRunTimeStatusCode : IClassFixture<WebApiServerFixture>
     {
         private const string ApiProductNotFound = "/api/productnotfound";
-        private HttpClient _client;
+        private readonly HttpClient _client;
 
-        public OldApiTests(WebApiServerFixture fixture)
+        public BasicTestsWithRunTimeStatusCode(WebApiServerFixture fixture)
         {
             // Arrange
+            const string requestUri = "/api/productnotfound";
             var webHost = fixture.CreateWebHostWithMvc();
             webHost.Configure(app =>
             {
                 app.UseGlobalExceptionHandler(x =>
                 {
                     x.ContentType = "application/json";
-                    x.Map<RecordNotFoundException>().ToStatusCode(StatusCodes.Status404NotFound);
-                    x.ResponseBody(exception => JsonConvert.SerializeObject(new
+                    x.Map<ArgumentException>().ToStatusCode(ex => ex is ArgumentException ? StatusCodes.Status400BadRequest : StatusCodes.Status500InternalServerError);
+                    x.ResponseBody(c => JsonConvert.SerializeObject(new TestResponse
                     {
-                        error = new
-                        {
-                            exception = exception.GetType().Name,
-                            message = exception.Message
-                        }
+                        Message = c.Message
                     }));
                 });
 
-                app.Map(ApiProductNotFound, config =>
-                {
-                    config.Run(context => throw new NullReferenceException("Object is null"));
-                });
+                app.Map(requestUri, config => { config.Run(context => throw new ArgumentException("Invalid request")); });
             });
 
             _client = new TestServer(webHost).CreateClient();
         }
-        
+
         [Fact]
         public async Task Returns_correct_response_type()
         {
@@ -60,15 +54,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.OldApiTests
         public async Task Returns_correct_status_code()
         {
             var response = await _client.SendAsync(new HttpRequestMessage(new HttpMethod("GET"), ApiProductNotFound));
-            response.StatusCode.ShouldBe(HttpStatusCode.InternalServerError);
-        }
-
-        [Fact]
-        public async Task Returns_correct_body()
-        {
-            var response = await _client.SendAsync(new HttpRequestMessage(new HttpMethod("GET"), ApiProductNotFound));
-            var content = await response.Content.ReadAsStringAsync();
-            content.ShouldBe("{\"error\":{\"exception\":\"NullReferenceException\",\"message\":\"Object is null\"}}");
+            response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
         }
     }
 }
