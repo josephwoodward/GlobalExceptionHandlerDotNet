@@ -4,7 +4,7 @@
 
 GlobalExceptionHandlerDotNet allows you to configure exception handling as a convention with your ASP.NET Core application pipeline as opposed to explicitly handling them within each controller action. This could be particularly helpful in the following circumstances:
 
-- Reduce boiler plate try-catch logic in your controllers
+- Reduce boilerplate try-catch logic in your controllers
 - Catch and appropriately handle exceptions outside of the ASP.NET Core framework
 - You don't want error codes being visible by consuming APIs (return 500 for every exception)
 
