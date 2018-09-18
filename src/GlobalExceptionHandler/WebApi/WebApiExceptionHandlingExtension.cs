@@ -39,11 +39,11 @@ namespace GlobalExceptionHandler.WebApi
             return app.UseMiddleware<ExceptionHandlerMiddleware>(Options.Create(new ExceptionHandlerOptions().SetHandler(configuration)), loggerFactory);
         }
 
-        [Obsolete("app.UseExceptionHandler.WithConventions(..) is obsolete, please use app.UseGlobalExceptionHandler(..) instead", true)]
+        [Obsolete("app.UseExceptionHandler().WithConventions(..) is obsolete, please use app.UseGlobalExceptionHandler(..) instead", true)]
         public static IApplicationBuilder WithConventions(this IApplicationBuilder app)
         => WithConventions(app, configuration => {});
 
-        [Obsolete("app.UseExceptionHandler.WithConventions(..) is obsolete, please use app.UseGlobalExceptionHandler(..) instead", true)]
+        [Obsolete("app.UseExceptionHandler().WithConventions(..) is obsolete, please use app.UseGlobalExceptionHandler(..) instead", true)]
         public static IApplicationBuilder WithConventions(this IApplicationBuilder app, Action<ExceptionHandlerConfiguration> configuration)
         {
             if (app == null)
@@ -57,7 +57,7 @@ namespace GlobalExceptionHandler.WebApi
             return app.UseExceptionHandler(opts);
         }
 
-        [Obsolete("app.UseExceptionHandler.WithConventions(..) is obsolete, please use app.UseGlobalExceptionHandler(..) instead", true)]
+        [Obsolete("app.UseExceptionHandler().WithConventions(..) is obsolete, please use app.UseGlobalExceptionHandler(..) instead", true)]
         public static IApplicationBuilder WithConventions(this IApplicationBuilder app, Action<ExceptionHandlerConfiguration> configuration, ILoggerFactory loggerFactory)
         {
             if (app == null)
