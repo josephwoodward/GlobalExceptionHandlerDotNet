@@ -1,9 +1,7 @@
 ﻿using System;
-using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -41,7 +39,7 @@ namespace GlobalExceptionHandler.WebApi
 
         [Obsolete("app.UseExceptionHandler().WithConventions(..) is obsolete, please use app.UseGlobalExceptionHandler(..) instead", true)]
         public static IApplicationBuilder WithConventions(this IApplicationBuilder app)
-        => WithConventions(app, configuration => {});
+            => WithConventions(app, configuration => {});
 
         [Obsolete("app.UseExceptionHandler().WithConventions(..) is obsolete, please use app.UseGlobalExceptionHandler(..) instead", true)]
         public static IApplicationBuilder WithConventions(this IApplicationBuilder app, Action<ExceptionHandlerConfiguration> configuration)

@@ -34,6 +34,22 @@ namespace GlobalExceptionHandler.WebApi
 			var type = typeof(T);
 			return new ExceptionRuleCreator(_exceptionConfiguration, type);
 		}
+
+		[Obsolete("MessageFormatter(..) is obsolete and will be removed soon, use ResponseBody(..) instead", false)]
+		public void MessageFormatter(Func<Exception, string> formatter)
+			=> ResponseBody(formatter);
+
+		[Obsolete("MessageFormatter(..) is obsolete and will be removed soon, use ResponseBody(..) instead", false)]
+		public void MessageFormatter(Func<Exception, HttpContext, string> formatter)
+			=> ResponseBody(formatter);
+
+		[Obsolete("MessageFormatter(..) is obsolete and will be removed soon, use ResponseBody(..) instead", false)]
+		public void MessageFormatter(Func<Exception, HttpContext, Task> formatter)
+			=> ResponseBody(formatter);
+
+		[Obsolete("MessageFormatter(..) is obsolete and will be removed soon, use ResponseBody(..) instead", false)]
+		public void MessageFormatter(Func<Exception, HttpContext, HandlerContext, Task> formatter)
+			=> ResponseBody(formatter);
 		
 		public void ResponseBody(Func<Exception, string> formatter)
 		{
@@ -46,7 +62,7 @@ namespace GlobalExceptionHandler.WebApi
 			
 			ResponseBody(Formatter);
 		}
-		
+
 		public void ResponseBody(Func<Exception, HttpContext, Task> formatter)
 		{
 			Task Formatter(Exception x, HttpContext y, HandlerContext b)
@@ -57,13 +73,7 @@ namespace GlobalExceptionHandler.WebApi
 			
 			ResponseBody(Formatter);
 		}
-
-		public void MessageFormatter(Func<Exception, HttpContext, string> formatter) => ResponseBody(formatter);
-
-		public void MessageFormatter(Func<Exception, HttpContext, Task> formatter) => ResponseBody(formatter);
-
-		public void MessageFormatter(Func<Exception, HttpContext, HandlerContext, Task> formatter) => ResponseBody(formatter);
-
+		
 		public void ResponseBody(Func<Exception, HttpContext, string> formatter)
 		{
 			Task Formatter(Exception x, HttpContext y, HandlerContext b)
