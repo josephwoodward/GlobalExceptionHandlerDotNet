@@ -90,9 +90,9 @@ Expires: -1
 }
 ```
 
-### Runtime Status Code
+#### Runtime Status Code
 
-You can return the approprite status code at runtime using the following overload:
+If talking to a remote service, you could optionally choose to forward the status code on, or propagate it via the exception using the following `ToStatusCode(..)` overload:
 
 ```csharp
 app.UseGlobalExceptionHandler(x =>
