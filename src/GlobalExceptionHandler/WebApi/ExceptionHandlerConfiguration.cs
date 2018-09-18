@@ -113,7 +113,7 @@ namespace GlobalExceptionHandler.WebApi
 					if (type.IsAssignableFrom(exception.GetType()))
 					{
 						var config = ExceptionConfiguration[type];
-						context.Response.StatusCode = config.StatusCode(exception);
+						context.Response.StatusCode = config.StatusCodeResolver(exception);
 
 						if (config.Formatter == null)
 							config.Formatter = CustomFormatter;

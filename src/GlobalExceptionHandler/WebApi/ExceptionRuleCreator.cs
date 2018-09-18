@@ -13,7 +13,7 @@ namespace GlobalExceptionHandler.WebApi
         IHandledFormatters ToStatusCode(Func<Exception, int> statusCodeResolver);
     }
 
-    public class ExceptionRuleCreator : IHasStatusCode, IHandledFormatters
+    internal class ExceptionRuleCreator : IHasStatusCode, IHandledFormatters
     {
         private readonly IDictionary<Type, ExceptionConfig> _configurations;
         private readonly Type _currentFluentlyConfiguredType;
@@ -34,7 +34,7 @@ namespace GlobalExceptionHandler.WebApi
         {
             var exceptionConfig = new ExceptionConfig
             {
-                StatusCode = statusCodeResolver
+                StatusCodeResolver = statusCodeResolver
             };
 
             _configurations.Add(_currentFluentlyConfiguredType, exceptionConfig);
@@ -88,7 +88,7 @@ namespace GlobalExceptionHandler.WebApi
             if (formatter == null)
                 throw new NullReferenceException(nameof(formatter));
 
-	        ExceptionConfig exceptionConfig = _configurations[_currentFluentlyConfiguredType];
+	        var exceptionConfig = _configurations[_currentFluentlyConfiguredType];
 	        exceptionConfig.Formatter = formatter;
         }
     }

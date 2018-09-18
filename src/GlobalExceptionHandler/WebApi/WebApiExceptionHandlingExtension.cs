@@ -12,10 +12,8 @@ namespace GlobalExceptionHandler.WebApi
     public static class WebApiExceptionHandlingExtensions
     {
         public static IApplicationBuilder UseGlobalExceptionHandler(this IApplicationBuilder app)
-        {
-            return UseGlobalExceptionHandler(app, configuration => {});
-        }
-
+            => UseGlobalExceptionHandler(app, configuration => {});
+        
         public static IApplicationBuilder UseGlobalExceptionHandler(this IApplicationBuilder app, Action<ExceptionHandlerConfiguration> configuration)
         {
             if (app == null)
@@ -43,9 +41,7 @@ namespace GlobalExceptionHandler.WebApi
 
         [Obsolete("app.UseExceptionHandler.WithConventions(..) is obsolete, please use app.UseGlobalExceptionHandler(..) instead", true)]
         public static IApplicationBuilder WithConventions(this IApplicationBuilder app)
-        {
-            return WithConventions(app, configuration => {});
-        }
+        => WithConventions(app, configuration => {});
 
         [Obsolete("app.UseExceptionHandler.WithConventions(..) is obsolete, please use app.UseGlobalExceptionHandler(..) instead", true)]
         public static IApplicationBuilder WithConventions(this IApplicationBuilder app, Action<ExceptionHandlerConfiguration> configuration)
