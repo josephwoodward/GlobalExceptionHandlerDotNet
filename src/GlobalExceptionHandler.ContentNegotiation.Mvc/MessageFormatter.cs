@@ -8,14 +8,14 @@ namespace GlobalExceptionHandler.ContentNegotiation.Mvc
     public static class MessageFormatters
     {
         [Obsolete("UsingMessageFormatter(..) is obsolete and will be removed soon, use WithBody(..) instead", false)]
-        public static void UsingMessageFormatter<T>(this IHandledFormatters formatter, T response)
+        public static void UsingMessageFormatter<T, TException>(this IHandledFormatters<TException> formatter, T response) where TException : Exception
             => WithBody(formatter, response);
 
         [Obsolete("UsingMessageFormatter(..) is obsolete and will be removed soon, use WithBody(..) instead", false)]
-        public static void UsingMessageFormatter<T>(this IHandledFormatters formatter, Func<Exception, T> f)
+        public static void UsingMessageFormatter<T, TException>(this IHandledFormatters<TException> formatter, Func<Exception, T> f) where TException : Exception
             => WithBody(formatter, f);
         
-        public static void WithBody<T>(this IHandledFormatters formatter, T response)
+        public static void WithBody<T,TException>(this IHandledFormatters<TException> formatter, T response) where TException: Exception
         {
             Task Formatter(Exception x, HttpContext c, HandlerContext b)
             {
@@ -27,7 +27,7 @@ namespace GlobalExceptionHandler.ContentNegotiation.Mvc
             formatter.WithBody(Formatter);
         }
         
-        public static void WithBody<T>(this IHandledFormatters formatter, Func<Exception, T> f)
+        public static void WithBody<T, TException>(this IHandledFormatters<TException> formatter, Func<Exception, T> f) where TException: Exception
         {
             Task Formatter(Exception e, HttpContext c, HandlerContext b)
             {
@@ -39,7 +39,7 @@ namespace GlobalExceptionHandler.ContentNegotiation.Mvc
             formatter.WithBody(Formatter);
         }
         
-        public static void UsingMessageFormatter<T>(this IHandledFormatters formatter, Func<Exception, HttpContext, T> f)
+        public static void UsingMessageFormatter<T, TException>(this IHandledFormatters<TException> formatter, Func<Exception, HttpContext, T> f) where TException : Exception
         {
             Task Formatter(Exception e, HttpContext c, HandlerContext b)
             {
@@ -51,7 +51,7 @@ namespace GlobalExceptionHandler.ContentNegotiation.Mvc
             formatter.WithBody(Formatter);
         }
         
-        public static void UsingMessageFormatter<T>(this IHandledFormatters formatter, Func<Exception, HttpContext, HandlerContext, T> f)
+        public static void UsingMessageFormatter<T, TException>(this IHandledFormatters<TException> formatter, Func<Exception, HttpContext, HandlerContext, T> f) where TException : Exception
         {
             Task Formatter(Exception e, HttpContext c, HandlerContext b)
             {
