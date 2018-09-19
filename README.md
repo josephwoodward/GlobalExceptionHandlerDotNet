@@ -2,13 +2,18 @@
 
 [![Build status](https://ci.appveyor.com/api/projects/status/kdbepiak0m6olxw7?svg=true)](https://ci.appveyor.com/project/JoeMighty/globalexceptionhandlerdotnet)
 
-GlobalExceptionHandlerDotNet allows you to configure exception handling as a convention with your ASP.NET Core application pipeline as opposed to explicitly handling them within each controller action. This could be particularly helpful in the following circumstances:
+GlobalExceptionHandler.NET allows you to configure application level exception handling as a convention within your ASP.NET Core application, opposed to explicitly handling exceptions within each controller action.
 
+Configuring your error handling this way reaps the following benefits:
+
+- Centralised location for handling errors
 - Reduce boilerplate try-catch logic in your controllers
 - Catch and appropriately handle exceptions outside of the ASP.NET Core framework
-- You don't want error codes being visible by consuming APIs (return 500 for every exception)
+- You don't want error codes being visible by consuming APIs (for instance, you want to return 500 for every exception)
 
 This middleware targets the ASP.NET Core pipeline with an optional dependency on the MVC framework for content negotiation if so desired.
+
+**Note:** GlobalExceptionHandler.NET builds on top of the `app.UseExceptionHandler()` middleware so they cannot be used in tandem. GlobalExceptionHandler.NET turns your exception configuration provided by this library into an ExceptionHandler used within the `UseExceptionHandler` middleware.
 
 ## Installation
 
@@ -30,6 +35,7 @@ $ dotnet add package GlobalExceptionHandler
 
 public void Configure(IApplicationBuilder app, IHostingEnvironment env)
 {
+    // app.UseExceptionHandler(); You no longer need this.
     app.UseGlobalExceptionHandler(x => {
         x.ContentType = "application/json";
         x.ResponseBody(s => JsonConvert.SerializeObject(new
