@@ -8,12 +8,6 @@ namespace GlobalExceptionHandler.WebApi
 
     public interface IHandledFormatters
     {
-        void WithBody(Func<Exception, HttpContext, string> formatter);
-        
-        void WithBody(Func<Exception, HttpContext, Task> formatter);
-        
-        void WithBody(Func<Exception, HttpContext, HandlerContext, Task> formatter);
-        
         [Obsolete("UsingMessageFormatter(..) is obsolete and will be removed soon, use WithBody(..) instead", false)]
         void UsingMessageFormatter(Func<Exception, HttpContext, string> formatter);
 
@@ -22,6 +16,15 @@ namespace GlobalExceptionHandler.WebApi
 
         [Obsolete("UsingMessageFormatter(..) is obsolete and will be removed soon, use WithBody(..) instead", false)]
         void UsingMessageFormatter(Func<Exception, HttpContext, HandlerContext, Task> formatter);
+    }
+
+    public interface IHandledFormatters<out TException> where TException: Exception
+    {
+        void WithBody(Func<TException, HttpContext, string> formatter);
+        
+        void WithBody(Func<TException, HttpContext, Task> formatter);
+        
+        void WithBody(Func<TException, HttpContext, HandlerContext, Task> formatter);
     }
 
     public interface IUnhandledFormatters
@@ -34,11 +37,14 @@ namespace GlobalExceptionHandler.WebApi
 
         [Obsolete("MessageFormatter(..) is obsolete and will be removed soon, use ResponseBody(..) instead", false)]
         void MessageFormatter(Func<Exception, HttpContext, HandlerContext, Task> formatter);
-        
-        void ResponseBody(Func<Exception, HttpContext, string> formatter);
+    }
 
-        void ResponseBody(Func<Exception, HttpContext, Task> formatter);
+    public interface IUnhandledFormatters<out TException> where TException: Exception
+    {
+        void ResponseBody(Func<TException, HttpContext, string> formatter);
 
-        void ResponseBody(Func<Exception, HttpContext, HandlerContext, Task> formatter);
+        void ResponseBody(Func<TException, HttpContext, Task> formatter);
+
+        void ResponseBody(Func<TException, HttpContext, HandlerContext, Task> formatter);
     }
 }

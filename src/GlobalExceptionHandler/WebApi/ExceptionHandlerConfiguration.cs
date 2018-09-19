@@ -29,10 +29,9 @@ namespace GlobalExceptionHandler.WebApi
 			return new ExceptionRuleCreator(_exceptionConfiguration, type);
 		}
 		
-		public IHasStatusCode Map<T>() where T : Exception
+		public IHasStatusCode<TException> Map<TException>() where TException : Exception
 		{
-			var type = typeof(T);
-			return new ExceptionRuleCreator(_exceptionConfiguration, type);
+			return new ExceptionRuleCreator<TException>(_exceptionConfiguration);
 		}
 
 		[Obsolete("MessageFormatter(..) is obsolete and will be removed soon, use ResponseBody(..) instead", false)]
