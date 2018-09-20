@@ -14,12 +14,12 @@ using Xunit;
 
 namespace GlobalExceptionHandler.Tests.WebApi.StatusCodeTests
 {
-    public class BasicTestsInt : IClassFixture<WebApiServerFixture>
+    public class StatusCodeWithInt : IClassFixture<WebApiServerFixture>
     {
         private const string ApiProductNotFound = "/api/productnotfound";
         private readonly HttpClient _client;
 
-        public BasicTestsInt(WebApiServerFixture fixture)
+        public StatusCodeWithInt(WebApiServerFixture fixture)
         {
             // Arrange
             var webHost = fixture.CreateWebHostWithMvc();

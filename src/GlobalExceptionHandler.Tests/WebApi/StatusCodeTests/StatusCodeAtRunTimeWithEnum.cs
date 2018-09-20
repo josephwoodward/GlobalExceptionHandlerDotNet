@@ -13,12 +13,12 @@ using Xunit;
 
 namespace GlobalExceptionHandler.Tests.WebApi.StatusCodeTests
 {
-    public class BasicTestsWithRunTimeStatusCodeInt : IClassFixture<WebApiServerFixture>
+    public class StatusCodeAtRunTimeWithEnum : IClassFixture<WebApiServerFixture>
     {
         private const string ApiProductNotFound = "/api/productnotfound";
         private readonly HttpClient _client;
 
-        public BasicTestsWithRunTimeStatusCodeInt(WebApiServerFixture fixture)
+        public StatusCodeAtRunTimeWithEnum(WebApiServerFixture fixture)
         {
             // Arrange
             var webHost = fixture.CreateWebHostWithMvc();
@@ -27,7 +27,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.StatusCodeTests
                 app.UseGlobalExceptionHandler(x =>
                 {
                     x.ContentType = "application/json";
-                    x.Map<HttpNotFoundException>().ToStatusCode(ex => ex.StatusCode);
+                    x.Map<HttpNotFoundException>().ToStatusCode(ex => ex.StatusCodeEnum);
                     x.ResponseBody(c => JsonConvert.SerializeObject(new TestResponse
                     {
                         Message = c.Message
