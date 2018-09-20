@@ -5,8 +5,8 @@
     <PackageId>GlobalExceptionHandler.ContentNegotiation.Mvc</PackageId>
     <PackageTags>global exception handler;asp.net core;.net core</PackageTags>
     <title>Content negotiation for GlobalExceptionHandlerDotNet when using ASP.NET Core MVC</title>
-    <VersionPrefix>2.0.0-beta1</VersionPrefix>
-    <PackageReleaseNotes>https://github.com/JosephWoodward/GlobalExceptionHandlerDotNet/releases/tag/4.0.0-beta</PackageReleaseNotes>
+    <VersionPrefix>2.0.0-beta2</VersionPrefix>
+    <PackageReleaseNotes>https://github.com/JosephWoodward/GlobalExceptionHandlerDotNet/releases/tag/4.0.0-beta2</PackageReleaseNotes>
     <Authors>Joseph Woodward</Authors>
     <Description>Enable content negotiation for GlobalExceptionHandlerDotNet when using ASP.NET Core MVC</Description>
     <PackageProjectUrl>https://github.com/JosephWoodward/GlobalExceptionHandlerDotNet</PackageProjectUrl>

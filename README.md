@@ -104,7 +104,7 @@ If talking to a remote service, you could optionally choose to forward the statu
 app.UseGlobalExceptionHandler(x =>
 {
     x.ContentType = "application/json";
-    x.Map<HttpServiceException>().ToStatusCode(ex => ex.StatusCode).WithBody((e, c) => "Something went wrong");
+    x.Map<HttpNotFoundException>().ToStatusCode(ex => ex.StatusCode).WithBody((e, c) => "Resource could not be found");
     ...
 });
 ```
@@ -123,7 +123,7 @@ app.UseGlobalExceptionHandler(x => {
 
     x.Map<RecordNotFoundException>().ToStatusCode(StatusCodes.Status404NotFound)
         .WithBody((ex, context) => JsonConvert.SerializeObject(new {
-            Message = "Record could not be found"
+            Message = "Resource could not be found"
         }));
 });
 ```
@@ -134,7 +134,7 @@ Response:
 HTTP/1.1 404 Not Found
 ...
 {
-  "Message": "Record could not be found"
+  "Message": "Resource could not be found"
 }
 ```
 
@@ -182,7 +182,7 @@ public void Configure(IApplicationBuilder app, IHostingEnvironment env)
             });
     });
 
-    app.Map("/error", x => x.Run(y => throw new RecordNotFoundException("Record could not be found")));
+    app.Map("/error", x => x.Run(y => throw new RecordNotFoundException("Resource could not be found")));
 }
 ```
 
@@ -209,7 +209,7 @@ Expires: -1
 <ErrorResponse 
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
   xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <Message>Record could not be found</Message>
+  <Message>Resource could not be found</Message>
 </ErrorResponse>
 ```
 

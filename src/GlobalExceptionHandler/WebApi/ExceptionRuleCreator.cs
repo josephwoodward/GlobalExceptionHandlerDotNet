@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
@@ -14,7 +15,9 @@ namespace GlobalExceptionHandler.WebApi
     public interface IHasStatusCode<out TException> where TException: Exception
     {
         IHandledFormatters<TException> ToStatusCode(int statusCode);
+        IHandledFormatters<TException> ToStatusCode(HttpStatusCode statusCode);
         IHandledFormatters<TException> ToStatusCode(Func<TException, int> statusCodeResolver);
+        IHandledFormatters<TException> ToStatusCode(Func<TException, HttpStatusCode> statusCodeResolver);
     }
 
     internal class ExceptionRuleCreator : IHasStatusCode, IHandledFormatters
@@ -104,9 +107,18 @@ namespace GlobalExceptionHandler.WebApi
         }
 
         public IHandledFormatters<TException> ToStatusCode(int statusCode)
-            => ToStatusCode(ex => statusCode);
+            => ToStatusCodeImpl(ex => statusCode);
 
+        public IHandledFormatters<TException> ToStatusCode(HttpStatusCode statusCode)
+            => ToStatusCodeImpl(ex => (int)statusCode);
+        
         public IHandledFormatters<TException> ToStatusCode(Func<TException, int> statusCodeResolver)
+            => ToStatusCodeImpl(statusCodeResolver);
+        
+        public IHandledFormatters<TException> ToStatusCode(Func<TException, HttpStatusCode> statusCodeResolver)
+            => ToStatusCodeImpl(x => (int)statusCodeResolver(x));
+
+        private IHandledFormatters<TException> ToStatusCodeImpl(Func<TException, int> statusCodeResolver)
         {
             int wrappedResolver(Exception x) => statusCodeResolver((TException)x);
             var exceptionConfig = new ExceptionConfig

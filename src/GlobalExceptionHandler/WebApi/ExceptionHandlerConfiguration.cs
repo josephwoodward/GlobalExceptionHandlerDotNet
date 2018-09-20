@@ -28,11 +28,9 @@ namespace GlobalExceptionHandler.WebApi
 			var type = typeof(T);
 			return new ExceptionRuleCreator(_exceptionConfiguration, type);
 		}
-		
+
 		public IHasStatusCode<TException> Map<TException>() where TException : Exception
-		{
-			return new ExceptionRuleCreator<TException>(_exceptionConfiguration);
-		}
+			=> new ExceptionRuleCreator<TException>(_exceptionConfiguration);
 
 		[Obsolete("MessageFormatter(..) is obsolete and will be removed soon, use ResponseBody(..) instead", false)]
 		public void MessageFormatter(Func<Exception, string> formatter)
