@@ -2,7 +2,6 @@ using System;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using GlobalExceptionHandler.Tests.Exceptions;
 using GlobalExceptionHandler.Tests.Fixtures;
 using GlobalExceptionHandler.WebApi;
 using Microsoft.AspNetCore.Builder;
@@ -15,29 +14,28 @@ using Xunit;
 
 namespace GlobalExceptionHandler.Tests.WebApi.StatusCodeTests
 {
-    public class BasicTestsWithRunTimeStatusCode : IClassFixture<WebApiServerFixture>
+    public class BasicTestsInt : IClassFixture<WebApiServerFixture>
     {
         private const string ApiProductNotFound = "/api/productnotfound";
         private readonly HttpClient _client;
 
-        public BasicTestsWithRunTimeStatusCode(WebApiServerFixture fixture)
+        public BasicTestsInt(WebApiServerFixture fixture)
         {
             // Arrange
-            const string requestUri = "/api/productnotfound";
             var webHost = fixture.CreateWebHostWithMvc();
             webHost.Configure(app =>
             {
                 app.UseGlobalExceptionHandler(x =>
                 {
                     x.ContentType = "application/json";
-                    x.Map<ArgumentException>().ToStatusCode(ex => ex is ArgumentException ? StatusCodes.Status400BadRequest : StatusCodes.Status500InternalServerError);
+                    x.Map<ArgumentException>().ToStatusCode(StatusCodes.Status400BadRequest);
                     x.ResponseBody(c => JsonConvert.SerializeObject(new TestResponse
                     {
                         Message = c.Message
                     }));
                 });
 
-                app.Map(requestUri, config => { config.Run(context => throw new ArgumentException("Invalid request")); });
+                app.Map(ApiProductNotFound, config => { config.Run(context => throw new ArgumentException("Invalid request")); });
             });
 
             _client = new TestServer(webHost).CreateClient();
