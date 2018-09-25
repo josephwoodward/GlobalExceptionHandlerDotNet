@@ -1,13 +1,16 @@
-﻿using GlobalExceptionHandler.WebApi;
+﻿using System;
+using System.Net;
+using GlobalExceptionHandler.ProblemDetails.Mvc;
+using GlobalExceptionHandler.Tests.WebApi.ProblemDetailsTests;
+using GlobalExceptionHandler.WebApi;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
 
-namespace GlobalExceptionHandler.Demo
+namespace GlobalExceptionHandler.ProblemDetails
 {
     public class Startup
     {
@@ -22,7 +25,7 @@ namespace GlobalExceptionHandler.Demo
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-            
+
             /*services.Configure<ApiBehaviorOptions>(options =>
             {
                 options.InvalidModelStateResponseFactory = context =>
@@ -36,30 +39,34 @@ namespace GlobalExceptionHandler.Demo
                     };
                     return new BadRequestObjectResult(problemDetails)
                     {
-                        ContentTypes = { "application/problem+json", "application/problem+xml" }
+                        ContentTypes = {"application/problem+json", "application/problem+xml"}
                     };
                 };
-            });*/
+            })*/;
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            /*app.UseGlobalExceptionHandler(x =>
-            {
-                x.ContentType = "application/json";
-                x.ResponseBody(s => JsonConvert.SerializeObject(new
-                {
-                    Message = "An error occured whilst processing your request"
-                }));
-                x.Map<RecordNotFoundException>().ToStatusCode(StatusCodes.Status404NotFound)
-                    .WithBody((ex, context) => JsonConvert.SerializeObject(new
-                    {
-                        Message = "Record could not be found"
-                    }));
-            });*/
+            if (env.IsDevelopment())
+                app.UseDeveloperExceptionPage();
+            else
+                app.UseHsts();
 
-            app.Map("/error", x => x.Run(y => throw new RecordNotFoundException()));
+app.UseGlobalExceptionHandler(x =>
+{
+    x.Map<ArgumentException>().ToStatusCode(HttpStatusCode.BadRequest).WithProblemDetails(ex => new Microsoft.AspNetCore.Mvc.ProblemDetails
+    {
+        Type = ex.GetType().Name,
+        Detail = ex.Message,
+        Title = "My details",
+        Instance = "My instance",
+        Status = (int)HttpStatusCode.BadRequest
+    });
+});
+
+            /*app.UseHttpsRedirection();*/
+            app.UseMvc();
         }
     }
 }

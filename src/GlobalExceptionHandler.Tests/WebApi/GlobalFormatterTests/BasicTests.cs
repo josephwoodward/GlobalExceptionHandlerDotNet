@@ -1,7 +1,6 @@
 using System;
 using System.Net;
 using System.Net.Http;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using GlobalExceptionHandler.Tests.Fixtures;
 using GlobalExceptionHandler.WebApi;
@@ -11,7 +10,6 @@ using Microsoft.AspNetCore.TestHost;
 using Newtonsoft.Json;
 using Shouldly;
 using Xunit;
-using static System.Threading.Tasks.Task;
 
 namespace GlobalExceptionHandler.Tests.WebApi.GlobalFormatterTests
 {

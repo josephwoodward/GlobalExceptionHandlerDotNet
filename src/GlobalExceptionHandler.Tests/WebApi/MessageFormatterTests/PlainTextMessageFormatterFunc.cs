@@ -12,13 +12,13 @@ using Xunit;
 
 namespace GlobalExceptionHandler.Tests.WebApi.MessageFormatterTests
 {
-    public class StringMessageFormatter : IClassFixture<WebApiServerFixture>
+    public class PlainTextMessageFormatterFunc : IClassFixture<WebApiServerFixture>
     {
         private readonly HttpClient _client;
-        private const string Response = "Hello World!";
+        private const string Response = "Record could not be found";
         private const string ApiProductNotFound = "/api/productnotfound";
 
-        public StringMessageFormatter(WebApiServerFixture fixture)
+        public PlainTextMessageFormatterFunc(WebApiServerFixture fixture)
         {
             // Arrange
             var webHost = fixture.CreateWebHostWithMvc();
@@ -33,7 +33,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.MessageFormatterTests
 
                 app.Map(ApiProductNotFound, config =>
                 {
-                    config.Run(context => throw new RecordNotFoundException("Record could not be found"));
+                    config.Run(context => throw new RecordNotFoundException(Response));
                 });
             });
 

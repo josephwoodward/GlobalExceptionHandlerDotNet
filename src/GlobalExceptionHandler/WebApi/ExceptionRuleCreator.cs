@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Reflection.Metadata.Ecma335;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
@@ -34,10 +35,10 @@ namespace GlobalExceptionHandler.WebApi
         public IHandledFormatters ReturnStatusCode(int statusCode)
             => ToStatusCode(statusCode);
 
-         IHandledFormatters ToStatusCode(int statusCode)
+        private IHandledFormatters ToStatusCode(int statusCode)
             => ToStatusCode(ex => statusCode);
 
-         IHandledFormatters ToStatusCode(Func<Exception, int> statusCodeResolver)
+        private IHandledFormatters ToStatusCode(Func<Exception, int> statusCodeResolver)
         {
             var exceptionConfig = new ExceptionConfig
             {
@@ -120,15 +121,21 @@ namespace GlobalExceptionHandler.WebApi
 
         private IHandledFormatters<TException> ToStatusCodeImpl(Func<TException, int> statusCodeResolver)
         {
-            int wrappedResolver(Exception x) => statusCodeResolver((TException)x);
+            int WrappedResolver(Exception x) => statusCodeResolver((TException)x);
             var exceptionConfig = new ExceptionConfig
             {
-                StatusCodeResolver = wrappedResolver
+                StatusCodeResolver = WrappedResolver
             };
 
             _configurations.Add(typeof(TException), exceptionConfig);
 
             return this;
+        }
+
+        public void WithBody(string formatter)
+        {   
+            string Formatter(TException ex, HttpContext c) => formatter;
+            WithBody((Func<TException, HttpContext, string>)Formatter);
         }
 
         public void WithBody(Func<TException, HttpContext, string> formatter)
@@ -159,7 +166,6 @@ namespace GlobalExceptionHandler.WebApi
 
         public void UsingMessageFormatter(Func<TException, HttpContext, HandlerContext, Task> formatter)
             => WithBody(formatter);
-
         
         public void WithBody(Func<TException, HttpContext, HandlerContext, Task> formatter)
             => SetMessageFormatter(formatter);
@@ -169,9 +175,9 @@ namespace GlobalExceptionHandler.WebApi
             if (formatter == null)
                 throw new NullReferenceException(nameof(formatter));
 
-            Task wrappedFormatter(Exception x, HttpContext y, HandlerContext z) => formatter((TException)x, y, z);
+            Task WrappedFormatter(Exception x, HttpContext y, HandlerContext z) => formatter((TException)x, y, z);
 	        var exceptionConfig = _configurations[typeof(TException)];
-	        exceptionConfig.Formatter = wrappedFormatter;
+	        exceptionConfig.Formatter = WrappedFormatter;
         }
     }
 }

@@ -15,6 +15,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\GlobalExceptionHandler.ContentNegotiation.Mvc\GlobalExceptionHandler.ContentNegotiation.Mvc.csproj" />
+    <ProjectReference Include="..\GlobalExceptionHandler.ProblemDetails.Mvc\GlobalExceptionHandler.ProblemDetails.Mvc.csproj" />
     <ProjectReference Include="..\GlobalExceptionHandler\GlobalExceptionHandler.csproj" />
   </ItemGroup>
 </Project>

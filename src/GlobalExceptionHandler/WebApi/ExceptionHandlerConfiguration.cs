@@ -140,6 +140,6 @@ namespace GlobalExceptionHandler.WebApi
 				if (DebugMode)
 					await DefaultFormatter(exception, context, handlerContext);
 			};
-		}		
+		}
 	}
 }

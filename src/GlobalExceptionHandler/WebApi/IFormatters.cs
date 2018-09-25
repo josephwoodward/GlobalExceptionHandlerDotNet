@@ -20,6 +20,8 @@ namespace GlobalExceptionHandler.WebApi
 
     public interface IHandledFormatters<out TException> where TException: Exception
     {
+        void WithBody(string formatter);
+        
         void WithBody(Func<TException, HttpContext, string> formatter);
         
         void WithBody(Func<TException, HttpContext, Task> formatter);

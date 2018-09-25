@@ -1,26 +1,35 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace GlobalExceptionHandler.Demo.Controllers
+namespace GlobalExceptionHandler.ProblemDetails.Controllers
 {
+    public class MyRequest
+    {
+        [Required]
+        public string Name { get; set; }
+    }
+    
     [Route("api/[controller]")]
-    [ApiController]
+    /*[ApiController]*/
     public class ValuesController : ControllerBase
     {
         public ValuesController()
         {
-            var res = 1;
+            var res = true;
         }
         // GET api/values
         [HttpGet]
-        public ActionResult<IEnumerable<string>> Get()
+        public ActionResult<IEnumerable<string>> Get(MyRequest request)
         {
-            return BadRequest();
-            /*return new string[] { "value1", "value2" };*/
+            var msg = request.Name;
+            throw new ArgumentException("Your params suck!" + msg);
+            /*return ValidationProblem();*/
+            /*return BadRequest();*/
+            return new string[] {"value1", "value2"};
         }
 
         // GET api/values/5
