@@ -18,7 +18,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.GlobalFormatterTests
     public class BasicWithOverrideTests : IClassFixture<WebApiServerFixture>
     {
         private const string ApiProductNotFound = "/api/productnotfound";
-        private HttpClient _client;
+        private readonly HttpClient _client;
 
         public BasicWithOverrideTests(WebApiServerFixture fixture)
         {

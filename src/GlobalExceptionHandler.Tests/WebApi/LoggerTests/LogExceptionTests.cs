@@ -34,7 +34,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.LoggerTests
                         _context = context;
                         return Task.CompletedTask;
                     });
-                    x.Map<ArgumentException>().ToStatusCode(StatusCodes.Status500InternalServerError).WithBody(
+                    x.Map<ArgumentException>().ToStatusCode(StatusCodes.Status404NotFound).WithBody(
                         (e, c, h) =>
                         {
                             _exception = e;
@@ -78,6 +78,11 @@ namespace GlobalExceptionHandler.Tests.WebApi.LoggerTests
         {
             _handlerContext.ShouldBeOfType<HandlerContext>();
         }
-
+        
+        [Fact]
+        public void Status_code_is_set()
+        {
+            _context.Response.StatusCode.ShouldBe((int)HttpStatusCode.NotFound);
+        }
     }
 }
