@@ -107,27 +107,28 @@ namespace GlobalExceptionHandler.WebApi
 			return async context =>
 			{
 				var exception = context.Features.Get<IExceptionHandlerFeature>().Error;
-				if (_logger != null)
-					await _logger(exception, context);
 				
 				if (ContentType != null)
 					context.Response.ContentType = ContentType;
 				
 				// If any custom exceptions are set
-				foreach (var type in _exceptionConfigurationTypesSortedByDepthDescending)
+				foreach (Type type in _exceptionConfigurationTypesSortedByDepthDescending)
 				{
 					// ReSharper disable once UseMethodIsInstanceOfType TODO: Fire those guys
-					if (type.IsAssignableFrom(exception.GetType()))
-					{
-						var config = ExceptionConfiguration[type];
-						context.Response.StatusCode = config.StatusCodeResolver(exception);
+					if (!type.IsAssignableFrom(exception.GetType()))
+						continue;
 
-						if (config.Formatter == null)
-							config.Formatter = CustomFormatter;
+					var config = ExceptionConfiguration[type];
+					context.Response.StatusCode = config.StatusCodeResolver(exception);
 
-						await config.Formatter(exception, context, handlerContext);
-						return;
-					}
+					if (config.Formatter == null)
+						config.Formatter = CustomFormatter;
+
+                    if (_logger != null)
+                        await _logger(exception, context);
+
+					await config.Formatter(exception, context, handlerContext);
+					return;
 				}
 
 				// Global default format output
