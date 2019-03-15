@@ -52,7 +52,7 @@ namespace GlobalExceptionHandler.WebApi
         public void UsingMessageFormatter(Func<Exception, HttpContext, string> formatter)
             => WithBody(formatter);
 
-        public void UsingMessageFormatter(Func<Exception, HttpContext, Task> formatter) 
+        public void UsingMessageFormatter(Func<Exception, HttpContext, Task> formatter)
             => WithBody(formatter);
 
         public void UsingMessageFormatter(Func<Exception, HttpContext, HandlerContext, Task> formatter)
@@ -63,8 +63,7 @@ namespace GlobalExceptionHandler.WebApi
             Task Formatter(Exception x, HttpContext y, HandlerContext b)
             {
                 var s = formatter.Invoke(x, y);
-                y.Response.WriteAsync(s);
-                return Task.CompletedTask;
+                return y.Response.WriteAsync(s);
             }
 
             UsingMessageFormatter(Formatter);
@@ -77,13 +76,12 @@ namespace GlobalExceptionHandler.WebApi
 
             Task Formatter(Exception x, HttpContext y, HandlerContext b)
             {
-                formatter.Invoke(x, y);
-                return Task.CompletedTask;
+                return formatter.Invoke(x, y);
             }
 
             UsingMessageFormatter(Formatter);
         }
-        
+
         private void WithBody(Func<Exception, HttpContext, HandlerContext, Task> formatter)
             => SetMessageFormatter(formatter);
 
@@ -100,7 +98,7 @@ namespace GlobalExceptionHandler.WebApi
     internal class ExceptionRuleCreator<TException> : IHasStatusCode<TException>, IHandledFormatters<TException> where TException: Exception
     {
         private readonly IDictionary<Type, ExceptionConfig> _configurations;
-        
+
         public ExceptionRuleCreator(IDictionary<Type, ExceptionConfig> configurations)
         {
             _configurations = configurations;
@@ -111,10 +109,10 @@ namespace GlobalExceptionHandler.WebApi
 
         public IHandledFormatters<TException> ToStatusCode(HttpStatusCode statusCode)
             => ToStatusCodeImpl(ex => (int)statusCode);
-        
+
         public IHandledFormatters<TException> ToStatusCode(Func<TException, int> statusCodeResolver)
             => ToStatusCodeImpl(statusCodeResolver);
-        
+
         public IHandledFormatters<TException> ToStatusCode(Func<TException, HttpStatusCode> statusCodeResolver)
             => ToStatusCodeImpl(x => (int)statusCodeResolver(x));
 
@@ -136,8 +134,7 @@ namespace GlobalExceptionHandler.WebApi
             Task Formatter(TException x, HttpContext y, HandlerContext b)
             {
                 var s = formatter.Invoke(x, y);
-                y.Response.WriteAsync(s);
-                return Task.CompletedTask;
+                return y.Response.WriteAsync(s);
             }
 
             UsingMessageFormatter(Formatter);
@@ -150,8 +147,7 @@ namespace GlobalExceptionHandler.WebApi
 
             Task Formatter(TException x, HttpContext y, HandlerContext b)
             {
-                formatter.Invoke(x, y);
-                return Task.CompletedTask;
+                return formatter.Invoke(x, y);
             }
 
             UsingMessageFormatter(Formatter);
@@ -160,7 +156,7 @@ namespace GlobalExceptionHandler.WebApi
         public void UsingMessageFormatter(Func<TException, HttpContext, HandlerContext, Task> formatter)
             => WithBody(formatter);
 
-        
+
         public void WithBody(Func<TException, HttpContext, HandlerContext, Task> formatter)
             => SetMessageFormatter(formatter);
 
