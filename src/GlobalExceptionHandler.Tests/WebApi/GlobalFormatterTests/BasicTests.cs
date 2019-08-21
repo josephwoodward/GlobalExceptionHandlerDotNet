@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Divergic.Logging.Xunit;
 using GlobalExceptionHandler.Tests.Fixtures;
 using GlobalExceptionHandler.WebApi;
 using Microsoft.AspNetCore.Builder;
@@ -11,6 +12,7 @@ using Microsoft.AspNetCore.TestHost;
 using Newtonsoft.Json;
 using Shouldly;
 using Xunit;
+using Xunit.Abstractions;
 using static System.Threading.Tasks.Task;
 
 namespace GlobalExceptionHandler.Tests.WebApi.GlobalFormatterTests
@@ -20,7 +22,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.GlobalFormatterTests
         private const string ApiProductNotFound = "/api/productnotfound";
         private readonly HttpClient _client;
 
-        public BasicTests(WebApiServerFixture fixture)
+        public BasicTests(WebApiServerFixture fixture, ITestOutputHelper output)
         {
             // Arrange
             var webHost = fixture.CreateWebHostWithMvc();
@@ -33,7 +35,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.GlobalFormatterTests
                     {
                         Message = c.Message
                     }));
-                });
+                }, LogFactory.Create(output));
 
                 app.Map(ApiProductNotFound, config => { config.Run(context => throw new ArgumentException("Invalid request")); });
             });

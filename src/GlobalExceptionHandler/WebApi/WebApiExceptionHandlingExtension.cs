@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
 namespace GlobalExceptionHandler.WebApi
@@ -13,17 +14,7 @@ namespace GlobalExceptionHandler.WebApi
             => UseGlobalExceptionHandler(app, configuration => {});
         
         public static IApplicationBuilder UseGlobalExceptionHandler(this IApplicationBuilder app, Action<ExceptionHandlerConfiguration> configuration)
-        {
-            if (app == null)
-                throw new ArgumentNullException(nameof(app));
-            if (configuration == null)
-                throw new ArgumentNullException(nameof(configuration));
-
-            var opts = new ExceptionHandlerOptions {ExceptionHandler = ctx => Task.CompletedTask};
-            opts.SetHandler(configuration);
-            
-            return app.UseExceptionHandler(opts);
-        }
+            => UseGlobalExceptionHandler(app, configuration, NullLoggerFactory.Instance);
 
         public static IApplicationBuilder UseGlobalExceptionHandler(this IApplicationBuilder app, Action<ExceptionHandlerConfiguration> configuration, ILoggerFactory loggerFactory)
         {
@@ -34,7 +25,10 @@ namespace GlobalExceptionHandler.WebApi
             if (loggerFactory == null)
                 throw new ArgumentNullException(nameof(loggerFactory));
 
-            return app.UseMiddleware<ExceptionHandlerMiddleware>(Options.Create(new ExceptionHandlerOptions().SetHandler(configuration)), loggerFactory);
+            var options = new ExceptionHandlerOptions {ExceptionHandler = ctx => Task.CompletedTask};
+            options.SetHandler(configuration);
+            
+            return app.UseMiddleware<ExceptionHandlerMiddleware>(Options.Create(options));
         }
 
         [Obsolete("app.UseExceptionHandler().WithConventions(..) is obsolete, please use app.UseGlobalExceptionHandler(..) instead", true)]

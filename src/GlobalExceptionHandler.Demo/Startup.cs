@@ -1,4 +1,5 @@
-﻿using GlobalExceptionHandler.WebApi;
+﻿using System;
+using GlobalExceptionHandler.WebApi;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -41,7 +42,7 @@ namespace GlobalExceptionHandler.Demo
                     }));
             });
 
-            app.Map("/error", x => x.Run(y => throw new RecordNotFoundException()));
+            app.Map("/error", x => x.Run(y => throw new ArgumentException()));
         }
     }
 }

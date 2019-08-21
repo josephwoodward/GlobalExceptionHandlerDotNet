@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 namespace GlobalExceptionHandler.WebApi
 {
@@ -103,6 +104,9 @@ namespace GlobalExceptionHandler.WebApi
 
 			return async context =>
 			{
+				var s = context.RequestServices.GetService(typeof(IServiceProvider)) as IServiceProvider;
+				var logger = s.GetService(typeof(ILoggerFactory)) as ILoggerFactory;
+				
 				var exception = context.Features.Get<IExceptionHandlerFeature>().Error;
 
 				if (ContentType != null)
@@ -120,7 +124,9 @@ namespace GlobalExceptionHandler.WebApi
 
 					if (config.Formatter == null)
 						config.Formatter = CustomFormatter;
-
+					
+					// TODO: Exception not handled? We want the consumer to know about it.
+					// TODO: 1: Let the .NET middleware raise the exception
                     if (_logger != null)
                         await _logger(exception, context);
 
