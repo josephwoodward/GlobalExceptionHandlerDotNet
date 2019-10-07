@@ -15,11 +15,12 @@ using Xunit;
 
 namespace GlobalExceptionHandler.Tests.WebApi.MessageFormatterTests
 {
-    public class TypeTests : IClassFixture<WebApiServerFixture>
+    public class TypeTests : IClassFixture<WebApiServerFixture>, IAsyncLifetime
     {
 	    private const string ApiProductNotFound = "/api/productnotfound";
 	    private readonly HttpClient _client;
 	    private readonly HttpRequestMessage _requestMessage;
+	    private HttpResponseMessage _response;
 
 	    public TypeTests(WebApiServerFixture fixture)
         {
@@ -67,28 +68,33 @@ namespace GlobalExceptionHandler.Tests.WebApi.MessageFormatterTests
 
 	        _client = new TestServer(webHost).CreateClient();
         }
-
-        [Fact]
-        public async Task Returns_correct_response_type()
+	    
+        public async Task InitializeAsync()
         {
-	        var response = await _client.SendAsync(_requestMessage);
-            response.Content.Headers.ContentType.MediaType.ShouldBe("text/xml");
+	        _response = await _client.SendAsync(_requestMessage);
         }
 
         [Fact]
-        public async Task Returns_correct_status_code()
+        public void Returns_correct_response_type()
         {
-	        var response = await _client.SendAsync(_requestMessage);
-            response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+            _response.Content.Headers.ContentType.MediaType.ShouldBe("text/xml");
+        }
+
+        [Fact]
+        public void Returns_correct_status_code()
+        {
+            _response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
         }
 
         [Fact]
         public async Task Returns_correct_body()
         {
-	        var response = await _client.SendAsync(_requestMessage);
-            var content = await response.Content.ReadAsStringAsync();
+            var content = await _response.Content.ReadAsStringAsync();
             content.ShouldContain(@"<Message>Bad Request</Message>");
         }
+
+        public Task DisposeAsync()
+			=> Task.CompletedTask;
     }
 
 	internal class BaseException : Exception { }

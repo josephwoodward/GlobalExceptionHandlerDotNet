@@ -12,9 +12,10 @@ using Xunit;
 
 namespace GlobalExceptionHandler.Tests.WebApi.GlobalFormatterTests
 {
-    public class DebugModeDisabledTests : IClassFixture<WebApiServerFixture>
+    public class DebugModeDisabledTests : IClassFixture<WebApiServerFixture>, IAsyncLifetime
     {
         private readonly HttpClient _client;
+        private HttpResponseMessage _response;
         private const string ApiProductNotFound = "/api/productnotfound";
 
         public DebugModeDisabledTests(WebApiServerFixture fixture)
@@ -35,25 +36,30 @@ namespace GlobalExceptionHandler.Tests.WebApi.GlobalFormatterTests
         }
 
         [Fact]
-        public async Task Returns_correct_response_type()
+        public void Returns_correct_response_type()
         {
-            var response = await _client.SendAsync(new HttpRequestMessage(new HttpMethod("GET"), ApiProductNotFound));
-            response.Content.Headers.ContentType.ShouldBeNull();
+            _response.Content.Headers.ContentType.ShouldBeNull();
         }
 
         [Fact]
-        public async Task Returns_correct_status_code()
+        public void Returns_correct_status_code()
         {
-            var response = await _client.SendAsync(new HttpRequestMessage(new HttpMethod("GET"), ApiProductNotFound));
-            response.StatusCode.ShouldBe(HttpStatusCode.InternalServerError);
+            _response.StatusCode.ShouldBe(HttpStatusCode.InternalServerError);
         }
 
         [Fact]
         public async Task Returns_correct_body()
         {
-            var response = await _client.SendAsync(new HttpRequestMessage(new HttpMethod("GET"), ApiProductNotFound));
-            var content = await response.Content.ReadAsStringAsync();
+            var content = await _response.Content.ReadAsStringAsync();
             content.ShouldBeEmpty();
         }
+
+        public async Task InitializeAsync()
+        {
+             _response = await _client.SendAsync(new HttpRequestMessage(new HttpMethod("GET"), ApiProductNotFound));
+        }
+
+        public Task DisposeAsync()
+            => Task.CompletedTask;
     }
 }

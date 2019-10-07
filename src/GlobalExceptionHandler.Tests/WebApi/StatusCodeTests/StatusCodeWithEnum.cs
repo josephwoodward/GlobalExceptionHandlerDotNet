@@ -13,10 +13,11 @@ using Xunit;
 
 namespace GlobalExceptionHandler.Tests.WebApi.StatusCodeTests
 {
-    public class BasicTestsEnum : IClassFixture<WebApiServerFixture>
+    public class BasicTestsEnum : IClassFixture<WebApiServerFixture>, IAsyncLifetime
     {
         private const string ApiProductNotFound = "/api/productnotfound";
         private readonly HttpClient _client;
+        private HttpResponseMessage _response;
 
         public BasicTestsEnum(WebApiServerFixture fixture)
         {
@@ -39,6 +40,11 @@ namespace GlobalExceptionHandler.Tests.WebApi.StatusCodeTests
 
             _client = new TestServer(webHost).CreateClient();
         }
+        
+        public async Task InitializeAsync()
+        {
+            _response = await _client.SendAsync(new HttpRequestMessage(new HttpMethod("GET"), ApiProductNotFound));
+        }
 
         [Fact]
         public async Task Returns_correct_response_type()
@@ -48,10 +54,12 @@ namespace GlobalExceptionHandler.Tests.WebApi.StatusCodeTests
         }
 
         [Fact]
-        public async Task Returns_correct_status_code()
+        public void Returns_correct_status_code()
         {
-            var response = await _client.SendAsync(new HttpRequestMessage(new HttpMethod("GET"), ApiProductNotFound));
-            response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+            _response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
         }
+
+        public Task DisposeAsync()
+            => Task.CompletedTask;
     }
 }

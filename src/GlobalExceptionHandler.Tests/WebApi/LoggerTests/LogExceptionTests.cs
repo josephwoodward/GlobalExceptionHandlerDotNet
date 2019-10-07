@@ -1,5 +1,4 @@
 using System;
-using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using GlobalExceptionHandler.Tests.Fixtures;
@@ -13,16 +12,17 @@ using Xunit;
 
 namespace GlobalExceptionHandler.Tests.WebApi.LoggerTests
 {
-    public class LogExceptionTests : IClassFixture<WebApiServerFixture>
+    public class LogExceptionTests : IClassFixture<WebApiServerFixture>, IAsyncLifetime
     {
         private Exception _exception;
         private HttpContext _context;
         private HandlerContext _handlerContext;
+        private readonly TestServer _server;
+        private const string RequestUri = "/api/productnotfound";
 
         public LogExceptionTests(WebApiServerFixture fixture)
         {
             // Arrange
-            const string requestUri = "/api/productnotfound";
             var webHost = fixture.CreateWebHostWithMvc();
             webHost.Configure(app =>
             {
@@ -45,19 +45,22 @@ namespace GlobalExceptionHandler.Tests.WebApi.LoggerTests
                         });
                 });
 
-                app.Map(requestUri, config =>
+                app.Map(RequestUri, config =>
                 {
                     config.Run(context => throw new ArgumentException("Invalid request"));
                 });
             });
 
-            // Act
-            var server = new TestServer(webHost);
-            using (var client = server.CreateClient())
+            _server = new TestServer(webHost);
+        }
+        
+        public async Task InitializeAsync()
+        {
+            using (var client = _server.CreateClient())
             {
-                var requestMessage = new HttpRequestMessage(new HttpMethod("GET"), requestUri);
-                client.SendAsync(requestMessage).Wait();
-                Task.Delay(1000);
+                var requestMessage = new HttpRequestMessage(new HttpMethod("GET"), RequestUri);
+                await client.SendAsync(requestMessage);
+                await Task.Delay(1000);
             }
         }
         
@@ -82,7 +85,10 @@ namespace GlobalExceptionHandler.Tests.WebApi.LoggerTests
         [Fact]
         public void Status_code_is_set()
         {
-            _context.Response.StatusCode.ShouldBe((int)HttpStatusCode.NotFound);
+            _context.Response.StatusCode.ShouldBe(StatusCodes.Status404NotFound);
         }
+
+        public Task DisposeAsync()
+            => Task.CompletedTask;
     }
 }

@@ -15,11 +15,12 @@ using Xunit;
 
 namespace GlobalExceptionHandler.Tests.WebApi.ContentNegotiationTests
 {
-    public class ContentNegotiationJsonWithException : IClassFixture<WebApiServerFixture>
+    public class ContentNegotiationJsonWithException : IClassFixture<WebApiServerFixture>, IAsyncLifetime
     {
         private const string ApiProductNotFound = "/api/productnotfound";
         private readonly HttpRequestMessage _requestMessage;
         private readonly HttpClient _client;
+        private HttpResponseMessage _response;
 
         public ContentNegotiationJsonWithException(WebApiServerFixture fixture)
         {
@@ -51,25 +52,30 @@ namespace GlobalExceptionHandler.Tests.WebApi.ContentNegotiationTests
         }
         
         [Fact]
-        public async Task Returns_correct_response_type()
+        public void Returns_correct_response_type()
         {
-            var response = await _client.SendAsync(_requestMessage);
-            response.Content.Headers.ContentType.MediaType.ShouldBe("application/json");
+           _response.Content.Headers.ContentType.MediaType.ShouldBe("application/json");
         }
 
         [Fact]
-        public async Task Returns_correct_status_code()
+        public void Returns_correct_status_code()
         {
-            var response = await _client.SendAsync(_requestMessage);
-            response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
+            _response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
         }
 
         [Fact]
         public async Task Returns_correct_body()
         {
-            var response = await _client.SendAsync(_requestMessage);
-            var content = await response.Content.ReadAsStringAsync();
+            var content = await _response.Content.ReadAsStringAsync();
             content.ShouldContain("{\"message\":\"An exception occured\"}");
         }
+
+        public async Task InitializeAsync()
+        {
+            _response = await _client.SendAsync(_requestMessage);
+        }
+
+        public Task DisposeAsync()
+            => Task.CompletedTask;
     }
 }
