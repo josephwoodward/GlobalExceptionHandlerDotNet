@@ -12,10 +12,11 @@ using Xunit;
 
 namespace GlobalExceptionHandler.Tests.WebApi.GlobalFormatterTests
 {
-    public class DebugModeEnabledTests : IClassFixture<WebApiServerFixture>
+    public class DebugModeEnabledTests : IClassFixture<WebApiServerFixture>, IAsyncLifetime
     {
         private const string ApiProductNotFound = "/api/productnotfound";
         private readonly HttpClient _client;
+        private HttpResponseMessage _response;
 
         public DebugModeEnabledTests(WebApiServerFixture fixture)
         {
@@ -35,25 +36,30 @@ namespace GlobalExceptionHandler.Tests.WebApi.GlobalFormatterTests
         }
 
         [Fact]
-        public async Task Returns_correct_response_type()
+        public void Returns_correct_response_type()
         {
-            var response = await _client.SendAsync(new HttpRequestMessage(new HttpMethod("GET"), ApiProductNotFound));
-            response.Content.Headers.ContentType.ShouldBeNull();
+            _response.Content.Headers.ContentType.ShouldBeNull();
         }
 
         [Fact]
-        public async Task Returns_correct_status_code()
+        public void Returns_correct_status_code()
         {
-            var response = await _client.SendAsync(new HttpRequestMessage(new HttpMethod("GET"), ApiProductNotFound));
-            response.StatusCode.ShouldBe(HttpStatusCode.InternalServerError);
+            _response.StatusCode.ShouldBe(HttpStatusCode.InternalServerError);
         }
 
         [Fact]
         public async Task Returns_correct_body()
         {
-            var response = await _client.SendAsync(new HttpRequestMessage(new HttpMethod("GET"), ApiProductNotFound));
-            var content = await response.Content.ReadAsStringAsync();
+            var content = await _response.Content.ReadAsStringAsync();
             content.ShouldContain("System.ArgumentException: Invalid request");
         }
+
+        public async Task InitializeAsync()
+        {
+            _response = await _client.SendAsync(new HttpRequestMessage(new HttpMethod("GET"), ApiProductNotFound));
+        }
+
+        public Task DisposeAsync()
+            => Task.CompletedTask;
     }
 }

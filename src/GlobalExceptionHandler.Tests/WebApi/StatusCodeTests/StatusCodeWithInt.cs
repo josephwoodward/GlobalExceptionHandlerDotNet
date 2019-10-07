@@ -14,10 +14,11 @@ using Xunit;
 
 namespace GlobalExceptionHandler.Tests.WebApi.StatusCodeTests
 {
-    public class StatusCodeWithInt : IClassFixture<WebApiServerFixture>
+    public class StatusCodeWithInt : IClassFixture<WebApiServerFixture>, IAsyncLifetime
     {
         private const string ApiProductNotFound = "/api/productnotfound";
         private readonly HttpClient _client;
+        private HttpResponseMessage _response;
 
         public StatusCodeWithInt(WebApiServerFixture fixture)
         {
@@ -42,17 +43,23 @@ namespace GlobalExceptionHandler.Tests.WebApi.StatusCodeTests
         }
 
         [Fact]
-        public async Task Returns_correct_response_type()
+        public void Returns_correct_response_type()
         {
-            var response = await _client.SendAsync(new HttpRequestMessage(new HttpMethod("GET"), ApiProductNotFound));
-            response.Content.Headers.ContentType.MediaType.ShouldBe("application/json");
+            _response.Content.Headers.ContentType.MediaType.ShouldBe("application/json");
         }
 
         [Fact]
-        public async Task Returns_correct_status_code()
+        public void Returns_correct_status_code()
         {
-            var response = await _client.SendAsync(new HttpRequestMessage(new HttpMethod("GET"), ApiProductNotFound));
-            response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+            _response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
         }
+
+        public async Task InitializeAsync()
+        {
+            _response = await _client.SendAsync(new HttpRequestMessage(new HttpMethod("GET"), ApiProductNotFound));
+        }
+
+        public Task DisposeAsync()
+            => Task.CompletedTask;
     }
 }

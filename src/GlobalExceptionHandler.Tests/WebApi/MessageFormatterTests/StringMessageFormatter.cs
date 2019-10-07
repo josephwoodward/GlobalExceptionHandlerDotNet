@@ -12,9 +12,10 @@ using Xunit;
 
 namespace GlobalExceptionHandler.Tests.WebApi.MessageFormatterTests
 {
-    public class StringMessageFormatter : IClassFixture<WebApiServerFixture>
+    public class StringMessageFormatter : IClassFixture<WebApiServerFixture>, IAsyncLifetime
     {
         private readonly HttpClient _client;
+        private HttpResponseMessage _response;
         private const string Response = "Hello World!";
         private const string ApiProductNotFound = "/api/productnotfound";
 
@@ -39,16 +40,20 @@ namespace GlobalExceptionHandler.Tests.WebApi.MessageFormatterTests
 
             _client = new TestServer(webHost).CreateClient();
         }
+        
+        public async Task InitializeAsync()
+        {
+            _response = await _client.SendAsync(new HttpRequestMessage(new HttpMethod("GET"), ApiProductNotFound));
+        }
 
         [Fact]
         public async Task Correct_response_message()
         {
-            // Act
-            var response = await _client.SendAsync(new HttpRequestMessage(new HttpMethod("GET"), ApiProductNotFound));
-            var content = await response.Content.ReadAsStringAsync();
-
-            // Assert
+            var content = await _response.Content.ReadAsStringAsync();
             content.ShouldBe(Response);
         }
+
+        public Task DisposeAsync()
+            => Task.CompletedTask;
     }
 }
