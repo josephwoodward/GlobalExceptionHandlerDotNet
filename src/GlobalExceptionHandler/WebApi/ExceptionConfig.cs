@@ -7,7 +7,7 @@ namespace GlobalExceptionHandler.WebApi
 	internal class ExceptionConfig
 	{
 		public Func<Exception, int> StatusCodeResolver { get; set; }
-		
+
 		public Func<Exception, HttpContext, HandlerContext, Task> Formatter { get; set; }
 
 		public static Task UnsafeFormatterWithDetails(Exception exception, HttpContext httpContext, HandlerContext handlerContext)

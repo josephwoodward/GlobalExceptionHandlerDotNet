@@ -22,7 +22,6 @@ namespace GlobalExceptionHandler.Tests.WebApi.StatusCodeTests
 
         public StatusCodeWithInt(WebApiServerFixture fixture)
         {
-            // Arrange
             var webHost = fixture.CreateWebHostWithMvc();
             webHost.Configure(app =>
             {
