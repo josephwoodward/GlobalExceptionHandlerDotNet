@@ -13,9 +13,9 @@ namespace GlobalExceptionHandler.WebApi
 		private Type[] _exceptionConfigurationTypesSortedByDepthDescending;
 		private Func<Exception, HttpContext, Task> _logger;
 
-		internal Func<Exception, HttpContext, HandlerContext, Task> CustomFormatter { get; private set; }
-		internal Func<Exception, HttpContext, HandlerContext, Task> DefaultFormatter { get; }
-		internal IDictionary<Type, ExceptionConfig> ExceptionConfiguration => _exceptionConfiguration;
+		private Func<Exception, HttpContext, HandlerContext, Task> CustomFormatter { get; set; }
+		private Func<Exception, HttpContext, HandlerContext, Task> DefaultFormatter { get; }
+		private IDictionary<Type, ExceptionConfig> ExceptionConfiguration => _exceptionConfiguration;
 
 		public string ContentType { get; set; }
 		public bool DebugMode { get; set; }
@@ -24,22 +24,6 @@ namespace GlobalExceptionHandler.WebApi
 
 		public IHasStatusCode<TException> Map<TException>() where TException : Exception
 			=> new ExceptionRuleCreator<TException>(_exceptionConfiguration);
-
-		[Obsolete("MessageFormatter(..) is obsolete and will be removed soon, use ResponseBody(..) instead", false)]
-		public void MessageFormatter(Func<Exception, string> formatter)
-			=> ResponseBody(formatter);
-
-		[Obsolete("MessageFormatter(..) is obsolete and will be removed soon, use ResponseBody(..) instead", false)]
-		public void MessageFormatter(Func<Exception, HttpContext, string> formatter)
-			=> ResponseBody(formatter);
-
-		[Obsolete("MessageFormatter(..) is obsolete and will be removed soon, use ResponseBody(..) instead", false)]
-		public void MessageFormatter(Func<Exception, HttpContext, Task> formatter)
-			=> ResponseBody(formatter);
-
-		[Obsolete("MessageFormatter(..) is obsolete and will be removed soon, use ResponseBody(..) instead", false)]
-		public void MessageFormatter(Func<Exception, HttpContext, HandlerContext, Task> formatter)
-			=> ResponseBody(formatter);
 
 		public void ResponseBody(Func<Exception, string> formatter)
 		{
@@ -55,9 +39,7 @@ namespace GlobalExceptionHandler.WebApi
 		public void ResponseBody(Func<Exception, HttpContext, Task> formatter)
 		{
 			Task Formatter(Exception x, HttpContext y, HandlerContext b)
-			{
-				return formatter.Invoke(x, y);
-			}
+				=> formatter.Invoke(x, y);
 
 			ResponseBody(Formatter);
 		}
@@ -79,9 +61,7 @@ namespace GlobalExceptionHandler.WebApi
 		}
 
 		public void OnError(Func<Exception, HttpContext, Task> log)
-		{
-			_logger = log;
-		}
+			=> _logger = log;
 
 		internal RequestDelegate BuildHandler()
 		{

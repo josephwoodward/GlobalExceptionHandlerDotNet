@@ -6,18 +6,6 @@ namespace GlobalExceptionHandler.WebApi
 {
     /* Important: Keep these base contract signatures the same for consistency */
 
-    public interface IHandledFormatters
-    {
-        [Obsolete("UsingMessageFormatter(..) is obsolete and will be removed soon, use WithBody(..) instead", false)]
-        void UsingMessageFormatter(Func<Exception, HttpContext, string> formatter);
-
-        [Obsolete("UsingMessageFormatter(..) is obsolete and will be removed soon, use WithBody(..) instead", false)]
-        void UsingMessageFormatter(Func<Exception, HttpContext, Task> formatter);
-
-        [Obsolete("UsingMessageFormatter(..) is obsolete and will be removed soon, use WithBody(..) instead", false)]
-        void UsingMessageFormatter(Func<Exception, HttpContext, HandlerContext, Task> formatter);
-    }
-
     public interface IHandledFormatters<out TException> where TException: Exception
     {
         void WithBody(Func<TException, HttpContext, string> formatter);
