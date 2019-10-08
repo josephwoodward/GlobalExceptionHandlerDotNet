@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace GlobalExceptionHandler.WebApi
 {
-	public class ExceptionHandlerConfiguration : IUnhandledFormatters
+	public class ExceptionHandlerConfiguration : IUnhandledFormatters<Exception>
 	{
 		private readonly IDictionary<Type, ExceptionConfig> _exceptionConfiguration = new Dictionary<Type, ExceptionConfig>();
 		private Type[] _exceptionConfigurationTypesSortedByDepthDescending;
@@ -21,13 +21,6 @@ namespace GlobalExceptionHandler.WebApi
 		public bool DebugMode { get; set; }
 
 		public ExceptionHandlerConfiguration(Func<Exception, HttpContext, HandlerContext, Task> defaultFormatter) => DefaultFormatter = defaultFormatter;
-
-		[Obsolete("ForException<T> is obsolete and will be removed soon, use Map<T> instead", false)]
-		public IHasStatusCode ForException<T>() where T : Exception
-		{
-			var type = typeof(T);
-			return new ExceptionRuleCreator(_exceptionConfiguration, type);
-		}
 
 		public IHasStatusCode<TException> Map<TException>() where TException : Exception
 			=> new ExceptionRuleCreator<TException>(_exceptionConfiguration);

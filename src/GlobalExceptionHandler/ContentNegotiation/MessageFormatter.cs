@@ -7,14 +7,6 @@ namespace GlobalExceptionHandler.ContentNegotiation.Mvc
 {
     public static class MessageFormatters
     {
-        [Obsolete("UsingMessageFormatter(..) is obsolete and will be removed soon, use WithBody(..) instead", false)]
-        public static void UsingMessageFormatter<T, TException>(this IHandledFormatters<TException> formatter, T response) where TException : Exception
-            => WithBody(formatter, response);
-
-        [Obsolete("UsingMessageFormatter(..) is obsolete and will be removed soon, use WithBody(..) instead", false)]
-        public static void UsingMessageFormatter<T, TException>(this IHandledFormatters<TException> formatter, Func<Exception, T> f) where TException : Exception
-            => WithBody(formatter, f);
-        
         public static void WithBody<T,TException>(this IHandledFormatters<TException> formatter, T response) where TException: Exception
         {
             Task Formatter(Exception x, HttpContext c, HandlerContext b)
