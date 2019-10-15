@@ -13,19 +13,19 @@ using Microsoft.AspNetCore.TestHost;
 using Shouldly;
 using Xunit;
 
-namespace GlobalExceptionHandler.Tests.WebApi.ContentNegotiationTests
+namespace GlobalExceptionHandler.Tests.WebApi.ContentNegotiationTests.CustomFormatter
 {
-    public class ContentNegotiationXmlWithException : IClassFixture<WebApiServerFixture>, IAsyncLifetime
+    public class JsonResponseWithException : IClassFixture<WebApiServerFixture>, IAsyncLifetime
     {
         private const string ApiProductNotFound = "/api/productnotfound";
         private readonly HttpRequestMessage _requestMessage;
         private readonly HttpClient _client;
         private HttpResponseMessage _response;
 
-        public ContentNegotiationXmlWithException(WebApiServerFixture fixture)
+        public JsonResponseWithException(WebApiServerFixture fixture)
         {
             // Arrange
-            var webHost = fixture.CreateWebHostWithXmlFormatters();
+            var webHost = fixture.CreateWebHostWithMvc();
             webHost.Configure(app =>
             {
                 app.UseGlobalExceptionHandler(x =>
@@ -43,9 +43,10 @@ namespace GlobalExceptionHandler.Tests.WebApi.ContentNegotiationTests
                 });
             });
 
+            // Act
             _requestMessage = new HttpRequestMessage(new HttpMethod("GET"), ApiProductNotFound);
             _requestMessage.Headers.Accept.Clear();
-            _requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("text/xml"));
+            _requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
             _client = new TestServer(webHost).CreateClient();
         }
@@ -53,7 +54,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.ContentNegotiationTests
         [Fact]
         public void Returns_correct_response_type()
         {
-            _response.Content.Headers.ContentType.MediaType.ShouldBe("text/xml");
+           _response.Content.Headers.ContentType.MediaType.ShouldBe("application/json");
         }
 
         [Fact]
@@ -66,7 +67,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.ContentNegotiationTests
         public async Task Returns_correct_body()
         {
             var content = await _response.Content.ReadAsStringAsync();
-            content.ShouldContain("<Message>An exception occured</Message>");
+            content.ShouldContain("{\"message\":\"An exception occured\"}");
         }
 
         public async Task InitializeAsync()

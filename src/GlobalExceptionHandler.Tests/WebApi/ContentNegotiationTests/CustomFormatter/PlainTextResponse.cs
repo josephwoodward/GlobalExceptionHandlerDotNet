@@ -13,28 +13,26 @@ using Microsoft.AspNetCore.TestHost;
 using Shouldly;
 using Xunit;
 
-namespace GlobalExceptionHandler.Tests.WebApi.ContentNegotiationTests
+namespace GlobalExceptionHandler.Tests.WebApi.ContentNegotiationTests.CustomFormatter
 {
-    public class ContentNegotiationJsonWithException : IClassFixture<WebApiServerFixture>, IAsyncLifetime
+    public class PlainTextResponse : IClassFixture<WebApiServerFixture>, IAsyncLifetime
     {
         private const string ApiProductNotFound = "/api/productnotfound";
         private readonly HttpRequestMessage _requestMessage;
         private readonly HttpClient _client;
         private HttpResponseMessage _response;
 
-        public ContentNegotiationJsonWithException(WebApiServerFixture fixture)
+        public PlainTextResponse(WebApiServerFixture fixture)
         {
             // Arrange
+
             var webHost = fixture.CreateWebHostWithMvc();
             webHost.Configure(app =>
             {
                 app.UseGlobalExceptionHandler(x =>
                 {
                     x.Map<RecordNotFoundException>().ToStatusCode(StatusCodes.Status404NotFound)
-                        .WithBody(e => new TestResponse
-                        {
-                            Message = "An exception occured"
-                        });
+                        .WithBody((e, c, h) => c.WriteAsyncObject(e.Message));
                 });
 
                 app.Map(ApiProductNotFound, config =>
@@ -43,10 +41,9 @@ namespace GlobalExceptionHandler.Tests.WebApi.ContentNegotiationTests
                 });
             });
 
-            // Act
             _requestMessage = new HttpRequestMessage(new HttpMethod("GET"), ApiProductNotFound);
             _requestMessage.Headers.Accept.Clear();
-            _requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            _requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("text/plain"));
 
             _client = new TestServer(webHost).CreateClient();
         }
@@ -54,7 +51,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.ContentNegotiationTests
         [Fact]
         public void Returns_correct_response_type()
         {
-           _response.Content.Headers.ContentType.MediaType.ShouldBe("application/json");
+            _response.Content.Headers.ContentType.MediaType.ShouldBe("text/plain");
         }
 
         [Fact]
@@ -67,7 +64,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.ContentNegotiationTests
         public async Task Returns_correct_body()
         {
             var content = await _response.Content.ReadAsStringAsync();
-            content.ShouldContain("{\"message\":\"An exception occured\"}");
+            content.ShouldContain("Record could not be found");
         }
 
         public async Task InitializeAsync()

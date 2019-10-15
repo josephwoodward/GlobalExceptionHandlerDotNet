@@ -13,16 +13,15 @@ using Microsoft.AspNetCore.TestHost;
 using Shouldly;
 using Xunit;
 
-namespace GlobalExceptionHandler.Tests.WebApi.ContentNegotiationTests
+namespace GlobalExceptionHandler.Tests.WebApi.ContentNegotiationTests.CustomFormatter
 {
-    public class ContentNegotiationXml : IClassFixture<WebApiServerFixture>, IAsyncLifetime
+    public class XmlResponse : IClassFixture<WebApiServerFixture>, IAsyncLifetime
     {
         private const string ApiProductNotFound = "/api/productnotfound";
-        private readonly HttpRequestMessage _requestMessage;
         private readonly HttpClient _client;
         private HttpResponseMessage _response;
 
-        public ContentNegotiationXml(WebApiServerFixture fixture)
+        public XmlResponse(WebApiServerFixture fixture)
         {
             // Arrange
             var webHost = fixture.CreateWebHostWithXmlFormatters();
@@ -43,13 +42,9 @@ namespace GlobalExceptionHandler.Tests.WebApi.ContentNegotiationTests
                 });
             });
 
-            _requestMessage = new HttpRequestMessage(new HttpMethod("GET"), ApiProductNotFound);
-            _requestMessage.Headers.Accept.Clear();
-            _requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("text/xml"));
-
             _client = new TestServer(webHost).CreateClient();
         }
-        
+
         [Fact]
         public void Returns_correct_response_type()
         {
@@ -71,7 +66,11 @@ namespace GlobalExceptionHandler.Tests.WebApi.ContentNegotiationTests
 
         public async Task InitializeAsync()
         {
-            _response = await _client.SendAsync(_requestMessage);
+            var requestMessage = new HttpRequestMessage(new HttpMethod("GET"), ApiProductNotFound);
+            requestMessage.Headers.Accept.Clear();
+            requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("text/xml"));
+
+            _response = await _client.SendAsync(requestMessage);
         }
 
         public Task DisposeAsync()
