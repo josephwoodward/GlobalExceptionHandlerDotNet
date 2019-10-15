@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
+using GlobalExceptionHandler.ContentNegotiation.Mvc;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 
@@ -9,21 +11,37 @@ namespace GlobalExceptionHandler.WebApi
 {
 	public class ExceptionHandlerConfiguration : IUnhandledFormatters<Exception>
 	{
-		private readonly IDictionary<Type, ExceptionConfig> _exceptionConfiguration = new Dictionary<Type, ExceptionConfig>();
 		private Type[] _exceptionConfigurationTypesSortedByDepthDescending;
 		private Func<Exception, HttpContext, Task> _logger;
 
 		private Func<Exception, HttpContext, HandlerContext, Task> CustomFormatter { get; set; }
 		private Func<Exception, HttpContext, HandlerContext, Task> DefaultFormatter { get; }
-		private IDictionary<Type, ExceptionConfig> ExceptionConfiguration => _exceptionConfiguration;
+		private IDictionary<Type, ExceptionConfig> ExceptionConfiguration { get; } = new Dictionary<Type, ExceptionConfig>();
 
 		public string ContentType { get; set; }
+
+		public int DefaultStatusCode { get; set; } = StatusCodes.Status500InternalServerError;
 		public bool DebugMode { get; set; }
 
-		public ExceptionHandlerConfiguration(Func<Exception, HttpContext, HandlerContext, Task> defaultFormatter) => DefaultFormatter = defaultFormatter;
+		public ExceptionHandlerConfiguration(Func<Exception, HttpContext, HandlerContext, Task> defaultFormatter) 
+			=> DefaultFormatter = defaultFormatter;
 
 		public IHasStatusCode<TException> Map<TException>() where TException : Exception
-			=> new ExceptionRuleCreator<TException>(_exceptionConfiguration);
+			=> new ExceptionRuleCreator<TException>(ExceptionConfiguration);
+
+		public void ResponseBody<T>(Func<Exception, T> formatter) where T : class
+		{
+
+            Task Formatter(Exception exception, HttpContext c, HandlerContext b)
+            {
+                c.Response.ContentType = null;
+                var res = formatter(exception);
+                c.WriteAsyncObject(res);
+                return Task.CompletedTask;
+            }
+
+            CustomFormatter = Formatter;
+		}
 
 		public void ResponseBody(Func<Exception, string> formatter)
 		{
@@ -70,7 +88,7 @@ namespace GlobalExceptionHandler.WebApi
 				ContentType = ContentType
 			};
 
-			_exceptionConfigurationTypesSortedByDepthDescending = _exceptionConfiguration.Keys
+			_exceptionConfigurationTypesSortedByDepthDescending = ExceptionConfiguration.Keys
 				.OrderByDescending(x => x, new ExceptionTypePolymorphicComparer())
 				.ToArray();
 
@@ -89,7 +107,7 @@ namespace GlobalExceptionHandler.WebApi
 						continue;
 
 					var config = ExceptionConfiguration[type];
-					context.Response.StatusCode = config.StatusCodeResolver(exception);
+					context.Response.StatusCode = config.StatusCodeResolver?.Invoke(exception) ?? DefaultStatusCode;
 
 					if (config.Formatter == null)
 						config.Formatter = CustomFormatter;
@@ -104,6 +122,7 @@ namespace GlobalExceptionHandler.WebApi
 				// Global default format output
 				if (CustomFormatter != null)
 				{
+					context.Response.StatusCode = DefaultStatusCode;
 					await CustomFormatter(exception, context, handlerContext);
 					return;
 				}

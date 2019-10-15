@@ -6,12 +6,12 @@ namespace GlobalExceptionHandler.WebApi
 {
     /* Important: Keep these base contract signatures the same for consistency */
 
-    public interface IHandledFormatters<out TException> where TException: Exception
+    public interface IHandledFormatters<out TException> where TException : Exception
     {
         void WithBody(Func<TException, HttpContext, string> formatter);
-        
+
         void WithBody(Func<TException, HttpContext, Task> formatter);
-        
+
         void WithBody(Func<TException, HttpContext, HandlerContext, Task> formatter);
     }
 
