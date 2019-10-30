@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
 namespace GlobalExceptionHandler.WebApi
@@ -34,7 +35,8 @@ namespace GlobalExceptionHandler.WebApi
             if (loggerFactory == null)
                 throw new ArgumentNullException(nameof(loggerFactory));
 
-            return app.UseMiddleware<ExceptionHandlerMiddleware>(Options.Create(new ExceptionHandlerOptions().SetHandler(configuration)), loggerFactory);
+            var options = new ExceptionHandlerOptions().SetHandler(configuration);
+            return app.UseMiddleware<ExceptionHandlerMiddleware>(Options.Create(options), loggerFactory ?? NullLoggerFactory.Instance);
         }
     }
 }

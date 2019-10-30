@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 using GlobalExceptionHandler.ContentNegotiation.Mvc;
 using Microsoft.AspNetCore.Diagnostics;
@@ -31,12 +30,10 @@ namespace GlobalExceptionHandler.WebApi
 
 		public void ResponseBody<T>(Func<Exception, T> formatter) where T : class
 		{
-
-            Task Formatter(Exception exception, HttpContext c, HandlerContext b)
+            Task Formatter(Exception exception, HttpContext context, HandlerContext _)
             {
-                c.Response.ContentType = null;
-                var res = formatter(exception);
-                c.WriteAsyncObject(res);
+                context.Response.ContentType = null;
+                context.WriteAsyncObject(formatter(exception));
                 return Task.CompletedTask;
             }
 
@@ -45,10 +42,10 @@ namespace GlobalExceptionHandler.WebApi
 
 		public void ResponseBody(Func<Exception, string> formatter)
 		{
-			Task Formatter(Exception x, HttpContext y, HandlerContext b)
+			Task Formatter(Exception exception, HttpContext context, HandlerContext _)
 			{
-				var s = formatter.Invoke(x);
-				return y.Response.WriteAsync(s);
+				var response = formatter.Invoke(exception);
+				return context.Response.WriteAsync(response);
 			}
 
 			ResponseBody(Formatter);
@@ -56,27 +53,25 @@ namespace GlobalExceptionHandler.WebApi
 
 		public void ResponseBody(Func<Exception, HttpContext, Task> formatter)
 		{
-			Task Formatter(Exception x, HttpContext y, HandlerContext b)
-				=> formatter.Invoke(x, y);
+			Task Formatter(Exception exception, HttpContext context, HandlerContext _)
+				=> formatter.Invoke(exception, context);
 
 			ResponseBody(Formatter);
 		}
 
 		public void ResponseBody(Func<Exception, HttpContext, string> formatter)
 		{
-			Task Formatter(Exception x, HttpContext y, HandlerContext b)
+			Task Formatter(Exception exception, HttpContext context, HandlerContext _)
 			{
-				var s = formatter.Invoke(x, y);
-				return y.Response.WriteAsync(s);
+				var response = formatter.Invoke(exception, context);
+				return context.Response.WriteAsync(response);
 			}
 
 			ResponseBody(Formatter);
 		}
 
 		public void ResponseBody(Func<Exception, HttpContext, HandlerContext, Task> formatter)
-		{
-			CustomFormatter = formatter;
-		}
+			=> CustomFormatter = formatter;
 
 		public void OnError(Func<Exception, HttpContext, Task> log)
 			=> _logger = log;
@@ -100,7 +95,7 @@ namespace GlobalExceptionHandler.WebApi
 					context.Response.ContentType = ContentType;
 
 				// If any custom exceptions are set
-				foreach (Type type in _exceptionConfigurationTypesSortedByDepthDescending)
+				foreach (var type in _exceptionConfigurationTypesSortedByDepthDescending)
 				{
 					// ReSharper disable once UseMethodIsInstanceOfType TODO: Fire those guys
 					if (!type.IsAssignableFrom(exception.GetType()))
