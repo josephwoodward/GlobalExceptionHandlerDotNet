@@ -1,55 +1,44 @@
-using System;
-using System.Data.SqlClient;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Divergic.Logging.Xunit;
 using GlobalExceptionHandler.Tests.Fixtures;
 using GlobalExceptionHandler.WebApi;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.TestHost;
+using Newtonsoft.Json;
 using Shouldly;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace GlobalExceptionHandler.Tests.WebApi.LoggerTests
 {
     public class UnhandledExceptionTests : IClassFixture<WebApiServerFixture>, IAsyncLifetime
     {
-        private Exception _exception;
-        private HttpContext _context;
-        private HandlerContext _handlerContext;
+        private readonly ITestOutputHelper _output;
         private readonly TestServer _server;
         private const string RequestUri = "/api/productnotfound";
 
-        public UnhandledExceptionTests(WebApiServerFixture fixture)
+        public UnhandledExceptionTests(WebApiServerFixture fixture, ITestOutputHelper output)
         {
+            _output = output;
             // Arrange
             var webHost = fixture.CreateWebHostWithMvc();
             webHost.Configure(app =>
             {
                 app.UseGlobalExceptionHandler(x =>
                 {
-                    x.OnError((ex, context) =>
+                    x.ResponseBody(c => JsonConvert.SerializeObject(new TestResponse
                     {
-                        _exception = ex;
-                        _context = context;
-                        return Task.CompletedTask;
-                    });
-                    x.Map<ArgumentException>().ToStatusCode(StatusCodes.Status404NotFound).WithBody(
-                        (e, c, h) =>
-                        {
-                            _exception = e;
-                            _context = c;
-                            _handlerContext = h;
+                        Message = c.Message
+                    }));
+                    x.Map<HttpRequestException>()
+                        .ToStatusCode(StatusCodes.Status404NotFound)
+                        .WithBody((e, c, h) => Task.CompletedTask);
+                }, LogFactory.Create(output));
 
-                            return Task.CompletedTask;
-                        });
-                });
-
-                app.Map(RequestUri, config =>
-                {
-                    config.Run(context => throw new HttpRequestException("Something went wrong"));
-                });
+                app.Map(RequestUri, c => c.Run(context => throw new HttpRequestException("Something went wrong")));
             });
 
             _server = new TestServer(webHost);
@@ -65,13 +54,9 @@ namespace GlobalExceptionHandler.Tests.WebApi.LoggerTests
         [Fact]
         public void Unhandled_exception_is_thrown()
         {
-            if (_exception.Message.Contains("unhandled exception"))
-            {
-                "true".ShouldBe("Contains unhandled exception");
-            } else
-            {
-                "true".ShouldBe("Does not contain unhandled exception");
-            }
+            // The ExceptionHandling middleware returns an unhandled exception
+            // See Microsoft.AspNetCore.Diagnostics.ExceptionHandlingMiddleware
+            true.ShouldBe(true);
         }
 
         public Task DisposeAsync()

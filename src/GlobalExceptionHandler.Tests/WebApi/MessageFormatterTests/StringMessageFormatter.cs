@@ -40,7 +40,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.MessageFormatterTests
 
             _client = new TestServer(webHost).CreateClient();
         }
-        
+
         public async Task InitializeAsync()
         {
             _response = await _client.SendAsync(new HttpRequestMessage(new HttpMethod("GET"), ApiProductNotFound));

@@ -4,6 +4,7 @@
         <LangVersion>latest</LangVersion>
     </PropertyGroup>
     <ItemGroup>
+        <PackageReference Include="Divergic.Logging.Xunit" Version="3.1.0" />
         <PackageReference Include="Microsoft.AspNetCore.All" />
         <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="2.1.1" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.8.0" />
