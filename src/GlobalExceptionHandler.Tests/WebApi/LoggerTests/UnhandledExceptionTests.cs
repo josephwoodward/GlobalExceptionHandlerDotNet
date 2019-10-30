@@ -46,9 +46,11 @@ namespace GlobalExceptionHandler.Tests.WebApi.LoggerTests
 
         public async Task InitializeAsync()
         {
-            using var client = _server.CreateClient();
-            var requestMessage = new HttpRequestMessage(new HttpMethod("GET"), RequestUri);
-            await client.SendAsync(requestMessage);
+            using (var client = _server.CreateClient())
+            {
+                var requestMessage = new HttpRequestMessage(new HttpMethod("GET"), RequestUri);
+                await client.SendAsync(requestMessage);
+            }
         }
 
         [Fact]
