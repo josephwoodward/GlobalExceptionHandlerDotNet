@@ -11,7 +11,7 @@ namespace GlobalExceptionHandler.Tests.Fixtures
             => CreateWebHost(null);
 
         public IWebHostBuilder CreateWebHostWithMvc()
-            =>CreateWebHost(s => s.AddMvc());
+            => CreateWebHost(s => s.AddMvc());
 
         public IWebHostBuilder CreateWebHostWithXmlFormatters()
         {

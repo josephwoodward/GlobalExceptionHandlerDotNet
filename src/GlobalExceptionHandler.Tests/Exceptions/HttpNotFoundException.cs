@@ -16,9 +16,11 @@ namespace GlobalExceptionHandler.Tests.Exceptions
         public HttpNotFoundException(string message, Exception inner) : base(message, inner)
         {
         }
-        
-        public HttpStatusCode StatusCodeEnum => HttpStatusCode.NotFound;
 
-        public int StatusCodeInt => 404;
+        public HttpStatusCode StatusCodeEnum
+            => HttpStatusCode.NotFound;
+
+        public int StatusCodeInt
+            => 404;
     }
 }

@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFramework>netstandard2.0</TargetFramework>
+        <TargetFrameworks>netstandard2.0;netcoreapp3.0</TargetFrameworks>
         <AssemblyName>GlobalExceptionHandler</AssemblyName>
         <PackageId>GlobalExceptionHandler</PackageId>
         <PackageTags>global exception handler;asp.net core;.net core</PackageTags>
@@ -16,12 +16,18 @@
         <MinVerTagPrefix>v</MinVerTagPrefix>
         <OutputType>Library</OutputType>
     </PropertyGroup>
-    <ItemGroup>
+
+    <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.0' ">
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
         <PackageReference Include="Microsoft.AspNetCore.Diagnostics" Version="2.2.0" />
         <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
         <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
     </ItemGroup>
+
     <ItemGroup>
         <PackageReference Include="MinVer" Version="2.0.0" PrivateAssets="All" />
     </ItemGroup>

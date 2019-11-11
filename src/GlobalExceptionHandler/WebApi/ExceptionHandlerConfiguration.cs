@@ -89,7 +89,8 @@ namespace GlobalExceptionHandler.WebApi
 
 			return async context =>
 			{
-				var exception = context.Features.Get<IExceptionHandlerFeature>().Error;
+				var handlerFeature = context.Features.Get<IExceptionHandlerFeature>();
+				var exception = handlerFeature.Error;
 
 				if (ContentType != null)
 					context.Response.ContentType = ContentType;
