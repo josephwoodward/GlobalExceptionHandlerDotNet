@@ -15,9 +15,10 @@ namespace GlobalExceptionHandler.Tests.WebApi.LoggerTests
     public class LogExceptionTests : IClassFixture<WebApiServerFixture>, IAsyncLifetime
     {
         private Exception _exception;
-        private HttpContext _context;
+        private string _contextType;
         private HandlerContext _handlerContext;
         private readonly TestServer _server;
+        private int _statusCode;
         private const string RequestUri = "/api/productnotfound";
 
         public LogExceptionTests(WebApiServerFixture fixture)
@@ -31,16 +32,14 @@ namespace GlobalExceptionHandler.Tests.WebApi.LoggerTests
                     x.OnError((ex, context) =>
                     {
                         _exception = ex;
-                        _context = context;
+                        _contextType = context.GetType().ToString();
                         return Task.CompletedTask;
                     });
                     x.Map<ArgumentException>().ToStatusCode(StatusCodes.Status404NotFound).WithBody(
                         (e, c, h) =>
                         {
-                            _exception = e;
-                            _context = c;
+                            _statusCode = c.Response.StatusCode;
                             _handlerContext = h;
-
                             return Task.CompletedTask;
                         });
                 });
@@ -53,39 +52,38 @@ namespace GlobalExceptionHandler.Tests.WebApi.LoggerTests
 
             _server = new TestServer(webHost);
         }
-        
+
         public async Task InitializeAsync()
         {
             using (var client = _server.CreateClient())
             {
                 var requestMessage = new HttpRequestMessage(new HttpMethod("GET"), RequestUri);
                 await client.SendAsync(requestMessage);
-                await Task.Delay(1000);
             }
         }
-        
+
         [Fact]
         public void Invoke_logger()
         {
             _exception.ShouldBeOfType<ArgumentException>();
         }
-        
+
         [Fact]
         public void HttpContext_is_set()
         {
-            _context.ShouldBeOfType<DefaultHttpContext>();
+            _contextType.ShouldBe("Microsoft.AspNetCore.Http.DefaultHttpContext");
         }
-        
+
         [Fact]
         public void Handler_context_is_set()
         {
             _handlerContext.ShouldBeOfType<HandlerContext>();
         }
-        
+
         [Fact]
         public void Status_code_is_set()
         {
-            _context.Response.StatusCode.ShouldBe(StatusCodes.Status404NotFound);
+            _statusCode.ShouldBe(StatusCodes.Status404NotFound);
         }
 
         public Task DisposeAsync()
