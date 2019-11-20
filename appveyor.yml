@@ -6,6 +6,8 @@ pull_requests:
 branches:  
   only:
   - master
+environment:
+  MINVERBUILDMETADATA: build.%APPVEYOR_BUILD_NUMBER%
 nuget:  
   disable_publish_on_pr: true
 build_script:  
