@@ -26,7 +26,7 @@ skip_tags: false
 test: off
 
 artifacts:  
-- path: .\artifacts\**\*.nupkg
+- path: .\artifacts\*.nupkg
   name: NuGet
 
 for:
