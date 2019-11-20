@@ -1,18 +1,30 @@
 version: '{build}'  
 image: 
   - Ubuntu
-pull_requests:  
-  do_not_increment_build_number: true
+
 branches:  
   only:
   - master
+
 environment:
   MINVERBUILDMETADATA: build.%APPVEYOR_BUILD_NUMBER%
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  NUGET_XMLDOC_MODE: skip
+
 nuget:  
   disable_publish_on_pr: true
+
+
+
 build_script:  
 - ps: .\build.ps1
-test: off  
+
+pull_requests:  
+  do_not_increment_build_number: true
+
+skip_tags: false
+test: off
+
 artifacts:  
 - path: .\artifacts\**\*.nupkg
   name: NuGet
