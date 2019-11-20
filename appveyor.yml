@@ -1,15 +1,22 @@
-image: Visual Studio 2017
-assembly_info:
-  patch: false
+version: '{build}'  
+image: 
+  - Ubuntu
+pull_requests:  
+  do_not_increment_build_number: true
+branches:  
+  only:
+  - master
+nuget:  
+  disable_publish_on_pr: true
+build_script:  
+- ps: .\build.ps1
+test: off  
+artifacts:  
+- path: .\artifacts\**\*.nupkg
+  name: NuGet
 
-platform:
-  - Any CPU
-
-configuration:
-  - Debug
- 
-build_script:
-  - ps: ./build.ps1
-
-test: off
-skip_tags: true
+for:
+-
+  matrix:
+    only:
+      - image: Ubuntu
