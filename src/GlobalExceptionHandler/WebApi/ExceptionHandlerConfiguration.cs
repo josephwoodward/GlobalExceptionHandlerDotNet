@@ -73,7 +73,11 @@ namespace GlobalExceptionHandler.WebApi
 		public void ResponseBody(Func<Exception, HttpContext, HandlerContext, Task> formatter)
 			=> CustomFormatter = formatter;
 
+		[Obsolete("This method will be deprecated soon, please switch to OnException(...) instead", false)]
 		public void OnError(Func<Exception, HttpContext, Task> log)
+			=> OnException(log);
+	
+		public void OnException(Func<Exception, HttpContext, Task> log)
 			=> _logger = log;
 
 		internal RequestDelegate BuildHandler()

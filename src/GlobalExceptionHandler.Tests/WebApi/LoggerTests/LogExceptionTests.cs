@@ -29,7 +29,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.LoggerTests
             {
                 app.UseGlobalExceptionHandler(x =>
                 {
-                    x.OnError((ex, context) =>
+                    x.OnException((ex, context) =>
                     {
                         _exception = ex;
                         _contextType = context.GetType().ToString();
