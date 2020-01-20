@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace GlobalExceptionHandler.ContentNegotiation.Mvc
+namespace GlobalExceptionHandler.ContentNegotiation
 {
     public static class HttpContextExtensions
     {

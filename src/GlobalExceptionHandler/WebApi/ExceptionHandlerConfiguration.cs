@@ -2,43 +2,35 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using GlobalExceptionHandler.ContentNegotiation.Mvc;
+using GlobalExceptionHandler.ContentNegotiation;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 namespace GlobalExceptionHandler.WebApi
 {
 	public class ExceptionHandlerConfiguration : IUnhandledFormatters<Exception>
 	{
+		private readonly ILogger _logger;
 		private Type[] _exceptionConfigurationTypesSortedByDepthDescending;
-		private Func<Exception, HttpContext, Task> _logger;
+		private Func<ExceptionContext, ILogger, Task> _onException;
 
 		private Func<Exception, HttpContext, HandlerContext, Task> CustomFormatter { get; set; }
 		private Func<Exception, HttpContext, HandlerContext, Task> DefaultFormatter { get; }
 		private IDictionary<Type, ExceptionConfig> ExceptionConfiguration { get; } = new Dictionary<Type, ExceptionConfig>();
 
 		public string ContentType { get; set; }
-
 		public int DefaultStatusCode { get; set; } = StatusCodes.Status500InternalServerError;
 		public bool DebugMode { get; set; }
 
-		public ExceptionHandlerConfiguration(Func<Exception, HttpContext, HandlerContext, Task> defaultFormatter) 
-			=> DefaultFormatter = defaultFormatter;
+		public ExceptionHandlerConfiguration(Func<Exception, HttpContext, HandlerContext, Task> defaultFormatter, ILoggerFactory loggerFactory)
+		{
+			_logger = loggerFactory.CreateLogger("GlobalExceptionHandler");
+			DefaultFormatter = defaultFormatter;
+		}
 
 		public IHasStatusCode<TException> Map<TException>() where TException : Exception
 			=> new ExceptionRuleCreator<TException>(ExceptionConfiguration);
-
-		public void ResponseBody<T>(Func<Exception, T> formatter) where T : class
-		{
-            Task Formatter(Exception exception, HttpContext context, HandlerContext _)
-            {
-                context.Response.ContentType = null;
-                context.WriteAsyncObject(formatter(exception));
-                return Task.CompletedTask;
-            }
-
-            CustomFormatter = Formatter;
-		}
 
 		public void ResponseBody(Func<Exception, string> formatter)
 		{
@@ -73,19 +65,30 @@ namespace GlobalExceptionHandler.WebApi
 		public void ResponseBody(Func<Exception, HttpContext, HandlerContext, Task> formatter)
 			=> CustomFormatter = formatter;
 
-		[Obsolete("This method will be deprecated soon, please switch to OnException(...) instead", false)]
+		// Content negotiation
+		public void ResponseBody<T>(Func<Exception, T> formatter) where T : class
+		{
+            Task Formatter(Exception exception, HttpContext context, HandlerContext _)
+            {
+                context.Response.ContentType = null;
+                context.WriteAsyncObject(formatter(exception));
+                return Task.CompletedTask;
+            }
+
+            CustomFormatter = Formatter;
+		}
+
+		[Obsolete("This method has been deprecated, please use to OnException(...) instead", true)]
 		public void OnError(Func<Exception, HttpContext, Task> log)
-			=> OnException(log);
-	
-		public void OnException(Func<Exception, HttpContext, Task> log)
-			=> _logger = log;
+			=> throw new NotImplementedException();
+
+		public void OnException(Func<ExceptionContext, ILogger, Task> log)
+			=> _onException = log;
 
 		internal RequestDelegate BuildHandler()
 		{
-			var handlerContext = new HandlerContext
-			{
-				ContentType = ContentType
-			};
+			var handlerContext = new HandlerContext {ContentType = ContentType};
+			var exceptionContext = new ExceptionContext();
 
 			_exceptionConfigurationTypesSortedByDepthDescending = ExceptionConfiguration.Keys
 				.OrderByDescending(x => x, new ExceptionTypePolymorphicComparer())
@@ -112,8 +115,14 @@ namespace GlobalExceptionHandler.WebApi
 					if (config.Formatter == null)
 						config.Formatter = CustomFormatter;
 
-                    if (_logger != null)
-                        await _logger(exception, context);
+					if (_onException != null)
+					{
+						exceptionContext.Exception = handlerFeature.Error;
+						exceptionContext.HttpContext = context;
+						exceptionContext.ExceptionMatched = type;
+						exceptionContext.ExceptionHandled = true;
+                        await _onException(exceptionContext, _logger);
+					}
 
 					await config.Formatter(exception, context, handlerContext);
 					return;
@@ -122,6 +131,12 @@ namespace GlobalExceptionHandler.WebApi
 				// Global default format output
 				if (CustomFormatter != null)
 				{
+					if (context.Response.HasStarted)
+					{
+						_logger.LogError("The response has already started, the exception handler will not be executed.");
+						return;
+					}
+
 					context.Response.StatusCode = DefaultStatusCode;
 					await CustomFormatter(exception, context, handlerContext);
 					return;

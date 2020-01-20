@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using GlobalExceptionHandler.WebApi;
 using Microsoft.AspNetCore.Http;
 
-namespace GlobalExceptionHandler.ContentNegotiation.Mvc
+namespace GlobalExceptionHandler.ContentNegotiation
 {
     public static class MessageFormatters
     {

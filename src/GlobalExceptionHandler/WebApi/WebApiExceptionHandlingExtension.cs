@@ -21,7 +21,7 @@ namespace GlobalExceptionHandler.WebApi
                 throw new ArgumentNullException(nameof(configuration));
 
             var opts = new ExceptionHandlerOptions {ExceptionHandler = ctx => Task.CompletedTask};
-            opts.SetHandler(configuration);
+            opts.SetHandler(configuration, NullLoggerFactory.Instance);
 
             return app.UseExceptionHandler(opts);
         }
@@ -35,8 +35,8 @@ namespace GlobalExceptionHandler.WebApi
             if (loggerFactory == null)
                 throw new ArgumentNullException(nameof(loggerFactory));
 
-            var options = new ExceptionHandlerOptions().SetHandler(configuration);
-            return app.UseMiddleware<ExceptionHandlerMiddleware>(Options.Create(options), loggerFactory ?? NullLoggerFactory.Instance);
+            var options = new ExceptionHandlerOptions().SetHandler(configuration, loggerFactory);
+            return app.UseMiddleware<ExceptionHandlerMiddleware>(Options.Create(options), NullLoggerFactory.Instance);
         }
     }
 }

@@ -1,20 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFrameworks>netcoreapp2.2;netcoreapp3.0</TargetFrameworks>
-        <LangVersion>7.3</LangVersion>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
     </PropertyGroup>
 
-    <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.0' ">
+    <ItemGroup>
         <FrameworkReference Include="Microsoft.AspNetCore.App" />
-        <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="3.0.0" />
-    </ItemGroup>
-
-    <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.2' ">
-        <PackageReference Include="Microsoft.AspNetCore.All" />
-        <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="2.2.0" />
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="3.0.0" />
         <PackageReference Include="Divergic.Logging.Xunit" Version="3.1.0" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.8.0" />
         <PackageReference Include="Shouldly" Version="3.0.0" />

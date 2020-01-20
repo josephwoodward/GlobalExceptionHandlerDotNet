@@ -1,4 +1,6 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
+using Microsoft.AspNetCore.Http;
 
 namespace GlobalExceptionHandler.WebApi
 {
@@ -7,5 +9,16 @@ namespace GlobalExceptionHandler.WebApi
         public string ContentType { get; set; }
 
         public HttpStatusCode StatusCode { get; set; }
+    }
+
+    public class ExceptionContext
+    {
+        public Exception Exception { get; set; }
+
+        public Type ExceptionMatched { get; set; }
+
+        public bool ExceptionHandled { get; set; }
+
+        public HttpContext HttpContext { get; set; }
     }
 }

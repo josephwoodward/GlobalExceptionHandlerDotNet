@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Routing;
 
-namespace GlobalExceptionHandler.ContentNegotiation.Mvc
+namespace GlobalExceptionHandler.ContentNegotiation
 {
     internal class EmptyActionContext : ActionContext
     {

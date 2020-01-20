@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Shouldly;
 using Xunit;
@@ -29,13 +30,12 @@ namespace GlobalExceptionHandler.Tests.WebApi.LoggerTests
             {
                 app.UseGlobalExceptionHandler(x =>
                 {
+                    x.OnException((ExceptionContext context, ILogger logger) => Task.CompletedTask);
                     x.ResponseBody(c => JsonConvert.SerializeObject(new TestResponse
                     {
                         Message = c.Message
                     }));
-                    x.Map<HttpRequestException>()
-                        .ToStatusCode(StatusCodes.Status404NotFound)
-                        .WithBody((e, c, h) => Task.CompletedTask);
+                    x.Map<HttpRequestException>().ToStatusCode(StatusCodes.Status404NotFound).WithBody((e, c, h) => Task.CompletedTask);
                 }, LogFactory.Create(output));
 
                 app.Map(RequestUri, c => c.Run(context => throw new HttpRequestException("Something went wrong")));

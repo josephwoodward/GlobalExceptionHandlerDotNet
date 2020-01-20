@@ -12,16 +12,15 @@ using Xunit;
 
 namespace GlobalExceptionHandler.Tests.WebApi.LoggerTests
 {
-    public class LogExceptionTests : IClassFixture<WebApiServerFixture>, IAsyncLifetime
+    public class HandledExceptionLoggerTests : IClassFixture<WebApiServerFixture>, IAsyncLifetime
     {
-        private Exception _exception;
-        private string _contextType;
-        private HandlerContext _handlerContext;
         private readonly TestServer _server;
-        private int _statusCode;
+        private bool _exceptionWasHandled;
+        private Type _matchedException;
+        private Exception _exception;
         private const string RequestUri = "/api/productnotfound";
 
-        public LogExceptionTests(WebApiServerFixture fixture)
+        public HandledExceptionLoggerTests(WebApiServerFixture fixture)
         {
             // Arrange
             var webHost = fixture.CreateWebHostWithMvc();
@@ -31,17 +30,13 @@ namespace GlobalExceptionHandler.Tests.WebApi.LoggerTests
                 {
                     x.OnException((context, _) =>
                     {
+                        _exceptionWasHandled = context.ExceptionHandled;
+                        _matchedException = context.ExceptionMatched;
                         _exception = context.Exception;
-                        _contextType = context.HttpContext.GetType().ToString();
+
                         return Task.CompletedTask;
                     });
-                    x.Map<ArgumentException>().ToStatusCode(StatusCodes.Status404NotFound).WithBody(
-                        (e, c, h) =>
-                        {
-                            _statusCode = c.Response.StatusCode;
-                            _handlerContext = h;
-                            return Task.CompletedTask;
-                        });
+                    x.Map<ArgumentException>().ToStatusCode(StatusCodes.Status404NotFound).WithBody((e, c, h) => Task.CompletedTask);
                 });
 
                 app.Map(RequestUri, config =>
@@ -63,28 +58,16 @@ namespace GlobalExceptionHandler.Tests.WebApi.LoggerTests
         }
 
         [Fact]
-        public void Invoke_logger()
-        {
-            _exception.ShouldBeOfType<ArgumentException>();
-        }
+        public void ExceptionHandled()
+            => _exceptionWasHandled.ShouldBeTrue();
 
         [Fact]
-        public void HttpContext_is_set()
-        {
-            _contextType.ShouldBe("Microsoft.AspNetCore.Http.DefaultHttpContext");
-        }
+        public void ExceptionTypeMatches()
+            => _matchedException.FullName.ShouldBe("System.ArgumentException");
 
         [Fact]
-        public void Handler_context_is_set()
-        {
-            _handlerContext.ShouldBeOfType<HandlerContext>();
-        }
-
-        [Fact]
-        public void Status_code_is_set()
-        {
-            _statusCode.ShouldBe(StatusCodes.Status404NotFound);
-        }
+        public void ExceptionIsCorrect()
+            => _exception.ShouldBeOfType<ArgumentException>();
 
         public Task DisposeAsync()
             => Task.CompletedTask;
