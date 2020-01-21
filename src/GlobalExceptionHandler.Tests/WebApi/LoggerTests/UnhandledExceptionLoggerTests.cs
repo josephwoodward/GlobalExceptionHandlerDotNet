@@ -12,7 +12,7 @@ using Xunit;
 
 namespace GlobalExceptionHandler.Tests.WebApi.LoggerTests
 {
-    public class HandledExceptionLoggerTests : IClassFixture<WebApiServerFixture>, IAsyncLifetime
+    public class UnhandledExceptionLoggerTests : IClassFixture<WebApiServerFixture>, IAsyncLifetime
     {
         private readonly TestServer _server;
         private bool _exceptionWasHandled;
@@ -20,7 +20,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.LoggerTests
         private Exception _exception;
         private const string RequestUri = "/api/productnotfound";
 
-        public HandledExceptionLoggerTests(WebApiServerFixture fixture)
+        public UnhandledExceptionLoggerTests(WebApiServerFixture fixture)
         {
             // Arrange
             var webHost = fixture.CreateWebHostWithMvc();
@@ -41,7 +41,7 @@ namespace GlobalExceptionHandler.Tests.WebApi.LoggerTests
 
                 app.Map(RequestUri, config =>
                 {
-                    config.Run(context => throw new ArgumentException("Invalid request"));
+                    config.Run(context => throw new NotImplementedException("Method not implemented"));
                 });
             });
 
@@ -56,16 +56,16 @@ namespace GlobalExceptionHandler.Tests.WebApi.LoggerTests
         }
 
         [Fact]
-        public void ExceptionHandled()
-            => _exceptionWasHandled.ShouldBeTrue();
+        public void ExceptionIsNotHandled()
+            => _exceptionWasHandled.ShouldBeFalse();
 
         [Fact]
-        public void ExceptionTypeMatches()
-            => _matchedException.FullName.ShouldBe("System.ArgumentException");
+        public void ExceptionMatchIsNotSet()
+            => _matchedException.ShouldBeNull();
 
         [Fact]
-        public void ExceptionIsCorrect()
-            => _exception.ShouldBeOfType<ArgumentException>();
+        public void ExceptionTypeIsCorrect()
+            => _exception.ShouldBeOfType<NotImplementedException>();
 
         public Task DisposeAsync()
             => Task.CompletedTask;

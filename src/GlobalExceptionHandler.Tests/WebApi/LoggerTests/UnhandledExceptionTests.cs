@@ -30,7 +30,11 @@ namespace GlobalExceptionHandler.Tests.WebApi.LoggerTests
             {
                 app.UseGlobalExceptionHandler(x =>
                 {
-                    x.OnException((ExceptionContext context, ILogger logger) => Task.CompletedTask);
+                    x.OnException((ExceptionContext context, ILogger logger) =>
+                    {
+                        
+                        return Task.CompletedTask;
+                    });
                     x.ResponseBody(c => JsonConvert.SerializeObject(new TestResponse
                     {
                         Message = c.Message

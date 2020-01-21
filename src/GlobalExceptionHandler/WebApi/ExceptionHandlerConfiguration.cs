@@ -133,13 +133,33 @@ namespace GlobalExceptionHandler.WebApi
 				{
 					if (context.Response.HasStarted)
 					{
+						if (_onException != null)
+						{
+							await _onException(exceptionContext, _logger);
+						}
 						_logger.LogError("The response has already started, the exception handler will not be executed.");
 						return;
 					}
 
 					context.Response.StatusCode = DefaultStatusCode;
 					await CustomFormatter(exception, context, handlerContext);
+
+					if (_onException != null)
+					{
+						exceptionContext.Exception = handlerFeature.Error;
+						exceptionContext.ExceptionHandled = false;
+						await _onException(exceptionContext, _logger);
+					}
+
 					return;
+				}
+
+				if (_onException != null)
+				{
+					exceptionContext.Exception = handlerFeature.Error;
+					exceptionContext.ExceptionHandled = false;
+					exceptionContext.ExceptionMatched = null;
+					await _onException(exceptionContext, _logger);
 				}
 
 				if (DebugMode)
