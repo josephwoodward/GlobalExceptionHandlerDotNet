@@ -1,9 +1,13 @@
-﻿using GlobalExceptionHandler.WebApi;
+﻿using System.Threading.Tasks;
+using GlobalExceptionHandler.WebApi;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
 namespace GlobalExceptionHandler.Demo
@@ -29,15 +33,13 @@ namespace GlobalExceptionHandler.Demo
             app.UseGlobalExceptionHandler(x =>
             {
                 x.ContentType = "application/json";
-                x.ResponseBody(s => JsonConvert.SerializeObject(new
+                x.ResponseBody(s => JsonConvert.SerializeObject(new {Message = "An error occured whilst processing your request"}));
+                x.OnException((c, logger) =>
                 {
-                    Message = "An error occured whilst processing your request"
-                }));
-                x.Map<RecordNotFoundException>().ToStatusCode(StatusCodes.Status404NotFound)
-                    .WithBody((ex, context) => JsonConvert.SerializeObject(new
-                    {
-                        Message = "Record could not be found"
-                    }));
+                    logger.LogError("Something's gone wrong");
+                    return Task.CompletedTask;
+                });
+                x.Map<RecordNotFoundException>().ToStatusCode(StatusCodes.Status404NotFound).WithBody((ex, context) => JsonConvert.SerializeObject(new {Message = "Record could not be found"}));
             });
 
             app.Map("/error", x => x.Run(y => throw new RecordNotFoundException()));

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.Extensions.Logging;
@@ -14,17 +13,7 @@ namespace GlobalExceptionHandler.WebApi
             => UseGlobalExceptionHandler(app, configuration => {});
 
         public static IApplicationBuilder UseGlobalExceptionHandler(this IApplicationBuilder app, Action<ExceptionHandlerConfiguration> configuration)
-        {
-            if (app == null)
-                throw new ArgumentNullException(nameof(app));
-            if (configuration == null)
-                throw new ArgumentNullException(nameof(configuration));
-
-            var opts = new ExceptionHandlerOptions {ExceptionHandler = ctx => Task.CompletedTask};
-            opts.SetHandler(configuration, NullLoggerFactory.Instance);
-
-            return app.UseExceptionHandler(opts);
-        }
+            => app.UseGlobalExceptionHandler(configuration, NullLoggerFactory.Instance);
 
         public static IApplicationBuilder UseGlobalExceptionHandler(this IApplicationBuilder app, Action<ExceptionHandlerConfiguration> configuration, ILoggerFactory loggerFactory)
         {

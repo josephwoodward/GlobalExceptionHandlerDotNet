@@ -25,7 +25,7 @@ namespace GlobalExceptionHandler.WebApi
 
 		public ExceptionHandlerConfiguration(Func<Exception, HttpContext, HandlerContext, Task> defaultFormatter, ILoggerFactory loggerFactory)
 		{
-			_logger = loggerFactory.CreateLogger("GlobalExceptionHandler");
+			_logger = loggerFactory.CreateLogger("GlobalExceptionHandlerMiddleware");
 			DefaultFormatter = defaultFormatter;
 		}
 
