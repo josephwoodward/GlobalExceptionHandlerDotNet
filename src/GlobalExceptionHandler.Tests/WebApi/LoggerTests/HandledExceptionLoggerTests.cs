@@ -15,7 +15,6 @@ namespace GlobalExceptionHandler.Tests.WebApi.LoggerTests
     public class HandledExceptionLoggerTests : IClassFixture<WebApiServerFixture>, IAsyncLifetime
     {
         private readonly TestServer _server;
-        private bool _exceptionWasHandled;
         private Type _matchedException;
         private Exception _exception;
         private const string RequestUri = "/api/productnotfound";
@@ -30,7 +29,6 @@ namespace GlobalExceptionHandler.Tests.WebApi.LoggerTests
                 {
                     x.OnException((context, _) =>
                     {
-                        _exceptionWasHandled = context.ExceptionHandled;
                         _matchedException = context.ExceptionMatched;
                         _exception = context.Exception;
 
@@ -54,10 +52,6 @@ namespace GlobalExceptionHandler.Tests.WebApi.LoggerTests
             var requestMessage = new HttpRequestMessage(new HttpMethod("GET"), RequestUri);
             await client.SendAsync(requestMessage);
         }
-
-        [Fact]
-        public void ExceptionHandled()
-            => _exceptionWasHandled.ShouldBeTrue();
 
         [Fact]
         public void ExceptionTypeMatches()

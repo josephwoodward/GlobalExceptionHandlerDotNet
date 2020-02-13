@@ -17,8 +17,6 @@ namespace GlobalExceptionHandler.WebApi
 
         public Type ExceptionMatched { get; set; }
 
-        public bool ExceptionHandled { get; set; }
-
         public HttpContext HttpContext { get; set; }
     }
 }

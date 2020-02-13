@@ -120,7 +120,6 @@ namespace GlobalExceptionHandler.WebApi
 						exceptionContext.Exception = handlerFeature.Error;
 						exceptionContext.HttpContext = context;
 						exceptionContext.ExceptionMatched = type;
-						exceptionContext.ExceptionHandled = true;
                         await _onException(exceptionContext, _logger);
 					}
 
@@ -147,7 +146,6 @@ namespace GlobalExceptionHandler.WebApi
 					if (_onException != null)
 					{
 						exceptionContext.Exception = handlerFeature.Error;
-						exceptionContext.ExceptionHandled = false;
 						await _onException(exceptionContext, _logger);
 					}
 
@@ -157,7 +155,6 @@ namespace GlobalExceptionHandler.WebApi
 				if (_onException != null)
 				{
 					exceptionContext.Exception = handlerFeature.Error;
-					exceptionContext.ExceptionHandled = false;
 					exceptionContext.ExceptionMatched = null;
 					await _onException(exceptionContext, _logger);
 				}
